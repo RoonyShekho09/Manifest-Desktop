@@ -5,26 +5,24 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.ktorfit)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
     jvm()
-    
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
+    }
+
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation("io.github.kashif-mehmood-km:qr_scanner_plugin:0.2.0")
-            implementation("io.github.kashif-mehmood-km:camerak:0.2.0")
-            implementation("com.github.librepdf:openpdf:1.3.30")
-
-  //          implementation(fileTree("src/jvmMain/java") { include("*.jar") })
+            implementation(libs.bundles.utils)
+            implementation(libs.bundles.compose)
+            implementation(libs.bundles.koin)
+            implementation(libs.bundles.network)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -37,6 +35,9 @@ kotlin {
     }
 }
 
+ktorfit {
+    compilerPluginVersion.set("2.3.3")
+}
 
 compose.desktop {
     application {
@@ -46,6 +47,23 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.example.myapplication"
             packageVersion = "1.0.0"
+            macOS {
+                iconFile.set(project.file("drawable/ic_jawharat.xml"))
+            }
+
+            windows {
+                iconFile.set(project.file("drawable/ic_jawharat.xml"))
+            }
+
+            linux {
+                iconFile.set(project.file("drawable/ic_jawharat.xml"))
+            }
         }
     }
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "me.sample.library.resources"
+    generateResClass = auto
 }
