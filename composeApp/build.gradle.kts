@@ -47,16 +47,20 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.example.myapplication"
             packageVersion = "1.0.0"
+
             macOS {
-                iconFile.set(project.file("drawable/ic_jawharat.xml"))
+                iconFile.set(project.file("src/jvmMain/composeResources/drawable/ic_jawharat.png"))
+                packageName = "Manifest"
             }
 
             windows {
-                iconFile.set(project.file("drawable/ic_jawharat.xml"))
+                iconFile.set(project.file("src/jvmMain/composeResources/drawable/ic_jawharat.png"))
+                packageName = "Manifest"
             }
 
             linux {
-                iconFile.set(project.file("drawable/ic_jawharat.xml"))
+                iconFile.set(project.file("src/jvmMain/composeResources/drawable/ic_jawharat.png"))
+                packageName = "Manifest"
             }
         }
     }

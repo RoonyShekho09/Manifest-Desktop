@@ -15,7 +15,7 @@ fun main() = application {
         title = "Manifest",
         resizable = false,
         icon = Res.drawable.ic_jawharat.painter,
-        state = rememberWindowState(size = DpSize(1000.dp, 800.dp))
+        state = rememberWindowState(size = DpSize(1200.dp, 800.dp))
     ) {
         App()
     }
