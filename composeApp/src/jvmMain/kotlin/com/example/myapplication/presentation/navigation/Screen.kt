@@ -3,9 +3,10 @@ package com.example.myapplication.presentation.navigation
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import me.sample.library.resources.Res
-import me.sample.library.resources.car_svgrepo_com_2
+import me.sample.library.resources.ic_car_wheel
 import me.sample.library.resources.ic_home
 import me.sample.library.resources.ic_login
+import me.sample.library.resources.ic_vehicle
 import me.sample.library.resources.logo
 import org.jetbrains.compose.resources.DrawableResource
 
@@ -31,12 +32,12 @@ sealed interface Screen {
     @Serializable
     data object Cars : Screen {
         override val label = "Cars"
-        override val icon = Res.drawable.car_svgrepo_com_2
+        override val icon = Res.drawable.ic_vehicle
     }
 
     @Serializable
-    data object Places : Screen {
-        override val label = "Places"
-        override val icon = Res.drawable.car_svgrepo_com_2
+    data object Drivers : Screen {
+        override val label = "Drivers"
+        override val icon = Res.drawable.ic_car_wheel
     }
 }
