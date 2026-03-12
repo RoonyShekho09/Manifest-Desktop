@@ -23,6 +23,7 @@ kotlin {
             implementation(libs.bundles.compose)
             implementation(libs.bundles.koin)
             implementation(libs.bundles.network)
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -39,11 +40,21 @@ ktorfit {
     compilerPluginVersion.set("2.3.3")
 }
 
+tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    exclude("META-INF/MANIFEST.MF")
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+}
+
 compose.desktop {
     application {
         mainClass = "com.example.myapplication.MainKt"
 
         nativeDistributions {
+            modules("java.instrument", "java.management", "jdk.unsupported")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.example.myapplication"
             packageVersion = "1.0.0"
@@ -56,11 +67,22 @@ compose.desktop {
             windows {
                 iconFile.set(project.file("src/jvmMain/composeResources/drawable/ic_jawharat.png"))
                 packageName = "Manifest"
+                menu = true
+                shortcut = true
+                dirChooser = true
             }
 
             linux {
                 iconFile.set(project.file("src/jvmMain/composeResources/drawable/ic_jawharat.png"))
                 packageName = "Manifest"
+            }
+
+            buildTypes.release.proguard {
+                isEnabled.set(true)
+                obfuscate.set(true)
+                optimize.set(true)
+                joinOutputJars.set(true)
+                configurationFiles.from(project.file("compose-desktop.pro"))
             }
         }
     }
