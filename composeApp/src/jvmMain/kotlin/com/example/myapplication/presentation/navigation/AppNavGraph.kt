@@ -1,11 +1,12 @@
 package com.example.myapplication.presentation.navigation
 
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myapplication.presentation.feature.cars.CarsScreen
+import com.example.myapplication.presentation.feature.drivers.DriversScreen
 import com.example.myapplication.presentation.feature.home.HomeScreen
 import com.example.myapplication.presentation.feature.login.LoginScreen
 import com.example.myapplication.presentation.feature.shared.LocalSnackBarState
@@ -45,12 +46,12 @@ fun AppNavGraph(
 
         composable<Screen.Cars> {
             val hostState = LocalSnackBarState.current
-            Text(text = "Cars screen")
+            CarsScreen(viewModel = koinViewModel(parameters = { parametersOf(hostState) }))
         }
 
-        composable<Screen.Places> {
+        composable<Screen.Drivers> {
             val hostState = LocalSnackBarState.current
-            Text(text = "Places screen")
+            DriversScreen(viewModel = koinViewModel(parameters = { parametersOf(hostState) }))
         }
     }
 }

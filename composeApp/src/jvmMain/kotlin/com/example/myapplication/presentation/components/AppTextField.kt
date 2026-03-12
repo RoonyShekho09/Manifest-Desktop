@@ -73,6 +73,105 @@ fun AppTextField(
 }
 
 @Composable
+fun AppTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "Enter text here...",
+    readOnly: Boolean = false,
+    suffixText: String? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
+    outputTransformation: OutputTransformation? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    inputTransformation: InputTransformation? = null
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        textStyle = LocalTextStyle.current.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 14.sp
+        ),
+        keyboardOptions = keyboardOptions,
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        readOnly = readOnly,
+        modifier = modifier.defaultMinSize(minHeight = 40.dp),
+        decorationBox = {
+            TextFieldDecorator(
+                value = value,
+                placeholder = placeholder,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                suffixText = suffixText,
+                innerTextField = it
+            )
+        }
+//        decorationBox = object : TextFieldDecorator {
+//            @Composable
+//            override fun Decoration(innerTextField: @Composable () -> Unit) {
+//                TextFieldDecorator(
+//                    value = value,
+//                    placeholder = placeholder,
+//                    leadingIcon = leadingIcon,
+//                    trailingIcon = trailingIcon,
+//                    suffixText = suffixText,
+//                    innerTextField = innerTextField
+//                )
+//            }
+//        },
+    )
+}
+
+@Composable
+private fun TextFieldDecorator(
+    value: String,
+    placeholder: String,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
+    suffixText: String?,
+    innerTextField: @Composable () -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(4.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+        )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            leadingIcon?.invoke()
+            if (leadingIcon != null) Spacer(Modifier.width(8.dp))
+
+            Box(modifier = Modifier.weight(1f)) {
+                if (value.isBlank()) {
+                    Text(
+                        text = placeholder,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        fontSize = 14.sp
+                    )
+                }
+                innerTextField()
+            }
+
+            suffixText?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(start = 8.dp),
+                    fontSize = 14.sp
+                )
+            }
+            trailingIcon?.invoke()
+        }
+    }
+}
+
+@Composable
 private fun TextFieldDecorator(
     state: TextFieldState,
     placeholder: String,
