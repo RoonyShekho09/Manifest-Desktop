@@ -148,7 +148,7 @@ compose.desktop {
 
 compose.resources {
     publicResClass = false
-    packageOfResClass = "me.sample.library.resources"
+    packageOfResClass = "com.jawharat.manifest.resources"
     generateResClass = auto
 }
 

@@ -4,9 +4,9 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.compositionLocalOf
-import me.sample.library.resources.Res
-import me.sample.library.resources.ic_check
-import me.sample.library.resources.ic_warning
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_check
+import com.jawharat.manifest.resources.ic_warning
 import org.jetbrains.compose.resources.DrawableResource
 
 class AppSnackBarHostState(val nativeHostState: SnackbarHostState) {

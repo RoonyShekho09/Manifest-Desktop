@@ -53,16 +53,16 @@ import com.example.myapplication.presentation.feature.shared.LocalSnackBarState
 import com.example.myapplication.utils.Listen
 import com.example.myapplication.utils.painter
 import com.example.myapplication.utils.string
-import me.sample.library.resources.Res
-import me.sample.library.resources.ic_jawharat
-import me.sample.library.resources.ic_lock
-import me.sample.library.resources.ic_mail
-import me.sample.library.resources.ic_password_invisible
-import me.sample.library.resources.ic_password_visible
-import me.sample.library.resources.login
-import me.sample.library.resources.login_to_continue
-import me.sample.library.resources.password
-import me.sample.library.resources.username
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_jawharat
+import com.jawharat.manifest.resources.ic_lock
+import com.jawharat.manifest.resources.ic_mail
+import com.jawharat.manifest.resources.ic_password_invisible
+import com.jawharat.manifest.resources.ic_password_visible
+import com.jawharat.manifest.resources.login
+import com.jawharat.manifest.resources.login_to_continue
+import com.jawharat.manifest.resources.password
+import com.jawharat.manifest.resources.username
 import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalComposeUiApi::class)

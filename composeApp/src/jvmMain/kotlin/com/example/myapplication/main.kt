@@ -6,8 +6,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.example.myapplication.utils.painter
-import me.sample.library.resources.Res
-import me.sample.library.resources.ic_jawharat
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_jawharat
 
 fun main() = application {
     Window(

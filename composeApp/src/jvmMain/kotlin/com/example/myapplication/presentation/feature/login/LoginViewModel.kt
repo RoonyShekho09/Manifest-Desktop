@@ -2,8 +2,8 @@ package com.example.myapplication.presentation.feature.login
 
 import com.example.myapplication.presentation.base.BaseViewModel
 import com.example.myapplication.presentation.feature.shared.AppSnackBarHostState
-import me.sample.library.resources.Res
-import me.sample.library.resources.login_failed
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.login_failed
 import org.jetbrains.compose.resources.getString
 
 class LoginViewModel(

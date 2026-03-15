@@ -68,6 +68,8 @@ import com.example.myapplication.presentation.feature.shared.AppSnackBarVisuals
 import com.example.myapplication.presentation.feature.shared.LocalSnackBarState
 import com.example.myapplication.utils.Listen
 import com.example.myapplication.utils.painter
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_qr_code_scanning
 import com.kashif.cameraK.compose.rememberCameraKState
 import com.kashif.cameraK.controller.CameraController
 import com.kashif.cameraK.enums.AspectRatio
@@ -84,8 +86,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import me.sample.library.resources.Res
-import me.sample.library.resources.ic_qr_code_scanning
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 

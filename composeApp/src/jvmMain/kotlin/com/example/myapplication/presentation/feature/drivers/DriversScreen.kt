@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.presentation.components.EditDriverDialog
 import com.example.myapplication.utils.painter
-import me.sample.library.resources.Res
-import me.sample.library.resources.ic_edit
-import me.sample.library.resources.ic_location_on
-import me.sample.library.resources.ic_profile
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_edit
+import com.jawharat.manifest.resources.ic_location_on
+import com.jawharat.manifest.resources.ic_profile
 
 @Composable
 fun DriversScreen(viewModel: DriversViewModel) {

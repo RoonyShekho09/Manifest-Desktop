@@ -1,13 +1,13 @@
 package com.example.myapplication.presentation.navigation
 
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_car_wheel
+import com.jawharat.manifest.resources.ic_home
+import com.jawharat.manifest.resources.ic_login
+import com.jawharat.manifest.resources.ic_vehicle
+import com.jawharat.manifest.resources.logo
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import me.sample.library.resources.Res
-import me.sample.library.resources.ic_car_wheel
-import me.sample.library.resources.ic_home
-import me.sample.library.resources.ic_login
-import me.sample.library.resources.ic_vehicle
-import me.sample.library.resources.logo
 import org.jetbrains.compose.resources.DrawableResource
 
 @Serializable

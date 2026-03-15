@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.presentation.components.EditCarDialog
 import com.example.myapplication.utils.painter
-import me.sample.library.resources.Res
-import me.sample.library.resources.ic_edit
-import me.sample.library.resources.ic_qr_code_scanning
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_edit
+import com.jawharat.manifest.resources.ic_qr_code_scanning
 
 @Composable
 fun CarsScreen(viewModel: CarsViewModel) {
