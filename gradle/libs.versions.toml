@@ -35,6 +35,7 @@ compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-co
 qrcode-scanner = { module = "io.github.kashif-mehmood-km:qr_scanner_plugin", version = "0.2.0" }
 camera = { module = "io.github.kashif-mehmood-km:camerak", version = "0.2.0" }
 openpdf = { module = "com.github.librepdf:openpdf", version = "1.3.30" }
+kotlinx-serializaion = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
 
 
 [plugins]
