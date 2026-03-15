@@ -28,5 +28,5 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            build/compose/binaries/main/**/*.msi
-            build/compose/binaries/main/**/*.exe
+            build/compose/binaries/main-release/**/*.msi
+            build/compose/binaries/main-release/**/*.exe
