@@ -33,7 +33,7 @@ import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 
 @Composable
-fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) {
+fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit, onFound: () -> Unit) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var frameCount by remember { mutableStateOf(0) }
@@ -81,6 +81,7 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) 
                     withContext(Dispatchers.Main) {
                         when (result) {
                             is QRResult.Found -> {
+                                onFound()
                                 println("✅ QR Found: ${result.value}")
                                 runCatching { onResultRef(parseManifest(result.value)) }
                             }

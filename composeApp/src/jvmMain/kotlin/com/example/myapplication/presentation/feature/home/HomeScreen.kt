@@ -135,21 +135,28 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
         var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
+
+        var found by remember { mutableStateOf(false) }
+
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (state.startScanning) {
                 QrCodeScanner(
                     onResult = viewModel::onQrCodeResult,
-                    onFrame = { imageBitmap = it }
+                    onFrame = { imageBitmap = it },
+                    onFound = { found = true }
                 )
 
-                imageBitmap?.let {
-                    Image(
-                        bitmap = it,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                if (found)
+                    Text(text = "✅✅✅✅✅✅ QR code found ✅✅✅✅")
+                else
+                    imageBitmap?.let {
+                        Image(
+                            bitmap = it,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
                 ScanGuideOverlay()
             }
