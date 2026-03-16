@@ -29,14 +29,17 @@ import com.google.zxing.common.GlobalHistogramBinarizer
 import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.awt.image.RescaleOp
 
 @Composable
-fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit, onFound: () -> Unit) {
+fun QrCodeScanner(
+    onResult: (Manifest) -> Unit,
+    onFrame: (ImageBitmap) -> Unit,
+    onFound: () -> Unit
+) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var frameCount by remember { mutableStateOf(0) }
@@ -49,7 +52,7 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit, 
                     withContext(Dispatchers.Main) { println("❌ No camera found") }
                     return@withContext
                 }
-                webcam?.viewSizes?.forEach { println("Supported: ${it.width}x${it.height}") }
+                cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
                 cam.open()
                 delay(1000)
 
@@ -161,10 +164,9 @@ private fun tryDecode(bitmap: BinaryBitmap, hints: Map<DecodeHintType, Any>): Re
 
 private fun increaseContrast(scaled: BufferedImage): BufferedImage {
     return try {
-        val op = RescaleOp(1.5f, -30f, null) // scale brightness, offset darkness
+        val op = RescaleOp(1.5f, -30f, null)
         op.filter(
             scaled.let {
-                // RescaleOp requires TYPE_INT_RGB or TYPE_3BYTE_BGR
                 BufferedImage(it.width, it.height, BufferedImage.TYPE_INT_RGB).also { rgb ->
                     rgb.createGraphics().apply { drawImage(it, 0, 0, null); dispose() }
                 }
