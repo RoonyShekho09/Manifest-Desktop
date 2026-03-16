@@ -17,27 +17,6 @@ kotlin {
         freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 
-    configurations.all {
-        exclude(group = "org.bytedeco", module = "flycapture")
-        exclude(group = "org.bytedeco", module = "flycapture-platform")
-        exclude(group = "org.bytedeco", module = "libdc1394")
-        exclude(group = "org.bytedeco", module = "libdc1394-platform")
-        exclude(group = "org.bytedeco", module = "libfreenect")
-        exclude(group = "org.bytedeco", module = "libfreenect-platform")
-        exclude(group = "org.bytedeco", module = "libfreenect2")
-        exclude(group = "org.bytedeco", module = "libfreenect2-platform")
-        exclude(group = "org.bytedeco", module = "librealsense")
-        exclude(group = "org.bytedeco", module = "librealsense-platform")
-        exclude(group = "org.bytedeco", module = "librealsense2")
-        exclude(group = "org.bytedeco", module = "librealsense2-platform")
-        exclude(group = "org.bytedeco", module = "artoolkitplus")
-        exclude(group = "org.bytedeco", module = "artoolkitplus-platform")
-        exclude(group = "org.bytedeco", module = "leptonica")
-        exclude(group = "org.bytedeco", module = "leptonica-platform")
-        exclude(group = "org.bytedeco", module = "tesseract")
-        exclude(group = "org.bytedeco", module = "tesseract-platform")
-    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(libs.bundles.utils)
@@ -46,33 +25,9 @@ kotlin {
             implementation(libs.bundles.network)
             implementation(libs.kotlinx.serializaion)
 
-            val bytedecoVersion = "1.5.9"
-            val opencvVersion = "4.7.0-$bytedecoVersion"
-            val openblasVersion = "0.3.23-$bytedecoVersion"
-
-            val targetOs = System.getProperty("os.name").lowercase()
-            val targetArch = System.getProperty("os.arch")
-
-            val targetClassifier = when {
-                System.getenv("RUNNER_OS") == "Windows" -> "windows-x86_64"
-                System.getenv("RUNNER_OS") == "macOS" -> if (targetArch == "aarch64") "macosx-arm64" else "macosx-x86_64"
-                targetOs.contains("win") -> "windows-x86_64"
-                targetOs.contains("mac") -> if (targetArch == "aarch64") "macosx-arm64" else "macosx-x86_64"
-                else -> "linux-x86_64"
-            }
-
-            implementation("org.bytedeco:javacv:$bytedecoVersion")
-
-            implementation("org.bytedeco:opencv:$opencvVersion")
-            implementation("org.bytedeco:opencv:$opencvVersion:$targetClassifier")
-
-            implementation("org.bytedeco:openblas:$openblasVersion")
-            implementation("org.bytedeco:openblas:$openblasVersion:$targetClassifier")
-
-            val ffmpegVersion = "6.0-1.5.9"
-            implementation("org.bytedeco:ffmpeg:$ffmpegVersion")
-            implementation("org.bytedeco:ffmpeg:$ffmpegVersion:$targetClassifier")
-
+         //   implementation("com.google.zxing:core:3.5.3")
+            implementation("com.google.zxing:javase:3.5.3")
+            implementation("com.github.sarxos:webcam-capture:0.3.12")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

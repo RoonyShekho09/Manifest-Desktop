@@ -2,7 +2,6 @@ package com.example.myapplication.presentation.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -51,7 +50,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
                 }
             }
                 .onFailure {
-                    Logger.e("OnFailure", it)
+                    println("OnFailure $it")
                     mapExceptionToErrorState(
                         throwable = it,
                         onError = onError,
@@ -106,7 +105,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
         .catch { mapExceptionToErrorState(throwable = it, onError = onFailure) }
         .launch(context = context, start = start) {
             runCatching { block() }
-                .onFailure { Logger.e(it.toString()) }
+                .onFailure { println(it.toString()) }
                 .onFailure { mapExceptionToErrorState(throwable = it, onError = onFailure) }
                 .onSuccess(onSuccess)
             onCompleted()
@@ -119,7 +118,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
         when (throwable) {
             else -> {}
         }.also { errorState ->
-            Logger.i(errorState.toString())
+            println(errorState.toString())
         }.let { onError() }
     }
 

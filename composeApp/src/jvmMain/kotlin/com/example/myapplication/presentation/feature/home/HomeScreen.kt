@@ -60,9 +60,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Logger
-import com.example.myapplication.domain.entity.Manifest
-import com.example.myapplication.domain.entity.parseManifest
 import com.example.myapplication.presentation.components.AppTextField
 import com.example.myapplication.presentation.feature.shared.AppSnackBarVisuals
 import com.example.myapplication.presentation.feature.shared.LocalSnackBarState
@@ -70,22 +67,8 @@ import com.example.myapplication.utils.Listen
 import com.example.myapplication.utils.painter
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.ic_qr_code_scanning
-import com.kashif.cameraK.compose.rememberCameraKState
-import com.kashif.cameraK.controller.CameraController
-import com.kashif.cameraK.enums.AspectRatio
-import com.kashif.cameraK.enums.FlashMode
-import com.kashif.cameraK.enums.ImageFormat
-import com.kashif.cameraK.enums.QualityPrioritization
-import com.kashif.cameraK.enums.TorchMode
-import com.kashif.cameraK.state.CameraConfiguration
-import com.kashif.cameraK.state.CameraKState
-import com.kashif.qrscannerplugin.QRScanner
-import com.kashif.qrscannerplugin.QRScannerPlugin
-import com.kashif.qrscannerplugin.rememberQRScannerPlugin
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -145,131 +128,119 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             }
         }
     ) { paddingValues ->
-        if (state.startScanning) {
-            val cameraState by rememberCameraState()
-            val controller = (cameraState as? CameraKState.Ready)?.controller
 
-            QrScanning(
-                getController = { controller },
-                onResult = {
-                    viewModel.onQrCodeResult(it)
-                    controller?.stopSession()
-                    Logger.d { "result: $it" }
-                },
-                onError = {
-                    controller?.stopSession()
-                    Logger.d { "onError" }
-                }
-            )
-        }
-
-        Column(
-            modifier = Modifier.padding(24.dp).padding(paddingValues)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            FormSection(title = "Trip Details") {
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    AppTextField(
-                        value = state.manifest.date,
-                        placeholder = "Date",
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.weight(1f)
-                    )
-                    AppTextField(
-                        value = state.manifest.price,
-                        placeholder = "Price",
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                AppTextField(
-                    value = if (state.manifest.from.isNotEmpty()) "${state.manifest.from} - ${state.manifest.to}" else "",
-                    placeholder = "From - To",
-                    onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+        Box(Modifier.fillMaxSize()) {
+            if (state.startScanning) {
+                ScanGuideOverlay()
             }
 
-            FormSection(title = "Vehicle Information") {
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    AppTextField(
-                        value = state.manifest.vehicleNumber,
-                        placeholder = "Vehicle Number",
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.weight(1f)
-                    )
+//            ScanQrFromCamera {
+//
+//            }
+
+            Column(
+                modifier = Modifier.padding(24.dp).padding(paddingValues)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                FormSection(title = "Trip Details") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        AppTextField(
+                            value = state.manifest.date,
+                            placeholder = "Date",
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                        AppTextField(
+                            value = state.manifest.price,
+                            placeholder = "Price",
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
                     AppTextField(
-                        value = state.manifest.vehicleType,
-                        placeholder = "Vehicle Type",
+                        value = if (state.manifest.from.isNotEmpty()) "${state.manifest.from} - ${state.manifest.to}" else "",
+                        placeholder = "From - To",
                         onValueChange = {},
                         readOnly = true,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    AppTextField(
-                        value = state.manifest.passengers.ifEmpty { "" }.toString(),
-                        placeholder = "Passengers",
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
-            }
 
-            FormSection(title = "Personnel") {
-                AppTextField(
-                    value = state.manifest.driverName,
-                    placeholder = "Driver Name",
-                    onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    AppTextField(
-                        value = state.manifest.driverIdNumber,
-                        placeholder = "Driver ID Number",
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.weight(1f)
-                    )
-                    AppTextField(
-                        value = state.manifest.driverPhoneNumber,
-                        placeholder = "Driver Phone Number",
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.weight(1f)
-                    )
+                FormSection(title = "Vehicle Information") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        AppTextField(
+                            value = state.manifest.vehicleNumber,
+                            placeholder = "Vehicle Number",
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        AppTextField(
+                            value = state.manifest.vehicleType,
+                            placeholder = "Vehicle Type",
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        AppTextField(
+                            value = state.manifest.passengers.ifEmpty { "" }.toString(),
+                            placeholder = "Passengers",
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
-            }
 
-            FormSection(title = "") {
-                Button(
-                    onClick = viewModel::onStartScanning,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Icon(
-                        painter = Res.drawable.ic_qr_code_scanning.painter,
-                        tint = Color.White,
-                        contentDescription = null
+                FormSection(title = "Personnel") {
+                    AppTextField(
+                        value = state.manifest.driverName,
+                        placeholder = "Driver Name",
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(Modifier.width(8.dp))
-                    Text("Scan QR Code")
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        AppTextField(
+                            value = state.manifest.driverIdNumber,
+                            placeholder = "Driver ID Number",
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                        AppTextField(
+                            value = state.manifest.driverPhoneNumber,
+                            placeholder = "Driver Phone Number",
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
+                FormSection(title = "") {
+                    Button(
+                        onClick = viewModel::onStartScanning,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Icon(
+                            painter = Res.drawable.ic_qr_code_scanning.painter,
+                            tint = Color.White,
+                            contentDescription = null
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("Scan QR Code")
+                    }
                 }
             }
         }
     }
-
-    if (state.startScanning)
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            QrScannerOverlay(onCancel = viewModel::onCancelScanning)
-        }
 }
 
 @Composable
@@ -486,78 +457,3 @@ fun FormSection(title: String, content: @Composable ColumnScope.() -> Unit) {
         content()
     }
 }
-
-@Composable
-fun QrScanning(
-    getController: () -> CameraController?,
-    onResult: (Manifest) -> Unit,
-    onError: () -> Unit
-) {
-
-    val snackBar = LocalSnackBarState.current
-
-    val qrScanner = remember { QRScanner() }
-
-    LaunchedEffect(getController()) {
-        getController()?.let { state ->
-            withContext(Dispatchers.IO) {
-                val frameChannel = state.getFrameChannel()
-                loop@ while (true) {
-                    runCatching {
-                        val bufferedImage = frameChannel.receive()
-
-                        while (!frameChannel.isEmpty) {
-                            frameChannel.tryReceive()
-                        }
-
-                        val result = qrScanner.scanImage(bufferedImage)
-
-                        result?.let {
-                            withContext(Dispatchers.Main) {
-                                onResult(
-                                    parseManifest(
-                                        "{\n" +
-                                                "  \"passengers\": [\"John\", \"Charlie\", \"Roony\"],\n" +
-                                                "  \"date\": \"2026-03-11\",\n" +
-                                                "  \"price\": \"5000\",\n" +
-                                                "  \"from\": \"Erbil\",\n" +
-                                                "  \"to\": \"Baghdad\",\n" +
-                                                "  \"vehicleNumber\": \"Number\",\n" +
-                                                "  \"vehicleType\": \"Mercedes Benz\",\n" +
-                                                "  \"driverName\": \"Mend\",\n" +
-                                                "  \"driverIdNumber\": \"ID Card\",\n" +
-                                                "  \"driverPhoneNumber\": \"\"\n" +
-                                                "}"
-                                    )
-                                )
-                            }
-                            state.stopSession()
-                            break@loop
-                        }
-                    }.onFailure {
-                        it.message?.let { message -> snackBar.nativeHostState.showSnackbar(message) }
-                        onError()
-                        println("error $it")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun rememberCameraState(qrScannerPlugin: QRScannerPlugin = rememberQRScannerPlugin()) =
-    rememberCameraKState(
-        config = CameraConfiguration(
-            aspectRatio = AspectRatio.RATIO_16_9,
-            targetResolution = 1920 to 1080,
-            flashMode = FlashMode.AUTO,
-            torchMode = TorchMode.OFF,
-            imageFormat = ImageFormat.JPEG,
-            returnFilePath = true,
-            qualityPrioritization = QualityPrioritization.BALANCED,
-        ),
-        setupPlugins = { stateHolder ->
-            stateHolder.attachPlugin(qrScannerPlugin)
-        },
-    )
