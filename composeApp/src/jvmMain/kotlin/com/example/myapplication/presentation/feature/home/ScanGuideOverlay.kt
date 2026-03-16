@@ -15,9 +15,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ScanGuideOverlay() {
+fun ScanGuideOverlay(sizeMultiplier: Float = 0.4f) {
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val guideSize = minOf(size.width, size.height) * 0.5f
+        val guideSize = minOf(size.width, size.height) * sizeMultiplier
         val left = (size.width - guideSize) / 2f
         val top = (size.height - guideSize) / 2f
 

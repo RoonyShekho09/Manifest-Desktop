@@ -1,11 +1,8 @@
 package com.example.myapplication.presentation.feature.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -16,10 +13,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import androidx.compose.ui.unit.dp
 import com.example.myapplication.domain.entity.Manifest
 import com.example.myapplication.domain.entity.parseManifest
 import com.github.sarxos.webcam.Webcam
@@ -41,7 +36,6 @@ import java.awt.image.BufferedImage
 fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-    var debugText by remember { mutableStateOf("Starting...") }
     var frameCount by remember { mutableStateOf(0) }
     val onResultRef by rememberUpdatedState(onResult)
 
@@ -49,7 +43,7 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) 
         withContext(Dispatchers.IO) {
             try {
                 val cam = Webcam.getDefault() ?: run {
-                    withContext(Dispatchers.Main) { debugText = "❌ No camera found" }
+                    withContext(Dispatchers.Main) { println("❌ No camera found") }
                     return@withContext
                 }
                 webcam?.viewSizes?.forEach { println("Supported: ${it.width}x${it.height}") }
@@ -63,7 +57,7 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) 
 
                 while (true) {
                     val image = cam.image ?: run {
-                        withContext(Dispatchers.Main) { debugText = "⚠️ Got null frame" }
+                        withContext(Dispatchers.Main) { println("⚠️ Got null frame")  }
                         continue
                     }
 
@@ -79,24 +73,24 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) 
 
                     withContext(Dispatchers.Main) {
                         frameCount++
-                        debugText = "📷 Frame #$frameCount | Size: ${image.width}x${image.height}"
+                        println("📷 Frame #$frameCount | Size: ${image.width}x${image.height}")
                     }
 
-                    val result = decodeQRDebug(snapshot)
+                    val result = decodeQrCode(snapshot)
 
                     withContext(Dispatchers.Main) {
                         when (result) {
                             is QRResult.Found -> {
-                                debugText = "✅ QR Found: ${result.value}"
+                                println("✅ QR Found: ${result.value}")
                                 runCatching { onResultRef(parseManifest(result.value)) }
                             }
 
                             is QRResult.NotFound -> {
-                                debugText = "🔍 Frame #$frameCount - No QR detected"
+                                println("🔍 Frame #$frameCount - No QR detected")
                             }
 
                             is QRResult.Error -> {
-                                debugText = "❌ Decode error: ${result.message}"
+                                println("❌ Decode error: ${result.message}")
                             }
                         }
                     }
@@ -104,7 +98,7 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) 
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    debugText = "💥 Exception: ${e.message}"
+                    println("💥 Exception: ${e.message}")
                 }
             }
         }
@@ -115,20 +109,8 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit) 
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isLoading) {
+        if (isLoading)
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
-
-        println(debugText)
-
-        Text(
-            text = debugText,
-            color = Color.Red,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .background(Color.Black.copy(alpha = 0.6f))
-                .padding(8.dp)
-        )
     }
 }
 
@@ -138,7 +120,7 @@ sealed class QRResult {
     data class Error(val message: String) : QRResult()
 }
 
-fun decodeQRDebug(image: BufferedImage): QRResult {
+private fun decodeQrCode(image: BufferedImage): QRResult {
     return try {
         val width = image.width
         val height = image.height
