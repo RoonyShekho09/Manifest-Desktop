@@ -29,8 +29,11 @@ import com.google.zxing.common.GlobalHistogramBinarizer
 import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import java.awt.RenderingHints
 import java.awt.image.BufferedImage
+import java.awt.image.RescaleOp
 
 @Composable
 fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit, onFound: () -> Unit) {
@@ -57,7 +60,7 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit, 
 
                 while (true) {
                     val image = cam.image ?: run {
-                        withContext(Dispatchers.Main) { println("⚠️ Got null frame")  }
+                        withContext(Dispatchers.Main) { println("⚠️ Got null frame") }
                         continue
                     }
 
@@ -76,7 +79,10 @@ fun QrCodeScanner(onResult: (Manifest) -> Unit, onFrame: (ImageBitmap) -> Unit, 
                         println("📷 Frame #$frameCount | Size: ${image.width}x${image.height}")
                     }
 
-                    val result = decodeQrCode(snapshot)
+                    val scaled = scaleImage(snapshot)
+                    val contrasted = increaseContrast(scaled)
+
+                    val result = decodeQrCode(contrasted)
 
                     withContext(Dispatchers.Main) {
                         when (result) {
@@ -151,4 +157,42 @@ private fun tryDecode(bitmap: BinaryBitmap, hints: Map<DecodeHintType, Any>): Re
     } catch (e: NotFoundException) {
         null
     }
+}
+
+private fun increaseContrast(scaled: BufferedImage): BufferedImage {
+    return try {
+        val op = RescaleOp(1.5f, -30f, null) // scale brightness, offset darkness
+        op.filter(
+            scaled.let {
+                // RescaleOp requires TYPE_INT_RGB or TYPE_3BYTE_BGR
+                BufferedImage(it.width, it.height, BufferedImage.TYPE_INT_RGB).also { rgb ->
+                    rgb.createGraphics().apply { drawImage(it, 0, 0, null); dispose() }
+                }
+            },
+            null
+        )
+    } catch (e: Exception) {
+        scaled
+    }
+}
+
+private fun scaleImage(image: BufferedImage): BufferedImage {
+    val scale = if (image.width < 1280) 2.0 else 1.0
+    val scaled = if (scale > 1.0) {
+        BufferedImage(
+            (image.width * scale).toInt(),
+            (image.height * scale).toInt(),
+            BufferedImage.TYPE_INT_ARGB
+        ).also {
+            it.createGraphics().apply {
+                setRenderingHint(
+                    RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BICUBIC
+                )
+                drawImage(image, 0, 0, it.width, it.height, null)
+                dispose()
+            }
+        }
+    } else image
+    return scaled
 }
