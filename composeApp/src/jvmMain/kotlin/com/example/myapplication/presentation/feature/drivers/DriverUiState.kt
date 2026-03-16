@@ -1,6 +1,7 @@
 package com.example.myapplication.presentation.feature.drivers
 
 import androidx.compose.runtime.Immutable
+import com.example.myapplication.domain.entity.Driver
 
 @Immutable
 data class DriverUiState(
@@ -10,11 +11,5 @@ data class DriverUiState(
         Driver("DRV-1029", "Ellen Ripley", "+1 555-0144", "Distribution Center Alpha")
     ),
     val isDialogVisible: Boolean = false,
-)
-
-data class Driver(
-    val id: String = "",
-    val name: String = "",
-    val phone: String = "",
-    val destination: String = "",
+    val isLoading: Boolean = false,
 )

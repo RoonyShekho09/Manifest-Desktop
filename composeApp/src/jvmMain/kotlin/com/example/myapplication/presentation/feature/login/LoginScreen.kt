@@ -116,6 +116,11 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
             }
         }
     ) { paddingValues ->
+        if (state.isLoading)
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -150,6 +155,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                 AppTextField(
                     state = state.emailState,
                     modifier = Modifier.fillMaxWidth()
+                        .height(60.dp)
                         .onKeyEvent {
                             if (it.key == Key.Enter) {
                                 focusManager.moveFocus(FocusDirection.Next)
@@ -168,6 +174,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                     state = state.passwordState,
                     placeholder = Res.string.password.string,
                     modifier = Modifier.fillMaxWidth()
+                        .height(60.dp)
                         .onKeyEvent {
                             if (it.key == Key.Enter && state.isLoginEnabled) {
                                 viewModel.login()
@@ -197,6 +204,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     onClick = viewModel::login,
                     shape = RoundedCornerShape(8.dp),
+
                     enabled = state.isLoginEnabled,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFE2B631),

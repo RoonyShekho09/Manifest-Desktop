@@ -1,6 +1,6 @@
 package com.example.myapplication.di
 
-import com.example.myapplication.presentation.feature.cars.CarsViewModel
+import com.example.myapplication.presentation.feature.vehicles.VehiclesViewModel
 import com.example.myapplication.presentation.feature.drivers.DriversViewModel
 import com.example.myapplication.presentation.feature.home.HomeViewModel
 import com.example.myapplication.presentation.feature.login.LoginViewModel
@@ -11,5 +11,5 @@ val viewModelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::DriversViewModel)
-    viewModelOf(::CarsViewModel)
+    viewModelOf(::VehiclesViewModel)
 }

@@ -5,9 +5,12 @@ package com.example.myapplication
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.myapplication.di.dataSourceModule
 import com.example.myapplication.di.networkModule
+import com.example.myapplication.di.repositoryModule
 import com.example.myapplication.di.viewModelModule
 import com.example.myapplication.presentation.navigation.AppNavigation
+import com.example.myapplication.presentation.navigation.Screen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.context.startKoin
 
@@ -15,10 +18,10 @@ import org.koin.core.context.startKoin
 @Preview
 fun App() {
     startKoin {
-        modules(networkModule, viewModelModule)
+        modules(networkModule, viewModelModule, repositoryModule, dataSourceModule)
     }
 
     MaterialTheme {
-        AppNavigation()
+        AppNavigation(startDestination = Screen.Home)
     }
 }

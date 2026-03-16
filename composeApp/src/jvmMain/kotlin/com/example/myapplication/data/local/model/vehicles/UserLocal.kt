@@ -1,12 +1,12 @@
-package com.example.myapplication.data.remote.model
+package com.example.myapplication.data.local.model.vehicles
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LoginRequestBody(
+data class UserLocal(
     @SerialName("email")
-    val username: String? = null,
+    val email: String? = null,
     @SerialName("password")
     val password: String? = null,
 )

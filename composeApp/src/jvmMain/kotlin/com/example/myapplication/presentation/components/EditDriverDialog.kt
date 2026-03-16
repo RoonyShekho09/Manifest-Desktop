@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.presentation.feature.drivers.Driver
+import com.example.myapplication.domain.entity.Driver
 
 @Composable
 fun EditDriverDialog(

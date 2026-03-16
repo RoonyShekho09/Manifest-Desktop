@@ -1,4 +1,4 @@
-package com.example.myapplication.presentation.feature.cars
+package com.example.myapplication.presentation.feature.vehicles
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +37,7 @@ import com.jawharat.manifest.resources.ic_edit
 import com.jawharat.manifest.resources.ic_qr_code_scanning
 
 @Composable
-fun CarsScreen(viewModel: CarsViewModel) {
+fun CarsScreen(viewModel: VehiclesViewModel) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -45,7 +45,7 @@ fun CarsScreen(viewModel: CarsViewModel) {
 }
 
 @Composable
-private fun Content(state: CarsUiState, viewModel: CarsViewModel) {
+private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -81,7 +81,7 @@ private fun Content(state: CarsUiState, viewModel: CarsViewModel) {
 
 @Composable
 fun CarRow(
-    driver: Car,
+    driver: VehicleUiState,
     onEditClick: () -> Unit,
     onQrCodeClick: () -> Unit
 ) {
@@ -105,7 +105,7 @@ fun CarRow(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Line: ${driver.lineFrom} → ${driver.lineTo}",
+                    text = "Line: ${driver.line}",
                     style = MaterialTheme.typography.body1
                 )
                 Spacer(modifier = Modifier.height(4.dp))

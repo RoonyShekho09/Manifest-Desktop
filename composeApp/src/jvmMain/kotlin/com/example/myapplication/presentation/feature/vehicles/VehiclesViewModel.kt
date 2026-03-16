@@ -1,19 +1,19 @@
-package com.example.myapplication.presentation.feature.drivers
+package com.example.myapplication.presentation.feature.vehicles
 
 import com.example.myapplication.domain.repository.ManifestRepository
 import com.example.myapplication.presentation.base.BaseViewModel
 
-class DriversViewModel(private val repository: ManifestRepository) :
-    BaseViewModel<DriverUiState, Unit>(DriverUiState()) {
+class VehiclesViewModel(private val repository: ManifestRepository) :
+    BaseViewModel<VehiclesUiState, Unit>(VehiclesUiState()) {
 
     init {
-        initializeDrivers()
+        initializeVehicles()
     }
 
-    private fun initializeDrivers() = tryToExecute(
+    private fun initializeVehicles() = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
-        block = repository::getDrivers,
-        onSuccess = { updateState { copy(drivers = it) } },
+        block = repository::getVehicles,
+        onSuccess = { updateState { copy(cars = it.toUiState()) } },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 
@@ -26,5 +26,4 @@ class DriversViewModel(private val repository: ManifestRepository) :
     }
 
     fun onDismissDialog() = updateState { copy(isDialogVisible = false) }
-
 }

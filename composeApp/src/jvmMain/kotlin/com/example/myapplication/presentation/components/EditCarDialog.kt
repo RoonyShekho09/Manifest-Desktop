@@ -11,22 +11,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.presentation.feature.cars.Car
-import com.example.myapplication.presentation.feature.cars.DriverStatus
+import com.example.myapplication.presentation.feature.vehicles.VehicleUiState
+import com.example.myapplication.presentation.feature.vehicles.DriverStatus
 
 @Composable
 fun EditCarDialog(
-    car: Car,
+    car: VehicleUiState,
     onDismiss: () -> Unit,
-    onSave: (Car) -> Unit
+    onSave: (VehicleUiState) -> Unit
 ) {
     val driverName = rememberTextFieldState(initialText = car.driverName)
     val plateNumber = rememberTextFieldState(initialText = car.plateNumber)
     val carType = rememberTextFieldState(initialText = car.carType)
     val type = rememberTextFieldState(initialText = car.type)
     val price = rememberTextFieldState(initialText = car.price)
-    val lineFrom = rememberTextFieldState(initialText = car.lineFrom)
-    val lineTo = rememberTextFieldState(initialText = car.lineTo)
+    val line = rememberTextFieldState(initialText = car.line)
     var status by remember { mutableStateOf(car.status) }
 
     Box(
@@ -63,8 +62,7 @@ fun EditCarDialog(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    AppTextField(lineFrom, modifier = Modifier.weight(1f))
-                    AppTextField(lineTo, modifier = Modifier.weight(1f))
+                    AppTextField(line, modifier = Modifier.weight(1f))
                 }
 
                 Row(
@@ -113,8 +111,7 @@ fun EditCarDialog(
                                     plateNumber = plateNumber.text.toString(),
                                     carType = carType.text.toString(),
                                     type = type.text.toString(),
-                                    lineFrom = lineFrom.text.toString(),
-                                    lineTo = lineTo.text.toString(),
+                                    line = line.text.toString(),
                                     status = status,
                                 )
                             )

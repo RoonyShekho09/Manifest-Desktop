@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.myapplication.presentation.feature.cars.CarsScreen
+import com.example.myapplication.presentation.feature.vehicles.CarsScreen
 import com.example.myapplication.presentation.feature.drivers.DriversScreen
 import com.example.myapplication.presentation.feature.home.HomeScreen
 import com.example.myapplication.presentation.feature.login.LoginScreen

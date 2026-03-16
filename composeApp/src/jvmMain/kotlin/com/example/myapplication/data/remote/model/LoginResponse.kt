@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginResponse(
-    @SerialName("token")
+    @SerialName("I")
     val token: String? = null,
 )
