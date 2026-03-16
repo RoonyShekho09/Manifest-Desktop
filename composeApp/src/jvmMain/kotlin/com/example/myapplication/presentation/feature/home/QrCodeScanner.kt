@@ -38,7 +38,6 @@ import java.awt.image.RescaleOp
 fun QrCodeScanner(
     onResult: (Manifest) -> Unit,
     onFrame: (ImageBitmap) -> Unit,
-    onFound: () -> Unit
 ) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -90,7 +89,6 @@ fun QrCodeScanner(
                     withContext(Dispatchers.Main) {
                         when (result) {
                             is QRResult.Found -> {
-                                onFound()
                                 println("✅ QR Found: ${result.value}")
                                 runCatching { onResultRef(parseManifest(result.value)) }
                             }
