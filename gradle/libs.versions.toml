@@ -36,6 +36,8 @@ koin-compose-navigation = { module = "io.insert-koin:koin-compose-viewmodel-navi
 compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version = "2.9.2" }
 openpdf = { module = "com.github.librepdf:openpdf", version = "1.3.30" }
 kotlinx-serializaion = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
+zxing-qrcode = { module = "com.google.zxing:javase", version = "3.5.3" }
+webcam = { module = "com.github.sarxos:webcam-capture", version = "0.3.12" }
 
 
 [plugins]
@@ -79,5 +81,7 @@ compose = [
 ]
 
 utils = [
-    "openpdf"
+    "openpdf",
+    "zxing-qrcode",
+    "webcam"
 ]

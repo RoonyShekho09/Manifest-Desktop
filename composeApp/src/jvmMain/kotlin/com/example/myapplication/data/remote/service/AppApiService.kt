@@ -8,6 +8,7 @@ import com.example.myapplication.data.remote.model.SubmitManifestRequestBody
 import de.jensklingenberg.ktorfit.Response
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.Headers
 import de.jensklingenberg.ktorfit.http.PATCH
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
@@ -15,6 +16,7 @@ import de.jensklingenberg.ktorfit.http.Path
 interface AppApiService {
 
     @POST("login")
+    @Headers(NO_AUTH_HEADER)
     suspend fun login(@Body body: LoginRequestBody): Response<LoginResponse>
 
     @POST("logout")
@@ -37,4 +39,9 @@ interface AppApiService {
 
     @GET("vehicles")
     suspend fun getVehicles(): Response<List<VehicleResponse>>
+
+    companion object {
+        const val NO_AUTH_HEADER_KEY = "No-Authentication"
+        const val NO_AUTH_HEADER = "$NO_AUTH_HEADER_KEY: true"
+    }
 }

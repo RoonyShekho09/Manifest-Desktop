@@ -24,8 +24,6 @@ kotlin {
             implementation(libs.bundles.koin)
             implementation(libs.bundles.network)
             implementation(libs.kotlinx.serializaion)
-            implementation("com.google.zxing:javase:3.5.3")
-            implementation("com.github.sarxos:webcam-capture:0.3.12")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

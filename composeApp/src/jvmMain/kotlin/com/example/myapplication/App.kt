@@ -9,9 +9,11 @@ import com.example.myapplication.di.dataSourceModule
 import com.example.myapplication.di.networkModule
 import com.example.myapplication.di.repositoryModule
 import com.example.myapplication.di.viewModelModule
+import com.example.myapplication.domain.repository.AuthRepository
 import com.example.myapplication.presentation.navigation.AppNavigation
 import com.example.myapplication.presentation.navigation.Screen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
 
 @Composable
@@ -21,7 +23,9 @@ fun App() {
         modules(networkModule, viewModelModule, repositoryModule, dataSourceModule)
     }
 
+    val repository = koinInject<AuthRepository>()
+
     MaterialTheme {
-        AppNavigation(startDestination = Screen.Home)
+        AppNavigation(startDestination = if (repository.isUserLoggedIn) Screen.Home else Screen.Login)
     }
 }

@@ -16,7 +16,7 @@ class AuthRepositoryImpl(
 
     override suspend fun login(email: String, password: String): Boolean {
         val data = remoteDataSource.login(email = email, password = password)
-        data.saveLocally()
+        data.saveLocally(email, password)
         return true
     }
 
@@ -29,19 +29,13 @@ class AuthRepositoryImpl(
         }
     }
 
-    private suspend fun LoginResponse.saveLocally() {
-//        localDataSource.storeAuthSession(
-//            AuthSessionLocal(
-//                token = token,
-//                refreshToken = refreshToken
-//            )
-//        )
+    private fun LoginResponse.saveLocally(email: String, password: String) {
+        token?.let { localDataSource.storeToken(token) }
 
-        // TODO
         localDataSource.storeUser(
             UserLocal(
-                email = "",
-                password =  ""
+                email = email,
+                password = password
             )
         )
     }

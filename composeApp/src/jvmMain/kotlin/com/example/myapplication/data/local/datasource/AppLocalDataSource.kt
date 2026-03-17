@@ -4,6 +4,7 @@ import com.example.myapplication.data.local.model.vehicles.UserLocal
 
 interface AppLocalDataSource {
     val token: String?
-    suspend fun storeUser(value: UserLocal)
-    suspend fun clearDataStore()
+    fun storeToken(value: String)
+    fun storeUser(value: UserLocal)
+    fun clearDataStore()
 }

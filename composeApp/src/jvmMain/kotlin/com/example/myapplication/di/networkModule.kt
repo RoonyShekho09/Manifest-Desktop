@@ -1,5 +1,6 @@
 package com.example.myapplication.di
 
+import com.example.myapplication.data.remote.interceptor.AuthInterceptor
 import com.example.myapplication.data.remote.service.AppApiService
 import com.example.myapplication.data.remote.service.createAppApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
@@ -21,6 +22,9 @@ import org.koin.dsl.module
 const val BASE_URL = "http://192.168.0.99/"
 
 val networkModule = module {
+
+    single { AuthInterceptor(get()) }
+
     single<AppApiService> {
         ktorfit {
             baseUrl(url = BASE_URL)
@@ -56,11 +60,6 @@ val networkModule = module {
             defaultRequest {
                 header("Accept", ContentType.Application.Json)
                 header("Content-Type", ContentType.Application.Json)
-                // TODO: Replace with token saved in local storage
-                header(
-                    "Cookie",
-                    "I=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YjExYTA3NjAwMWI1NDcwOGUzZTYzOSIsImlhdCI6MTc3MzY0ODM5OSwiZXhwIjoxNzczNjc4MDk5LCJpc3MiOiJKYXdoYXJhdCBFcmJpbCJ9.HRQo2bE_Zk0aOEElv0yZwzR8gdk2Kun4I2ngO6tGQT8"
-                )
             }
 
             install(Logging) {
@@ -69,6 +68,11 @@ val networkModule = module {
                     override fun log(message: String) =
                         println("HttpClient $message")
                 }
+            }
+        }.apply {
+            val authInterceptor: AuthInterceptor = get()
+            with(authInterceptor) {
+                intercept()
             }
         }
     }
