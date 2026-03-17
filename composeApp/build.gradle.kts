@@ -91,7 +91,7 @@ compose.desktop {
             }
 
             buildTypes.release.proguard {
-                isEnabled.set(false)
+                isEnabled.set(true)
                 obfuscate.set(true)
                 optimize.set(true)
                 joinOutputJars.set(true)
