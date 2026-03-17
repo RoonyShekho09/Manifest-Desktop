@@ -2,16 +2,6 @@
 -dontnote **
 -dontwarn **
 
-# 2. Specifically address the Bytedeco/JavaCPP duplicates you see in the log
--dontnote org.bytedeco.**
-
-# 3. Allow ProGuard to continue even if class names don't match folder structures perfectly
-# (This fixes the "IOException: Please correct the above warnings first")
-
-
-# Ignore the specific ByteDeco/OpenCV warnings
--dontnote org.bytedeco.**
--dontwarn org.bytedeco.**
 
 # This allows the build to continue even with duplicate entries
 -ignorewarnings
@@ -25,11 +15,18 @@
 -keep class androidx.compose.** { *; }
 -keep class org.jetbrains.compose.** { *; }
 
--keep class org.bytedeco.** { *; }
--keepclassmembers class org.bytedeco.** { *; }
--keep class * implements org.bytedeco.javacpp.** { *; }
--keep class * extends org.bytedeco.javacpp.** { *; }
--keepnames class org.bytedeco.**
-
 -keep class com.your.qr.library.** { *; }
 -keepclassmembers class com.your.qr.library.** { *; }
+
+
+# JVM / launcher bootstrap — without this you get "Failed to launch JVM"
+-keep class java.** { *; }
+-keep class javax.** { *; }
+-keep class sun.** { *; }
+-keep class jdk.** { *; }
+-keep class com.sun.** { *; }
+
+# Skiko / Skia — Compose Desktop's rendering layer
+-keep class org.jetbrains.skia.** { *; }
+-keep class org.jetbrains.skiko.** { *; }
+-keepclassmembers class org.jetbrains.skiko.** { *; }

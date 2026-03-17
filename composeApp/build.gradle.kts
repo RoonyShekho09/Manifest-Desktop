@@ -94,7 +94,7 @@ compose.desktop {
                 isEnabled.set(true)
                 obfuscate.set(true)
                 optimize.set(true)
-                joinOutputJars.set(true)
+                joinOutputJars.set(false)
                 configurationFiles.from(project.file("compose-desktop.pro"))
             }
         }
