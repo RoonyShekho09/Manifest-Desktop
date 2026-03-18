@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,17 +28,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -77,29 +84,37 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val event by viewModel.event.collectAsState(null)
 
     event?.Listen {
         when (it) {
-            else -> {}
+            HomeUiEvent.OnLogout -> onLogout()
         }
     }
 
     Content(state = state, viewModel = viewModel)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(state: HomeUiState, viewModel: HomeViewModel) {
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { androidx.compose.material.Text("Register Trip") },
-                backgroundColor = androidx.compose.material.MaterialTheme.colors.primary,
-                contentColor = androidx.compose.material.MaterialTheme.colors.onPrimary
+                title = { Text("Register Trip", color = MaterialTheme.colorScheme.onPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+                actions = {
+                    Button(
+                        onClick = viewModel::onLogoutClick,
+                        modifier = Modifier.padding(end = 16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+                    ) {
+                        Text(text = "Logout", color = Color(0xC1A52B2B))
+                    }
+                }
             )
         },
         snackbarHost = {
@@ -121,7 +136,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         visuals?.icon?.let {
-                            androidx.compose.material3.Icon(
+                            Icon(
                                 painterResource(it),
                                 null
                             )
@@ -252,6 +267,57 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         )
                         Spacer(Modifier.width(8.dp))
                         Text("Scan QR Code")
+                    }
+                }
+            }
+        }
+    }
+
+    if (state.isLogoutConfirmationVisible) {
+        BasicAlertDialog(onDismissRequest = viewModel::onDismissLogoutConfirmation) {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                tonalElevation = 6.dp,
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                modifier = Modifier.width(400.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Log out?",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Are you sure you want to log out of your account?",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = viewModel::onDismissLogoutConfirmation,
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("Cancel")
+                        }
+                        Button(
+                            onClick = viewModel::logout,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("Log Out")
+                        }
                     }
                 }
             }

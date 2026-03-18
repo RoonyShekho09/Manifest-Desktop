@@ -40,7 +40,8 @@ fun AppNavGraph(
         composable<Screen.Home> {
             val hostState = LocalSnackBarState.current
             HomeScreen(
-                viewModel = koinViewModel(parameters = { parametersOf(hostState) })
+                viewModel = koinViewModel(parameters = { parametersOf(hostState) }),
+                onLogout = { navController.navigateTo(Screen.Login, popBackStack = true) },
             )
         }
 

@@ -16,10 +16,10 @@ class AppRemoteDataSourceImpl(private val apiService: AppApiService) : AppRemote
     override suspend fun login(
         email: String,
         password: String
-    ): LoginResponse {
-        apiService.login(body = LoginRequestBody(username = email, password = password))
-        return LoginResponse()
-    }
+    ): LoginResponse =
+        apiService.login(body = LoginRequestBody(username = email, password = password)).body()
+            ?: throw Exception()
+
 
     override suspend fun submitManifest(id: String) {
         TODO("Not yet implemented")

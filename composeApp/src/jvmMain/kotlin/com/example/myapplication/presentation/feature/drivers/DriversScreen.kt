@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.domain.entity.Driver
+import com.example.myapplication.presentation.components.AppTextField
 import com.example.myapplication.presentation.components.EditDriverDialog
 import com.example.myapplication.utils.painter
 import com.jawharat.manifest.resources.Res
@@ -29,33 +30,47 @@ fun DriversScreen(viewModel: DriversViewModel) {
     Content(state = state, viewModel = viewModel)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Driver Management") },
-                backgroundColor = MaterialTheme.colors.primary,
-                contentColor = MaterialTheme.colors.onPrimary
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(24.dp)
         ) {
-            items(state.drivers) { driver ->
-                DriverRow(driver, onEditClick = viewModel::onEditClick, onGenerateQrCodeClick = {})
+            item {
+                AppTextField(
+                    state = state.searchState.query,
+                    placeholder = "Search..",
+                    modifier = Modifier.width(400.dp)
+                )
+            }
+            items(state.filteredDrivers) { driver ->
+                DriverRow(
+                    driver = driver,
+                    onEditClick = viewModel::onEditClick,
+                    onGenerateQrCodeClick = {}
+                )
             }
         }
     }
 
-    if (state.isDialogVisible)
+    if (state.isDialogVisible && state.driverToEdit != null)
         EditDriverDialog(
-            driver = state.drivers.first(),
+            driver = state.driverToEdit,
             onDismiss = viewModel::onDismissDialog,
             onSave = {}
         )
@@ -69,7 +84,7 @@ fun DriverRow(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = 4.dp
+        elevation = CardDefaults.elevatedCardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -97,12 +112,12 @@ fun DriverRow(
             ) {
                 Text(
                     text = driver.name,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "ID: ${driver.id}",
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
 
@@ -113,10 +128,10 @@ fun DriverRow(
                         painter = Res.drawable.ic_profile.painter,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colors.primary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = driver.phone, style = MaterialTheme.typography.body2)
+                    Text(text = driver.phone, style = MaterialTheme.typography.bodyMedium)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -126,10 +141,10 @@ fun DriverRow(
                         painter = Res.drawable.ic_location_on.painter,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colors.primary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = driver.destination, style = MaterialTheme.typography.body2)
+                    Text(text = driver.destination, style = MaterialTheme.typography.bodyMedium)
                 }
             }
 

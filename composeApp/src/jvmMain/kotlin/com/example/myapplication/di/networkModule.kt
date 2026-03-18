@@ -19,7 +19,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
-const val BASE_URL = "http://192.168.0.99/"
+const val BASE_URL = "http://192.168.0.150/"
 
 val networkModule = module {
 
@@ -56,6 +56,9 @@ val networkModule = module {
                     ContentType.Application.Json
                 )
             }
+
+            val authInterceptor = AuthInterceptor(get())
+            install(authInterceptor())
 
             defaultRequest {
                 header("Accept", ContentType.Application.Json)

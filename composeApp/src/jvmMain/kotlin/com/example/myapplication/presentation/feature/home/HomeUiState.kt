@@ -11,4 +11,5 @@ data class HomeUiState(
     val passwordState: TextFieldState = TextFieldState(),
     val manifest: Manifest = Manifest(),
     val startScanning: Boolean = false,
+    val isLogoutConfirmationVisible: Boolean = false,
 )

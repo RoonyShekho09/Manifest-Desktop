@@ -12,7 +12,7 @@ class AuthRepositoryImpl(
 ) : AuthRepository {
 
     override val isUserLoggedIn: Boolean
-        get() = localDataSource.token != null
+        get() = !localDataSource.token.isNullOrEmpty()
 
     override suspend fun login(email: String, password: String): Boolean {
         val data = remoteDataSource.login(email = email, password = password)

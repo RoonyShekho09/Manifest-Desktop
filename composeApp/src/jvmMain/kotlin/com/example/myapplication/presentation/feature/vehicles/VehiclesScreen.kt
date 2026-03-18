@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.myapplication.presentation.feature.vehicles
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,15 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.myapplication.presentation.components.AppTextField
 import com.example.myapplication.presentation.components.EditCarDialog
 import com.example.myapplication.utils.painter
 import com.jawharat.manifest.resources.Res
@@ -50,18 +46,28 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
         topBar = {
             TopAppBar(
                 title = { Text("Cars Management") },
-                elevation = 4.dp
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
             )
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(24.dp)
         ) {
-            items(state.cars) { car ->
+            item {
+                AppTextField(
+                    state = state.searchState.query,
+                    placeholder = "Search by ",
+                    modifier = Modifier.width(400.dp)
+                )
+            }
+            items(state.filteredVehicles) { car ->
                 CarRow(
                     driver = car,
                     onEditClick = { viewModel.onEditClick(car.id) },
@@ -71,9 +77,9 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
         }
     }
 
-    if (state.isDialogVisible)
+    if (state.isDialogVisible && state.vehicleToEdit != null)
         EditCarDialog(
-            car = state.cars.first(),
+            car = state.vehicleToEdit,
             onDismiss = viewModel::onDismissDialog,
             onSave = {}
         )
@@ -87,7 +93,7 @@ fun CarRow(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = 4.dp,
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
@@ -100,23 +106,23 @@ fun CarRow(
             Column(modifier = Modifier.weight(2f)) {
                 Text(
                     text = driver.driverName,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Line: ${driver.line}",
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Vehicle: ${driver.carType} (${driver.type}) | Plate: ${driver.plateNumber}",
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
                 Text(
                     text = "Price: $${driver.price}",
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
             }
@@ -138,7 +144,7 @@ fun CarRow(
                         color = statusColor,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.body2
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
