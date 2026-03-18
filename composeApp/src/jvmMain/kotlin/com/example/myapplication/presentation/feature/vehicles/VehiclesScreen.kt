@@ -15,10 +15,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,10 +44,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.presentation.components.AppTextField
 import com.example.myapplication.presentation.components.EditCarDialog
+import com.example.myapplication.presentation.components.ScrollToTopBox
 import com.example.myapplication.utils.painter
+import com.example.myapplication.utils.string
 import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.cars_management
+import com.jawharat.manifest.resources.edit
 import com.jawharat.manifest.resources.ic_edit
 import com.jawharat.manifest.resources.ic_qr_code_scanning
+import com.jawharat.manifest.resources.inside
+import com.jawharat.manifest.resources.line
+import com.jawharat.manifest.resources.outside
+import com.jawharat.manifest.resources.price_iqd
+import com.jawharat.manifest.resources.qr_code
+import com.jawharat.manifest.resources.search_driver_placeholder
+import com.jawharat.manifest.resources.vehicle_info
+import kotlinx.coroutines.launch
 
 @Composable
 fun CarsScreen(viewModel: VehiclesViewModel) {
@@ -45,7 +74,7 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Cars Management") },
+                title = { Text(Res.string.cars_management.string) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -53,7 +82,11 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
             )
         }
     ) { paddingValues ->
+        val filteredVehicles = state.filteredVehicles
+        val query = state.searchState.query
+
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
@@ -62,16 +95,16 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
         ) {
             item {
                 AppTextField(
-                    state = state.searchState.query,
-                    placeholder = "Search by ",
+                    state = query,
+                    placeholder = Res.string.search_driver_placeholder.string,
                     modifier = Modifier.width(400.dp)
                 )
             }
-            items(state.filteredVehicles) { car ->
+            items(filteredVehicles, key = { it.id }) { car ->
                 CarRow(
                     driver = car,
-                    onEditClick = { viewModel.onEditClick(car.id) },
-                    onQrCodeClick = { viewModel.onQrCodeClick(car.id) }
+                    onEditClick = viewModel::onEditClick,
+                    onQrCodeClick = viewModel::onQrCodeClick
                 )
             }
         }
@@ -88,8 +121,8 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
 @Composable
 fun CarRow(
     driver: VehicleUiState,
-    onEditClick: () -> Unit,
-    onQrCodeClick: () -> Unit
+    onEditClick: (String) -> Unit,
+    onQrCodeClick: (String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -111,17 +144,29 @@ fun CarRow(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Line: ${driver.line}",
+                    text = Res.string.line.string(driver.line),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Vehicle: ${driver.carType} (${driver.type}) | Plate: ${driver.plateNumber}",
+                    text = Res.string.vehicle_info.string(
+                        driver.carType,
+                        driver.type,
+                        driver.plateNumber
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
+
+                val price = driver.price
+                val formattedPrice = if (price.length == 5) {
+                    "${price.take(2)},${price.drop(2)}"
+                } else {
+                    price
+                }
+
                 Text(
-                    text = "Price: $${driver.price}",
+                    text = Res.string.price_iqd.string(formattedPrice),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -140,7 +185,7 @@ fun CarRow(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
-                        text = driver.status.name,
+                        text = if (driver.status == DriverStatus.INSIDE) Res.string.inside.string else Res.string.outside.string,
                         color = statusColor,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                         fontWeight = FontWeight.Bold,
@@ -154,25 +199,25 @@ fun CarRow(
                 horizontalArrangement = Arrangement.End
             ) {
                 OutlinedButton(
-                    onClick = onEditClick,
+                    onClick = { onEditClick(driver.id) },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Icon(
                         painter = Res.drawable.ic_edit.painter,
-                        contentDescription = "Edit Driver",
+                        contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("Edit")
+                    Text(Res.string.edit.string)
                 }
-                Button(onClick = onQrCodeClick) {
+                Button(onClick = { onQrCodeClick(driver.id) }) {
                     Icon(
                         painter = Res.drawable.ic_qr_code_scanning.painter,
-                        contentDescription = "Generate QR",
+                        contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("QR Code")
+                    Text(Res.string.qr_code.string)
                 }
             }
         }

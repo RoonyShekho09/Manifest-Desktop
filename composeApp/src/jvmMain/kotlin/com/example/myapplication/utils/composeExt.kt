@@ -13,6 +13,10 @@ val DrawableResource.painter: Painter
     @Composable
     get() = painterResource(resource = this)
 
+@Composable
+fun StringResource.string(vararg formatArgs: Any): String =
+    stringResource(resource = this, formatArgs = formatArgs)
+
 val StringResource.string: String
     @Composable
     get() = stringResource(resource = this)

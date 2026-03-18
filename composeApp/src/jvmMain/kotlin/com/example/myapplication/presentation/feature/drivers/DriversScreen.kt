@@ -4,9 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,11 +18,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.domain.entity.Driver
 import com.example.myapplication.presentation.components.AppTextField
 import com.example.myapplication.presentation.components.EditDriverDialog
+import com.example.myapplication.presentation.components.ScrollToTopBox
 import com.example.myapplication.utils.painter
+import com.example.myapplication.utils.string
 import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.driver_id
+import com.jawharat.manifest.resources.driver_management
+import com.jawharat.manifest.resources.edit
+import com.jawharat.manifest.resources.generate_qr
 import com.jawharat.manifest.resources.ic_edit
 import com.jawharat.manifest.resources.ic_location_on
 import com.jawharat.manifest.resources.ic_profile
+import com.jawharat.manifest.resources.search_placeholder
+import kotlinx.coroutines.launch
 
 @Composable
 fun DriversScreen(viewModel: DriversViewModel) {
@@ -36,7 +46,7 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Driver Management") },
+                title = { Text(Res.string.driver_management.string) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -44,6 +54,8 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
             )
         }
     ) { paddingValues ->
+        val filteredDrivers = state.filteredDrivers
+        val query = state.searchState.query
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,12 +65,12 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
         ) {
             item {
                 AppTextField(
-                    state = state.searchState.query,
-                    placeholder = "Search..",
+                    state = query,
+                    placeholder = Res.string.search_placeholder.string,
                     modifier = Modifier.width(400.dp)
                 )
             }
-            items(state.filteredDrivers) { driver ->
+            items(filteredDrivers, key = { it.id }) { driver ->
                 DriverRow(
                     driver = driver,
                     onEditClick = viewModel::onEditClick,
@@ -116,7 +128,7 @@ fun DriverRow(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "ID: ${driver.id}",
+                    text = Res.string.driver_id.string(driver.id),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -164,14 +176,14 @@ fun DriverRow(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Edit")
+                    Text(Res.string.edit.string)
                 }
 
                 OutlinedButton(
                     onClick = { onGenerateQrCodeClick(driver.id) },
                     modifier = Modifier.width(140.dp)
                 ) {
-                    Text("Generate QR")
+                    Text(Res.string.generate_qr.string)
                 }
             }
         }

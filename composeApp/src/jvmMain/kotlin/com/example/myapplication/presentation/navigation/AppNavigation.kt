@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.utils.painter
+import com.example.myapplication.utils.string
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.Home) {
@@ -48,10 +49,10 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.
                         icon = {
                             Icon(
                                 painter = destination.icon.painter,
-                                contentDescription = destination.label
+                                contentDescription = destination.label.string
                             )
                         },
-                        label = { Text(destination.label) },
+                        label = { Text(text = destination.label.string) },
                         railExpanded = state.targetValue == WideNavigationRailValue.Expanded
                     )
                 }

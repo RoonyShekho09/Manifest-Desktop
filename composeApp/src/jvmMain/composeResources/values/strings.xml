@@ -7,7 +7,6 @@
     <string name="email_address">البريد الإلكتروني</string>
     <string name="password">كلمة المرور</string>
     <string name="passenger_count">عدد الركاب:</string>
-    <string name="vehicle_number">رقم السيارة</string>
     <string name="from">من</string>
     <string name="to">إلى</string>
     <string name="time">الوقت</string>
@@ -20,7 +19,6 @@
     <string name="login_failed">فشل تسجيل الدخول</string>
     <string name="good_to_see_you_again">أهلاً بك</string>
     <string name="plate_number">رقم السيارة</string>
-    <string name="driver_name">السائق</string>
     <string name="starts">يبدأ</string>
     <string name="today">اليوم</string>
     <string name="confirm">التأكيد</string>
@@ -59,4 +57,33 @@
     <string name="logout_confirmation">هل أنت متأكد أنك تريد تسجيل الخروج من الحساب؟</string>
     <string name="cancel">إلغاء</string>
     <string name="home">الرئيسية</string>
+    <string name="edit">تعديل</string>
+    <string name="generate_qr">إنشاء رمز QR</string>
+    <string name="driver_id">المعرف: %s</string><string name="line">الخط: %s</string>
+    <string name="vehicle_info">المركبة: %1$s (%2$s) | اللوحة: %3$s</string>
+    <string name="price_iqd">السعر: %s دينار</string>
+    <string name="qr_code">رمز QR</string>
+    <string name="trip_details">تفاصيل الرحلة</string>
+    <string name="date">التاريخ</string>
+    <string name="price">السعر</string>
+    <string name="from_to">من - إلى</string>
+    <string name="vehicle_information">معلومات المركبة</string>
+    <string name="vehicle_number">رقم المركبة</string>
+    <string name="vehicle_type">نوع المركبة</string>
+    <string name="passengers">الركاب</string>
+    <string name="personnel">الأفراد</string>
+    <string name="driver_name">اسم السائق</string>
+    <string name="driver_id_number">رقم هوية السائق</string>
+    <string name="driver_phone_number">رقم هاتف السائق</string>
+    <string name="scan_qr_code">مسح رمز QR</string>
+    <string name="search_placeholder">البحث حسب الاسم، الوجهة، أو رقم الهاتف</string>
+    <string name="vehicles">المركبات</string>
+    <string name="drivers">السائقين</string>
+    <string name="register_trip">تسجيل رحلة</string>
+    <string name="driver_management">إدارة السائقين</string>
+    <string name="cars_management">إدارة السيارات</string>
+    <string name="search_driver_placeholder">البحث حسب اسم السائق، السعر، والخط</string>
+    <string name="inside">الداخل</string>
+    <string name="outside">الخارج</string>
+    <string name="logout_title">تسجيل الخروج؟</string>
 </resources>

@@ -76,8 +76,27 @@ import com.example.myapplication.presentation.feature.shared.AppSnackBarVisuals
 import com.example.myapplication.presentation.feature.shared.LocalSnackBarState
 import com.example.myapplication.utils.Listen
 import com.example.myapplication.utils.painter
+import com.example.myapplication.utils.string
 import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.cancel
+import com.jawharat.manifest.resources.date
+import com.jawharat.manifest.resources.driver_id_number
+import com.jawharat.manifest.resources.driver_name
+import com.jawharat.manifest.resources.driver_phone_number
+import com.jawharat.manifest.resources.from_to
 import com.jawharat.manifest.resources.ic_qr_code_scanning
+import com.jawharat.manifest.resources.logout
+import com.jawharat.manifest.resources.logout_confirmation
+import com.jawharat.manifest.resources.logout_title
+import com.jawharat.manifest.resources.passengers
+import com.jawharat.manifest.resources.personnel
+import com.jawharat.manifest.resources.price
+import com.jawharat.manifest.resources.register_trip
+import com.jawharat.manifest.resources.scan_qr_code
+import com.jawharat.manifest.resources.trip_details
+import com.jawharat.manifest.resources.vehicle_information
+import com.jawharat.manifest.resources.vehicle_number
+import com.jawharat.manifest.resources.vehicle_type
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
@@ -104,7 +123,12 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Register Trip", color = MaterialTheme.colorScheme.onPrimary) },
+                title = {
+                    Text(
+                        Res.string.register_trip.string,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
                 actions = {
                     Button(
@@ -112,7 +136,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         modifier = Modifier.padding(end = 16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
                     ) {
-                        Text(text = "Logout", color = Color(0xC1A52B2B))
+                        Text(text = Res.string.logout.string, color = Color(0xC1A52B2B))
                     }
                 }
             )
@@ -174,18 +198,18 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                FormSection(title = "Trip Details") {
+                FormSection(title = Res.string.trip_details.string) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         AppTextField(
                             value = state.manifest.date,
-                            placeholder = "Date",
+                            placeholder = Res.string.date.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
                         )
                         AppTextField(
                             value = state.manifest.price,
-                            placeholder = "Price",
+                            placeholder = Res.string.price.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
@@ -194,18 +218,18 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
                     AppTextField(
                         value = if (state.manifest.from.isNotEmpty()) "${state.manifest.from} - ${state.manifest.to}" else "",
-                        placeholder = "From - To",
+                        placeholder = Res.string.from_to.string,
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                FormSection(title = "Vehicle Information") {
+                FormSection(title = Res.string.vehicle_information.string) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         AppTextField(
                             value = state.manifest.vehicleNumber,
-                            placeholder = "Vehicle Number",
+                            placeholder = Res.string.vehicle_number.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
@@ -213,7 +237,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
                         AppTextField(
                             value = state.manifest.vehicleType,
-                            placeholder = "Vehicle Type",
+                            placeholder = Res.string.vehicle_type.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
@@ -221,7 +245,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
                         AppTextField(
                             value = state.manifest.passengers.ifEmpty { "" }.toString(),
-                            placeholder = "Passengers",
+                            placeholder = Res.string.passengers.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
@@ -229,10 +253,10 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                     }
                 }
 
-                FormSection(title = "Personnel") {
+                FormSection(title = Res.string.personnel.string) {
                     AppTextField(
                         value = state.manifest.driverName,
-                        placeholder = "Driver Name",
+                        placeholder = Res.string.driver_name.string,
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth()
@@ -240,14 +264,14 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         AppTextField(
                             value = state.manifest.driverIdNumber,
-                            placeholder = "Driver ID Number",
+                            placeholder = Res.string.driver_id_number.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
                         )
                         AppTextField(
                             value = state.manifest.driverPhoneNumber,
-                            placeholder = "Driver Phone Number",
+                            placeholder = Res.string.driver_phone_number.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
@@ -266,7 +290,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                             contentDescription = null
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Scan QR Code")
+                        Text(text = Res.string.scan_qr_code.string)
                     }
                 }
             }
@@ -287,15 +311,16 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Log out?",
+                        text = Res.string.logout_title.string,
                         style = MaterialTheme.typography.headlineSmall
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Are you sure you want to log out of your account?",
-                        style = MaterialTheme.typography.bodyMedium
+                        text = Res.string.logout_confirmation.string,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.align(Alignment.Start)
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -308,7 +333,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                             onClick = viewModel::onDismissLogoutConfirmation,
                             modifier = Modifier.padding(end = 8.dp)
                         ) {
-                            Text("Cancel")
+                            Text(Res.string.cancel.string)
                         }
                         Button(
                             onClick = viewModel::logout,
@@ -316,7 +341,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                                 containerColor = MaterialTheme.colorScheme.error
                             )
                         ) {
-                            Text("Log Out")
+                            Text(Res.string.logout.string)
                         }
                     }
                 }

@@ -65,7 +65,8 @@ class VehiclesViewModel(private val repository: ManifestRepository) :
         updateState {
             copy(
                 isDialogVisible = true,
-                vehicleToEdit = state.value.filteredVehicles.firstOrNull { it.id == id })
+                vehicleToEdit = state.value.filteredVehicles.firstOrNull { it.id == id }
+            )
         }
     }
 

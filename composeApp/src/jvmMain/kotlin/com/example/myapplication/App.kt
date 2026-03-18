@@ -4,7 +4,10 @@ package com.example.myapplication
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import com.example.myapplication.di.dataSourceModule
 import com.example.myapplication.di.networkModule
 import com.example.myapplication.di.repositoryModule
@@ -26,6 +29,10 @@ fun App() {
     val repository = koinInject<AuthRepository>()
 
     MaterialTheme {
-        AppNavigation(startDestination = if (repository.isUserLoggedIn) Screen.Home else Screen.Login)
+        CompositionLocalProvider(
+            LocalLayoutDirection provides LayoutDirection.Rtl
+        ) {
+            AppNavigation(startDestination = if (repository.isUserLoggedIn) Screen.Home else Screen.Login)
+        }
     }
 }
