@@ -82,6 +82,8 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
             )
         }
     ) { paddingValues ->
+        val listState = rememberLazyListState()
+
         val filteredVehicles = state.filteredVehicles
         val query = state.searchState.query
 
@@ -108,6 +110,14 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
                 )
             }
         }
+
+        val scope = rememberCoroutineScope()
+        if (listState.firstVisibleItemIndex > 6)
+            ScrollToTopBox {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            }
     }
 
     if (state.isDialogVisible && state.vehicleToEdit != null)

@@ -54,6 +54,7 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
             )
         }
     ) { paddingValues ->
+        val listState = rememberLazyListState()
         val filteredDrivers = state.filteredDrivers
         val query = state.searchState.query
         LazyColumn(
@@ -78,6 +79,14 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
                 )
             }
         }
+
+        val scope = rememberCoroutineScope()
+        if (listState.firstVisibleItemIndex > 6)
+            ScrollToTopBox {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            }
     }
 
     if (state.isDialogVisible && state.driverToEdit != null)
