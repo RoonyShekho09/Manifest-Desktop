@@ -22,10 +22,12 @@ class HomeViewModel(
     fun onStartScanning() = updateState { copy(startScanning = true) }
 
     fun onQrCodeResult(value: String) {
-        if (value.startsWith("v"))
-            scanDriverQrCode(value)
-        else
-            scanVehicleQrCode(value)
+        val driverId = value.substringAfter("D:", missingDelimiterValue = "").ifEmpty { null }
+        val vehicleId = value.substringAfter("V:", missingDelimiterValue = "").ifEmpty { null }
+
+        driverId?.let { scanDriverQrCode(driverId) }
+
+        vehicleId?.let { scanVehicleQrCode(vehicleId) }
 
         updateState { copy(startScanning = false) }
     }
