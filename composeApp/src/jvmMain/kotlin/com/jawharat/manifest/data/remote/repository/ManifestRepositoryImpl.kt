@@ -54,11 +54,9 @@ class ManifestRepositoryImpl(
         remoteDataSource.scanManifestQrCode(id)
     }
 
-    override suspend fun scanDriverQrCode(id: String) {
-        remoteDataSource.scanDriverQrCode(id)
-    }
+    override suspend fun scanDriverQrCode(id: String) =
+        remoteDataSource.scanDriverQrCode(id).toDomain()
 
-    override suspend fun scanVehicleQrCode(id: String) {
-        remoteDataSource.scanVehicleQrCode(id)
-    }
+    override suspend fun scanVehicleQrCode(id: String) =
+        remoteDataSource.scanVehicleQrCode(id).toDomain()
 }

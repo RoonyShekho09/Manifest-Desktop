@@ -1,6 +1,8 @@
 package com.jawharat.manifest.data.remote.mapper
 
+import com.jawharat.manifest.data.local.model.drivers.DriverQrCodeResponse
 import com.jawharat.manifest.data.local.model.drivers.DriverResponse
+import com.jawharat.manifest.data.local.model.vehicles.VehicleQrCodeResponse
 import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.DriverInformation
@@ -22,7 +24,7 @@ fun DriverResponse.toDomain() = Driver(
 )
 
 fun VehicleResponse.toDomain() = Vehicle(
-    carType = carType.orEmpty(),
+    vehicleType = carType.orEmpty(),
     driverInformation = DriverInformation(
         destination = driverId?.destination.orEmpty(),
         _id = driverId?._id.orEmpty(),
@@ -64,7 +66,7 @@ fun List<com.jawharat.manifest.db.Vehicle>.toDomain() = map { it.toDomain() }
 
 fun com.jawharat.manifest.db.Vehicle.toDomain() = Vehicle(
     id = id,
-    carType = carType,
+    vehicleType = carType,
     driverInformation = DriverInformation(
         destination = driver_destination,
         _id = driver_id,
@@ -90,7 +92,7 @@ fun List<Vehicle>.toEntity() = map { it.toEntity() }
 
 fun Vehicle.toEntity() = com.jawharat.manifest.db.Vehicle(
     id = id,
-    carType = carType,
+    carType = vehicleType,
     driver_destination = driverInformation.destination,
     driver_id = driverInformation.id,
     driver_name = driverInformation.name,
@@ -103,4 +105,23 @@ fun Vehicle.toEntity() = com.jawharat.manifest.db.Vehicle(
     price = price,
     type = type,
     vehicleNumber = vehicleNumber
+)
+
+fun VehicleQrCodeResponse.toDomain() = Vehicle(
+    vehicleType = vehicleType.orEmpty(),
+    driverInformation = DriverInformation("", "", "", "", ""),
+    id = "",
+    isInside = false,
+    line = Line(name = line.orEmpty(), id = ""),
+    office = Office("", ""),
+    price = price ?: 0,
+    type = "",
+    vehicleNumber = vehicleNumber.orEmpty()
+)
+
+fun DriverQrCodeResponse.toDomain() = Driver(
+    id = driverId.orEmpty(),
+    name = driverName.orEmpty(),
+    phone = phoneNumber.orEmpty(),
+    destination = to.orEmpty()
 )

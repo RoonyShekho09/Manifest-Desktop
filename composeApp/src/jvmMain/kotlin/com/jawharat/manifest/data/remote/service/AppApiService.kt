@@ -1,6 +1,8 @@
 package com.jawharat.manifest.data.remote.service
 
+import com.jawharat.manifest.data.local.model.drivers.DriverQrCodeResponse
 import com.jawharat.manifest.data.local.model.drivers.DriverResponse
+import com.jawharat.manifest.data.local.model.vehicles.VehicleQrCodeResponse
 import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
 import com.jawharat.manifest.data.remote.model.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.LoginResponse
@@ -29,10 +31,10 @@ interface AppApiService {
     suspend fun scanManifestQrCode(@Path("id") id: String): Response<Unit>
 
     @GET("drivers/{id}")
-    suspend fun scanDriverQrCode(@Path("id") id: String): Response<Unit>
+    suspend fun scanDriverQrCode(@Path("id") id: String): Response<DriverQrCodeResponse>
 
     @GET("vehicles/{id}")
-    suspend fun scanVehicleQrCode(@Path("id") id: String): Response<Unit>
+    suspend fun scanVehicleQrCode(@Path("id") id: String): Response<VehicleQrCodeResponse>
 
     @GET("drivers")
     suspend fun getDrivers(): Response<List<DriverResponse>>

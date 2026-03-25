@@ -10,7 +10,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,21 +28,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,15 +67,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.components.AppTextField
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarVisuals
 import com.jawharat.manifest.presentation.feature.shared.LocalSnackBarState
-import com.jawharat.manifest.utils.Listen
-import com.jawharat.manifest.utils.painter
-import com.jawharat.manifest.utils.string
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.cancel
 import com.jawharat.manifest.resources.date
@@ -97,9 +92,11 @@ import com.jawharat.manifest.resources.trip_details
 import com.jawharat.manifest.resources.vehicle_information
 import com.jawharat.manifest.resources.vehicle_number
 import com.jawharat.manifest.resources.vehicle_type
+import com.jawharat.manifest.utils.Listen
+import com.jawharat.manifest.utils.painter
+import com.jawharat.manifest.utils.string
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -161,8 +158,8 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                     ) {
                         visuals?.icon?.let {
                             Icon(
-                                painterResource(it),
-                                null
+                                painter = it.painter,
+                                contentDescription = null
                             )
                         }
                         Text(data.visuals.message)
@@ -175,23 +172,21 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
         var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (state.startScanning) {
-                QrCodeScanner(
-                    onResult = viewModel::onQrCodeResult,
-                    onFrame = { imageBitmap = it },
-                )
+            QrCodeScanner(
+                onResult = viewModel::onQrCodeResult,
+                onFrame = { imageBitmap = it },
+            )
 
-                imageBitmap?.let {
-                    Image(
-                        bitmap = it,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
-                ScanGuideOverlay()
-            }
+//                imageBitmap?.let {
+//                    Image(
+//                        bitmap = it,
+//                        contentDescription = null,
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier.fillMaxSize()
+//                    )
+//                }
+//
+//                ScanGuideOverlay()
 
             Column(
                 modifier = Modifier.padding(24.dp).padding(paddingValues)

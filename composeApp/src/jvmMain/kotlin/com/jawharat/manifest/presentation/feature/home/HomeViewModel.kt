@@ -25,24 +25,55 @@ class HomeViewModel(
         val driverId = value.substringAfter("D:", missingDelimiterValue = "").ifEmpty { null }
         val vehicleId = value.substringAfter("V:", missingDelimiterValue = "").ifEmpty { null }
 
-        driverId?.let { scanDriverQrCode(driverId) }
+        driverId?.let {
+            if (!state.value.scanState.isDriverScanned)
+                scanDriverQrCode(driverId)
+        }
 
-        vehicleId?.let { scanVehicleQrCode(vehicleId) }
+        vehicleId?.let {
+            if (!state.value.scanState.isVehicleScanned)
+                scanVehicleQrCode(vehicleId)
+        }
 
-        updateState { copy(startScanning = false) }
+        if (state.value.scanState.allScanned)
+            updateState { copy(startScanning = false, scanState = ScanState()) }
     }
 
     fun scanVehicleQrCode(id: String) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { manifestRepository.scanVehicleQrCode(id) },
-        onSuccess = { },
+        onSuccess = {
+            updateState {
+                copy(
+                    manifest = state.value.manifest.copy(
+                        vehicleNumber = it.vehicleNumber,
+                        price = it.price.toString(),
+                        vehicleType = it.vehicleType,
+                        from = it.line.name
+                    ),
+                    scanState = scanState.copy(isVehicleScanned = true)
+                )
+            }
+        },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 
     fun scanDriverQrCode(id: String) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { manifestRepository.scanDriverQrCode(id) },
-        onSuccess = { },
+        onSuccess = {
+            updateState {
+                copy(
+                    manifest = state.value.manifest.copy(
+                        driverIdNumber = it.id,
+                        to = it.destination,
+                        driverName = it.name,
+                        driverPhoneNumber = it.phone,
+                    ),
+                    scanState = scanState.copy(isDriverScanned = true)
+                )
+            }
+        },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 

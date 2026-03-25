@@ -12,4 +12,12 @@ data class HomeUiState(
     val manifest: Manifest = Manifest(),
     val startScanning: Boolean = false,
     val isLogoutConfirmationVisible: Boolean = false,
+    val scanState: ScanState = ScanState(),
 )
+
+data class ScanState(
+    val isVehicleScanned: Boolean = false,
+    val isDriverScanned: Boolean = false,
+){
+    val allScanned: Boolean get() = isDriverScanned && isVehicleScanned
+}

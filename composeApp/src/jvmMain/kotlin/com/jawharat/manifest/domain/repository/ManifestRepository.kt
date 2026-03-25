@@ -8,8 +8,8 @@ interface ManifestRepository {
     suspend fun getDrivers(fetch: Boolean = false): List<Driver>
     suspend fun getVehicles(fetch: Boolean = false): List<Vehicle>
     suspend fun scanManifestQrCode(id: String)
-    suspend fun scanDriverQrCode(id: String)
-    suspend fun scanVehicleQrCode(id: String)
+    suspend fun scanDriverQrCode(id: String): Driver
+    suspend fun scanVehicleQrCode(id: String): Vehicle
     suspend fun submitManifest(
         driverName: String,
         vehicleNumber: String,

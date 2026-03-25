@@ -50,9 +50,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.components.AppTextField
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarVisuals
 import com.jawharat.manifest.presentation.feature.shared.LocalSnackBarState
-import com.jawharat.manifest.utils.Listen
-import com.jawharat.manifest.utils.painter
-import com.jawharat.manifest.utils.string
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.ic_jawharat
 import com.jawharat.manifest.resources.ic_lock
@@ -63,7 +60,9 @@ import com.jawharat.manifest.resources.login
 import com.jawharat.manifest.resources.login_to_continue
 import com.jawharat.manifest.resources.password
 import com.jawharat.manifest.resources.username
-import org.jetbrains.compose.resources.painterResource
+import com.jawharat.manifest.utils.Listen
+import com.jawharat.manifest.utils.painter
+import com.jawharat.manifest.utils.string
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -109,7 +108,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        visuals?.icon?.let { Icon(painterResource(it), null) }
+                        visuals?.icon?.let { Icon(painter = it.painter, null) }
                         Text(data.visuals.message)
                     }
                 }
@@ -164,7 +163,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                         },
                     placeholder = Res.string.username.string,
                     leadingIcon = {
-                        Icon(painterResource(Res.drawable.ic_mail), null, tint = Color.Gray)
+                        Icon(painter = Res.drawable.ic_mail.painter, null, tint = Color.Gray)
                     }
                 )
 
@@ -183,15 +182,14 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                         },
                     outputTransformation = if (isPasswordVisible) null else PasswordOutputTransformation(),
                     leadingIcon = {
-                        Icon(painterResource(Res.drawable.ic_lock), null, tint = Color.Gray)
+                        Icon(painter = Res.drawable.ic_lock.painter, null, tint = Color.Gray)
                     },
                     trailingIcon = {
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                             Icon(
-                                painter = painterResource(
-                                    if (isPasswordVisible) Res.drawable.ic_password_visible
-                                    else Res.drawable.ic_password_invisible
-                                ),
+                                painter =
+                                    if (isPasswordVisible) Res.drawable.ic_password_visible.painter
+                                    else Res.drawable.ic_password_invisible.painter,
                                 contentDescription = null
                             )
                         }

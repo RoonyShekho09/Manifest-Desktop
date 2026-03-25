@@ -47,17 +47,14 @@ class AppRemoteDataSourceImpl(private val apiService: AppApiService) : AppRemote
         )
     }
 
-    override suspend fun scanManifestQrCode(id: String) {
-        apiService.scanManifestQrCode(id)
-    }
+    override suspend fun scanManifestQrCode(id: String) =
+        apiService.scanManifestQrCode(id).body() ?: throw Exception()
 
-    override suspend fun scanDriverQrCode(id: String) {
-        apiService.scanDriverQrCode(id)
-    }
+    override suspend fun scanDriverQrCode(id: String) =
+        apiService.scanDriverQrCode(id).body() ?: throw Exception()
 
-    override suspend fun scanVehicleQrCode(id: String) {
-        apiService.scanVehicleQrCode(id)
-    }
+    override suspend fun scanVehicleQrCode(id: String) =
+        apiService.scanVehicleQrCode(id).body() ?: throw Exception()
 
     override suspend fun getDrivers(): List<DriverResponse> {
         return apiService.getDrivers().body() ?: throw Exception()
