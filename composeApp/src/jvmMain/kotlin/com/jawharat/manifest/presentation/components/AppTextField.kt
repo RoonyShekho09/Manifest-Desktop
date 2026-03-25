@@ -34,6 +34,7 @@ fun AppTextField(
     modifier: Modifier = Modifier,
     placeholder: String = "Enter text here...",
     readOnly: Boolean = false,
+    enabled: Boolean = true,
     suffixText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onKeyboardAction: KeyboardActionHandler? = null,
@@ -55,6 +56,7 @@ fun AppTextField(
         inputTransformation = inputTransformation,
         lineLimits = TextFieldLineLimits.SingleLine,
         readOnly = readOnly,
+        enabled = enabled,
         modifier = modifier.defaultMinSize(minHeight = 40.dp),
         decorator = object : TextFieldDecorator {
             @Composable
@@ -78,6 +80,7 @@ fun AppTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "Enter text here...",
+    enabled: Boolean = true,
     readOnly: Boolean = false,
     suffixText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -97,6 +100,7 @@ fun AppTextField(
         keyboardOptions = keyboardOptions,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         readOnly = readOnly,
+        enabled = enabled,
         modifier = modifier.defaultMinSize(minHeight = 40.dp),
         decorationBox = {
             TextFieldDecorator(

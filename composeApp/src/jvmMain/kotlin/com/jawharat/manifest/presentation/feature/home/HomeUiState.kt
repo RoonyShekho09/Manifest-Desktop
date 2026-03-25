@@ -13,6 +13,7 @@ data class HomeUiState(
     val startScanning: Boolean = false,
     val isLogoutConfirmationVisible: Boolean = false,
     val scanState: ScanState = ScanState(),
+    val isAddPassengersDialogVisible: Boolean = false,
 )
 
 data class ScanState(

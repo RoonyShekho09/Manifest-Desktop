@@ -103,6 +103,7 @@ fun QrCodeScanner(
                     delay(200)
                 }
             } catch (e: Exception) {
+                isLoading = false
                 withContext(Dispatchers.Main) {
                     println("💥 Exception: ${e.message}")
                 }

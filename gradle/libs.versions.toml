@@ -40,6 +40,7 @@ kotlinx-serializaion = { module = "org.jetbrains.kotlinx:kotlinx-serialization-j
 zxing-qrcode = { module = "com.google.zxing:javase", version = "3.5.3" }
 webcam = { module = "com.github.sarxos:webcam-capture", version = "0.3.12" }
 sqldelight = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+countrycodepicker = { module = "io.github.joelkanyi:komposecountrycodepicker", version = "2.0.0" }
 
 
 [plugins]
@@ -87,7 +88,8 @@ compose = [
 utils = [
     "openpdf",
     "zxing-qrcode",
-    "webcam"
+    "webcam",
+    "countrycodepicker"
 ]
 
 database = [
