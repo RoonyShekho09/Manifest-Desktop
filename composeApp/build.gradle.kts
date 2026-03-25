@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.ktorfit)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -24,6 +25,7 @@ kotlin {
             implementation(libs.bundles.koin)
             implementation(libs.bundles.network)
             implementation(libs.kotlinx.serializaion)
+            implementation("app.cash.sqldelight:sqlite-driver:2.3.2")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -37,7 +39,18 @@ kotlin {
 }
 
 dependencies {
-    add("kspJvm", libs.ktorfit.ksp)
+     add("kspJvm", libs.ktorfit.ksp)
+}
+
+sqldelight {
+    databases {
+        create("ManifestDatabase") {
+            packageName.set("com.jawharat.manifest.db")
+            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.3.2")
+            srcDirs("src/jvmMain/sqldelight")
+        }
+    }
+    linkSqlite.set(false)
 }
 
 ktorfit {
