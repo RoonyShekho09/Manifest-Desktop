@@ -59,9 +59,10 @@
     <string name="home">الرئيسية</string>
     <string name="edit">تعديل</string>
     <string name="generate_qr">إنشاء رمز QR</string>
-    <string name="driver_id">المعرف: %s</string><string name="line">الخط: %s</string>
+    <string name="driver_id">المعرف: %1$s</string>
+    <string name="line">الخط: %1$s</string>
     <string name="vehicle_info">المركبة: %1$s (%2$s) | اللوحة: %3$s</string>
-    <string name="price_iqd">السعر: %s دينار</string>
+    <string name="price_iqd">السعر: %1$s دينار</string>
     <string name="qr_code">رمز QR</string>
     <string name="trip_details">تفاصيل الرحلة</string>
     <string name="date">التاريخ</string>

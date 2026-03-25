@@ -74,6 +74,7 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
             }
 
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
