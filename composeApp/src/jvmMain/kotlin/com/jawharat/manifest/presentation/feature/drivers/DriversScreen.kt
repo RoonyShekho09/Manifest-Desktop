@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.presentation.components.AppTextField
-import com.jawharat.manifest.presentation.components.EditDriverDialog
+import com.jawharat.manifest.presentation.components.AddEditDriverDialog
 import com.jawharat.manifest.presentation.components.ScrollToTopBox
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
@@ -26,6 +26,7 @@ import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.driver_id
 import com.jawharat.manifest.resources.driver_management
 import com.jawharat.manifest.resources.edit
+import com.jawharat.manifest.resources.ic_add
 import com.jawharat.manifest.resources.ic_edit
 import com.jawharat.manifest.resources.ic_location_on
 import com.jawharat.manifest.resources.ic_profile
@@ -82,11 +83,23 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
             contentPadding = PaddingValues(24.dp)
         ) {
             item {
-                AppTextField(
-                    state = query,
-                    placeholder = Res.string.search_placeholder.string,
-                    modifier = Modifier.width(400.dp)
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(48.dp)) {
+                    AppTextField(
+                        state = query,
+                        placeholder = Res.string.search_placeholder.string,
+                        modifier = Modifier.width(400.dp)
+                    )
+                    IconButton(
+                        onClick = { viewModel.onEditClick("") },
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(
+                            painter = Res.drawable.ic_add.painter,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
             }
             items(filteredDrivers, key = { it.id }) { driver ->
                 DriverRow(
@@ -105,11 +118,12 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
             }
     }
 
-    if (state.isDialogVisible && state.driverToEdit != null)
-        EditDriverDialog(
+    if (state.isDialogVisible)
+        AddEditDriverDialog(
             driver = state.driverToEdit,
+            isEdit = state.driverToEdit != null,
             onDismiss = viewModel::onDismissDialog,
-            onSave = {}
+            onConfirm = { viewModel.onConfirmAddEditDriver(it) }
         )
 }
 

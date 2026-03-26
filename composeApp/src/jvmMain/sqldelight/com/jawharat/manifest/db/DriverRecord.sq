@@ -1,0 +1,17 @@
+CREATE TABLE DriverRecord (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    destination TEXT NOT NULL,
+    driverId TEXT NOT NULL
+);
+
+insertDriver:
+INSERT OR REPLACE INTO DriverRecord(id, name, phone, destination, driverId)
+VALUES (?, ?, ?, ?, ?);
+
+queryDrivers:
+SELECT * FROM DriverRecord;
+
+hasDrivers:
+SELECT EXISTS(SELECT 1 FROM DriverRecord LIMIT 1);

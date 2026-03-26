@@ -44,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.components.AppTextField
-import com.jawharat.manifest.presentation.components.EditCarDialog
+import com.jawharat.manifest.presentation.components.EditVehicleDialog
 import com.jawharat.manifest.presentation.components.ScrollToTopBox
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.cars_management
@@ -136,7 +136,7 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
     }
 
     if (state.isDialogVisible && state.vehicleToEdit != null)
-        EditCarDialog(
+        EditVehicleDialog(
             car = state.vehicleToEdit,
             onDismiss = viewModel::onDismissDialog,
             onSave = {}

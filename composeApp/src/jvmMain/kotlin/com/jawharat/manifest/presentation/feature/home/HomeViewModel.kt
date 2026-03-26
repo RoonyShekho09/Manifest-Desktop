@@ -11,6 +11,9 @@ class HomeViewModel(
 
     fun onLogoutClick() = updateState { copy(isLogoutConfirmationVisible = true) }
 
+    fun onAddPassengers(value: List<PassengerFieldState>) =
+        updateState { copy(passengers = value, isAddPassengersDialogVisible = false) }
+
     fun onPassengerFieldClick() = updateState { copy(isAddPassengersDialogVisible = true) }
 
     fun onDismissAddPassengerDialog() = updateState { copy(isAddPassengersDialogVisible = false) }

@@ -9,6 +9,7 @@ data class DriverUiState(
     val drivers: List<Driver> = emptyList(),
     val filteredDrivers: List<Driver> = emptyList(),
     val driverToEdit: Driver? = null,
+    val driverToAdd: Driver? = null,
     val isDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
     val searchState: SearchState<Driver> = SearchState(),

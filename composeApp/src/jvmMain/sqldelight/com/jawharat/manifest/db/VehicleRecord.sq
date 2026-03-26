@@ -1,7 +1,7 @@
 import kotlin.Boolean;
 import kotlin.Int;
 
-CREATE TABLE Vehicle (
+CREATE TABLE VehicleRecord (
     id TEXT NOT NULL PRIMARY KEY,
     carType TEXT NOT NULL,
     isInside INTEGER AS Boolean NOT NULL DEFAULT 0,
@@ -22,7 +22,7 @@ CREATE TABLE Vehicle (
 );
 
 insertVehicle:
-INSERT OR REPLACE INTO Vehicle (
+INSERT OR REPLACE INTO VehicleRecord (
     id,
     carType,
     isInside,
@@ -41,7 +41,7 @@ INSERT OR REPLACE INTO Vehicle (
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 queryVehicles:
-SELECT * FROM Vehicle;
+SELECT * FROM VehicleRecord;
 
 hasVehicles:
-SELECT EXISTS(SELECT 1 FROM Vehicle LIMIT 1);
+SELECT EXISTS(SELECT 1 FROM VehicleRecord LIMIT 1);

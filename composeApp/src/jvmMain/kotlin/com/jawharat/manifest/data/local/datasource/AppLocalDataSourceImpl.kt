@@ -1,9 +1,10 @@
 package com.jawharat.manifest.data.local.datasource
 
 import com.jawharat.manifest.data.local.model.vehicles.UserLocal
-import com.jawharat.manifest.db.Driver
+import com.jawharat.manifest.db.DriverRecord
+import com.jawharat.manifest.db.LineRecord
 import com.jawharat.manifest.db.ManifestDatabase
-import com.jawharat.manifest.db.Vehicle
+import com.jawharat.manifest.db.VehicleRecord
 import com.jawharat.manifest.utils.putObject
 
 
@@ -21,23 +22,37 @@ class AppLocalDataSourceImpl(
 
     override fun clearDataStore() = settings.clear()
 
-    override fun insertDrivers(drivers: List<Driver>) {
+    override fun insertDrivers(drivers: List<DriverRecord>) {
         database.transaction {
             drivers.forEach { driver ->
-                database.driversQueries.insertDriver(
+                database.driverRecordQueries.insertDriver(
                     id = driver.id,
                     name = driver.name,
                     phone = driver.phone,
-                    destination = driver.destination
+                    destination = driver.destination,
+                    driverId = driver.driverId
                 )
             }
         }
     }
 
-    override fun insertVehicles(vehicles: List<Vehicle>) {
+    override fun insertLines(lines: List<LineRecord>) {
+        database.transaction {
+            lines.forEach { driver ->
+                database.lineRecordQueries.insertLine(
+                    id = driver.id,
+                    name = driver.name,
+                )
+            }
+        }
+    }
+
+    override fun queryLines() = database.lineRecordQueries.queryLines().executeAsList()
+
+    override fun insertVehicles(vehicles: List<VehicleRecord>) {
         database.transaction {
             vehicles.forEach { driver ->
-                database.vehiclesQueries.insertVehicle(
+                database.vehicleRecordQueries.insertVehicle(
                     id = driver.id,
                     carType = driver.carType,
                     isInside = driver.isInside,
@@ -59,21 +74,23 @@ class AppLocalDataSourceImpl(
 
     override val hasVehiclesInDb: Boolean
         get() = run {
-            val hasVehicles = database.vehiclesQueries.hasVehicles()
+            val hasVehicles = database.vehicleRecordQueries.hasVehicles()
             println("hasVehicles: ${hasVehicles.executeAsList()}")
             hasVehicles.executeAsOne()
         }
 
     override val hasDriversInDb: Boolean
-        get() = database.driversQueries.hasDrivers().executeAsOne()
+        get() = database.driverRecordQueries.hasDrivers().executeAsOne()
 
-    override fun queryVehicles(): List<Vehicle> {
-        return database.vehiclesQueries.queryVehicles().executeAsList()
-    }
+    override val hasLinesInDb: Boolean
+        get() = database.lineRecordQueries.hasLines().executeAsOne()
 
-    override fun queryDrivers(): List<Driver> {
-        return database.driversQueries.queryDrivers().executeAsList()
-    }
+    override fun queryVehicles(): List<VehicleRecord> =
+        database.vehicleRecordQueries.queryVehicles().executeAsList()
+
+    override fun queryDrivers(): List<DriverRecord> =
+        database.driverRecordQueries.queryDrivers().executeAsList()
+
 
     companion object {
         const val TOKEN_KEY = "token_key"

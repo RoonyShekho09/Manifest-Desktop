@@ -4,6 +4,10 @@ import com.jawharat.manifest.data.local.model.drivers.DriverQrCodeResponse
 import com.jawharat.manifest.data.local.model.drivers.DriverResponse
 import com.jawharat.manifest.data.local.model.vehicles.VehicleQrCodeResponse
 import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
+import com.jawharat.manifest.data.remote.model.LineResponse
+import com.jawharat.manifest.db.DriverRecord
+import com.jawharat.manifest.db.LineRecord
+import com.jawharat.manifest.db.VehicleRecord
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.DriverInformation
 import com.jawharat.manifest.domain.entity.Line
@@ -20,7 +24,8 @@ fun DriverResponse.toDomain() = Driver(
     id = _id.orEmpty(),
     name = name.orEmpty(),
     phone = phoneNumber.orEmpty(),
-    destination = destination.orEmpty()
+    destination = destination.orEmpty(),
+    driverId = id.orEmpty()
 )
 
 fun VehicleResponse.toDomain() = Vehicle(
@@ -42,29 +47,32 @@ fun VehicleResponse.toDomain() = Vehicle(
 )
 
 @JvmName("driverDbToDomain")
-fun List<com.jawharat.manifest.db.Driver>.toDomain() = map { it.toDomain() }
+fun List<DriverRecord>.toDomain() = map { it.toDomain() }
 
-fun com.jawharat.manifest.db.Driver.toDomain() = Driver(
+fun DriverRecord.toDomain() = Driver(
     id = id,
     name = name,
     phone = phone,
-    destination = destination
+    destination = destination,
+    driverId = driverId
 )
 
 
 @JvmName("driverToEntity")
 fun List<Driver>.toEntity() = map { it.toEntity() }
 
-fun Driver.toEntity() = com.jawharat.manifest.db.Driver(
+fun Driver.toEntity() = DriverRecord(
     id = id,
     name = name,
     phone = phone,
-    destination = destination
+    destination = destination,
+    driverId = driverId
 )
 
-fun List<com.jawharat.manifest.db.Vehicle>.toDomain() = map { it.toDomain() }
+@JvmName("vehicleRecordToDomain")
+fun List<VehicleRecord>.toDomain() = map { it.toDomain() }
 
-fun com.jawharat.manifest.db.Vehicle.toDomain() = Vehicle(
+fun VehicleRecord.toDomain() = Vehicle(
     id = id,
     vehicleType = carType,
     driverInformation = DriverInformation(
@@ -88,9 +96,10 @@ fun com.jawharat.manifest.db.Vehicle.toDomain() = Vehicle(
     vehicleNumber = vehicleNumber,
 )
 
+@JvmName("vehicleToEntity")
 fun List<Vehicle>.toEntity() = map { it.toEntity() }
 
-fun Vehicle.toEntity() = com.jawharat.manifest.db.Vehicle(
+fun Vehicle.toEntity() = VehicleRecord(
     id = id,
     carType = vehicleType,
     driver_destination = driverInformation.destination,
@@ -123,5 +132,28 @@ fun DriverQrCodeResponse.toDomain() = Driver(
     id = driverId.orEmpty(),
     name = driverName.orEmpty(),
     phone = phoneNumber.orEmpty(),
-    destination = to.orEmpty()
+    destination = to.orEmpty(),
+    driverId = driverId.orEmpty()
+)
+
+@JvmName("lineRecordToDomain")
+fun List<LineRecord>.toDomain() = map { it.toDomain() }
+
+fun LineRecord.toDomain() = Line(
+    id = id,
+    name = name
+)
+
+fun List<LineResponse>.toDomain() = map { it.toDomain() }
+
+fun LineResponse.toDomain() = Line(
+    id = id.orEmpty(),
+    name = name.orEmpty()
+)
+
+fun List<LineResponse>.toEntity() = map { it.toEntity() }
+
+fun LineResponse.toEntity() = LineRecord(
+    id = id.orEmpty(),
+    name = name.orEmpty()
 )

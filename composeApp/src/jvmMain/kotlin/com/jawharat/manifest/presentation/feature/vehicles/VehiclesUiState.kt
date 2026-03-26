@@ -10,6 +10,7 @@ import java.util.UUID
 data class VehiclesUiState(
     val vehicles: List<VehicleUiState> = emptyList(),
     val vehicleToEdit: VehicleUiState? = null,
+    val vehicleToAdd: VehicleUiState? = null,
     val filteredVehicles: List<VehicleUiState> = emptyList(),
     val isDialogVisible: Boolean = false,
     val isLoading: Boolean = false,

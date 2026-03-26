@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 fun AppTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
-    placeholder: String = "Enter text here...",
+    placeholder: String = "",
     readOnly: Boolean = false,
     enabled: Boolean = true,
     suffixText: String? = null,
@@ -203,6 +203,7 @@ private fun TextFieldDecorator(
                 if (state.text.isBlank()) {
                     Text(
                         text = placeholder,
+                        maxLines = 1,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         fontSize = 14.sp
                     )

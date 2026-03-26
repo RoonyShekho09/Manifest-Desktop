@@ -17,11 +17,6 @@ data class Office(
     val name: String
 )
 
-data class Line(
-    val id: String,
-    val name: String
-)
-
 data class DriverInformation(
     val destination: String,
     val _id: String,

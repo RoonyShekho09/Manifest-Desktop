@@ -1,8 +1,10 @@
 package com.jawharat.manifest.data.local.datasource
 
 import com.jawharat.manifest.data.local.model.vehicles.UserLocal
-import com.jawharat.manifest.db.Driver
-import com.jawharat.manifest.db.Vehicle
+import com.jawharat.manifest.data.remote.model.LineResponse
+import com.jawharat.manifest.db.DriverRecord
+import com.jawharat.manifest.db.LineRecord
+import com.jawharat.manifest.db.VehicleRecord
 
 interface AppLocalDataSource {
     val token: String?
@@ -11,8 +13,11 @@ interface AppLocalDataSource {
     fun storeToken(value: String)
     fun storeUser(value: UserLocal)
     fun clearDataStore()
-    fun insertDrivers(drivers: List<Driver>)
-    fun queryDrivers(): List<Driver>
-    fun queryVehicles(): List<Vehicle>
-    fun insertVehicles(vehicles: List<Vehicle>)
+    fun insertDrivers(drivers: List<DriverRecord>)
+    fun insertLines(lines: List<LineRecord>)
+    fun queryDrivers(): List<DriverRecord>
+    fun queryVehicles(): List<VehicleRecord>
+    fun insertVehicles(vehicles: List<VehicleRecord>)
+    fun queryLines(): List<LineRecord>
+    val hasLinesInDb: Boolean
 }

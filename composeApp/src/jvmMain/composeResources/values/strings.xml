@@ -87,4 +87,13 @@
     <string name="inside">الداخل</string>
     <string name="outside">الخارج</string>
     <string name="logout_title">تسجيل الخروج؟</string>
+    <string name="add_passengers">إضافة ركاب</string>
+    <string name="id_placeholder">رقم الجواز / الهوية الوطنية</string>
+    <string name="full_name">الاسم الكامل</string>
+    <string name="country">الدولة</string>
+    <string name="save_changes">حفظ التغييرات</string>
+    <string name="edit_driver_details">تعديل بيانات السائق</string>
+    <string name="edit_vehicle_details">تعديل بيانات المركبة</string>
+    <string name="status">الحالة</string>
+    <string name="add_new_driver">اضافة سائق جديد</string>
 </resources>

@@ -29,7 +29,7 @@ fun ScrollToTopBox(onClick: () -> Unit) {
         Box(
             modifier = Modifier.clip(CircleShape)
                 .clickable(onClick = onClick)
-                .background(MaterialTheme.colorScheme.tertiary)
+                .background(MaterialTheme.colorScheme.primary)
         ) {
             Icon(
                 painter = Res.drawable.ic_arrow_upward.painter,

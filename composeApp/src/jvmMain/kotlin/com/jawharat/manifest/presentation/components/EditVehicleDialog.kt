@@ -13,9 +13,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jawharat.manifest.presentation.feature.vehicles.VehicleUiState
 import com.jawharat.manifest.presentation.feature.vehicles.DriverStatus
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.cancel
+import com.jawharat.manifest.resources.edit_vehicle_details
+import com.jawharat.manifest.resources.inside
+import com.jawharat.manifest.resources.outside
+import com.jawharat.manifest.resources.save_changes
+import com.jawharat.manifest.resources.status
+import com.jawharat.manifest.utils.string
 
 @Composable
-fun EditCarDialog(
+fun EditVehicleDialog(
     car: VehicleUiState,
     onDismiss: () -> Unit,
     onSave: (VehicleUiState) -> Unit
@@ -46,7 +54,7 @@ fun EditCarDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Edit Driver Details",
+                    text = Res.string.edit_vehicle_details.string,
                     style = MaterialTheme.typography.h6,
                     fontWeight = FontWeight.Bold
                 )
@@ -76,7 +84,7 @@ fun EditCarDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Status: ",
+                            text = "${Res.string.status.string}: ",
                             style = MaterialTheme.typography.body1,
                             fontWeight = FontWeight.Medium
                         )
@@ -85,13 +93,13 @@ fun EditCarDialog(
                             selected = status == DriverStatus.INSIDE,
                             onClick = { status = DriverStatus.INSIDE }
                         )
-                        Text("Inside")
+                        Text(text = Res.string.inside.string)
                         Spacer(Modifier.width(8.dp))
                         RadioButton(
                             selected = status == DriverStatus.OUTSIDE,
                             onClick = { status = DriverStatus.OUTSIDE }
                         )
-                        Text("Outside")
+                        Text(text = Res.string.outside.string)
                     }
                 }
 
@@ -100,7 +108,7 @@ fun EditCarDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel", color = Color.Gray)
+                        Text(text = Res.string.cancel.string, color = Color.Gray)
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
@@ -117,7 +125,7 @@ fun EditCarDialog(
                             )
                         }
                     ) {
-                        Text("Save Changes")
+                        Text(text = Res.string.save_changes.string)
                     }
                 }
             }

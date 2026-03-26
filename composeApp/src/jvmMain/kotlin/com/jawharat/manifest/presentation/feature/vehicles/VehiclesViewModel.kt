@@ -18,6 +18,7 @@ class VehiclesViewModel(private val repository: ManifestRepository) :
 
     init {
         initializeVehicles()
+        initializeLines()
         state.value.searchState.query.initializeSearch(
             onSearch = { query ->
                 updateState {
@@ -46,6 +47,49 @@ class VehiclesViewModel(private val repository: ManifestRepository) :
             onEmptyStateUpdater = { copy(filteredVehicles = vehicles) }
         )
     }
+
+    fun initializeLines() = tryToExecute(
+        block = repository::getLines,
+        onSuccess = {
+
+        }
+    )
+
+    fun editVehicle() = tryToExecute(
+        block = {
+            with(state.value.vehicleToEdit) {
+                this?.id?.let {
+                    repository.editVehicle(
+                        vehicleNumber = plateNumber,
+                        type = type,
+                        carType = carType,
+                        price = price.toIntOrNull(),
+                        driverId = id,
+                        line = line,
+                        id = it,
+                    )
+                }
+            }
+        }
+    )
+
+    fun addVehicle() = tryToExecute(
+        block = {
+            with(state.value.vehicleToAdd) {
+                this?.id?.let {
+                    repository.editVehicle(
+                        vehicleNumber = plateNumber,
+                        type = type,
+                        carType = carType,
+                        price = price.toIntOrNull(),
+                        driverId = id,
+                        line = line,
+                        id = it,
+                    )
+                }
+            }
+        }
+    )
 
     fun onRefresh() = initializeVehicles(fetch = true)
 

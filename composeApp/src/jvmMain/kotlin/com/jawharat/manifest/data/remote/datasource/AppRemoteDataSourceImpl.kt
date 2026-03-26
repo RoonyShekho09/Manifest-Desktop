@@ -2,6 +2,9 @@ package com.jawharat.manifest.data.remote.datasource
 
 import com.jawharat.manifest.data.local.model.drivers.DriverResponse
 import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
+import com.jawharat.manifest.data.remote.model.AddDriverRequestBody
+import com.jawharat.manifest.data.remote.model.AddVehicleRequestBody
+import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.LoginResponse
 import com.jawharat.manifest.data.remote.model.Passenger
@@ -46,6 +49,82 @@ class AppRemoteDataSourceImpl(private val apiService: AppApiService) : AppRemote
             )
         )
     }
+
+    override suspend fun addDriver(
+        driverId: String?,
+        name: String?,
+        phoneNumber: String?,
+        destination: String?
+    ) = apiService.addDriver(
+        body = AddDriverRequestBody(
+            driverId = driverId,
+            name = name,
+            phoneNumber = phoneNumber,
+            destination = destination
+        )
+    ).body() ?: throw Exception()
+
+    override suspend fun addVehicle(
+        vehicleNumber: String?,
+        type: String?,
+        carType: String?,
+        price: Int?,
+        driverId: String?,
+        line: String?
+    ) = apiService.addVehicle(
+        body = AddVehicleRequestBody(
+            vehicleNumber = vehicleNumber,
+            type = type,
+            carType = carType,
+            price = price,
+            driverId = driverId,
+            line = line
+        )
+    ).body() ?: throw Exception()
+
+    override suspend fun editDriver(
+        driverId: String?,
+        name: String?,
+        phoneNumber: String?,
+        destination: String?,
+        id: String
+    ) {
+        val result = apiService.editDriver(
+            body = AddDriverRequestBody(
+                driverId = driverId,
+                name = name,
+                phoneNumber = phoneNumber,
+                destination = destination
+            ),
+            id = id
+        )
+
+        println("error: ${result.message}")
+        return result.body() ?: throw Exception(result.message)
+    }
+
+    override suspend fun editVehicle(
+        vehicleNumber: String?,
+        type: String?,
+        carType: String?,
+        price: Int?,
+        driverId: String?,
+        line: String?,
+        id: String
+    ) = apiService.editVehicle(
+        body = AddVehicleRequestBody(
+            vehicleNumber = vehicleNumber,
+            type = type,
+            carType = carType,
+            price = price,
+            driverId = driverId,
+            line = line
+        ),
+        id = id
+    ).body() ?: throw Exception()
+
+    override suspend fun getLines(): List<LineResponse> =
+        apiService.getLines().body() ?: throw Exception()
 
     override suspend fun scanManifestQrCode(id: String) =
         apiService.scanManifestQrCode(id).body() ?: throw Exception()

@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.components.AppTextField
-import com.jawharat.manifest.presentation.feature.home.components.dialog.AddPassengerDialog
+import com.jawharat.manifest.presentation.feature.home.components.dialog.AddPassengersDialog
 import com.jawharat.manifest.presentation.feature.home.components.dialog.LogoutConfirmationDialog
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarVisuals
 import com.jawharat.manifest.presentation.feature.shared.LocalSnackBarState
@@ -213,7 +213,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                                 .clickable(onClick = viewModel::onPassengerFieldClick)
                         ) {
                             AppTextField(
-                                value = state.manifest.passengers.ifEmpty { "" }.toString(),
+                                value = state.passengers.joinToString(", ") { it.name.text.toString() },
                                 placeholder = Res.string.passengers.string,
                                 onValueChange = {},
                                 readOnly = false,
@@ -269,7 +269,11 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
     }
 
     if (state.isAddPassengersDialogVisible)
-        AddPassengerDialog(onDismiss = viewModel::onDismissAddPassengerDialog)
+        AddPassengersDialog(
+            addedPassengers = state.passengers,
+            onSave = viewModel::onAddPassengers,
+            onDismiss = viewModel::onDismissAddPassengerDialog
+        )
 
     if (state.isLogoutConfirmationVisible)
         LogoutConfirmationDialog(

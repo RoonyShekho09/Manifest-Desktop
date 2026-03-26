@@ -5,4 +5,5 @@ data class Driver(
     val name: String,
     val phone: String,
     val destination: String,
+    val driverId: String,
 )
