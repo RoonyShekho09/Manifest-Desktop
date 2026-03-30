@@ -42,6 +42,7 @@ class HomeViewModel(
                             id = it.id.text.toString(),
                             name = it.name.text.toString(),
                             nationality = it.country.text.toString(),
+                            manual = true
                         )
                     },
                     driverId = state.value.manifest.driverIdNumber,

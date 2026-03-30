@@ -1,12 +1,11 @@
 package com.jawharat.manifest.presentation.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +17,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material3.BasicAlertDialog
@@ -44,10 +42,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.Line
 import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.presentation.feature.vehicles.DispatchUiState
-import com.jawharat.manifest.presentation.feature.vehicles.DriverStatus
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.add_new_vehicle
 import com.jawharat.manifest.resources.cancel
@@ -56,9 +54,7 @@ import com.jawharat.manifest.resources.driver
 import com.jawharat.manifest.resources.edit_vehicle_details
 import com.jawharat.manifest.resources.ic_arrow_drop_down
 import com.jawharat.manifest.resources.ic_arrow_drop_up
-import com.jawharat.manifest.resources.inside
 import com.jawharat.manifest.resources.line_label
-import com.jawharat.manifest.resources.outside
 import com.jawharat.manifest.resources.plate_number
 import com.jawharat.manifest.resources.price
 import com.jawharat.manifest.resources.save_changes
@@ -74,7 +70,9 @@ fun AddEditDispatchDialog(
     vehicle: DispatchUiState?,
     lines: List<Line>,
     vehiclesTypes: List<VehicleType>,
+    drivers: List<Driver>,
     vehicleTypeSearchQuery: TextFieldState,
+    driverSearchQuery: TextFieldState,
     isEdit: Boolean = false,
     onDismiss: () -> Unit,
     onConfirm: (DispatchUiState?) -> Unit,
@@ -85,7 +83,6 @@ fun AddEditDispatchDialog(
     var vehicleType by remember { mutableStateOf(VehicleType("", "")) }
     val type = rememberTextFieldState(initialText = vehicle?.type.orEmpty())
     var line by remember { mutableStateOf(vehicle?.line ?: Line("", "")) }
-    var status by remember { mutableStateOf(vehicle?.status) }
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
@@ -106,12 +103,14 @@ fun AddEditDispatchDialog(
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    AppTextField(
-                        state = driverName,
+                    DropDownTextField(
+                        query = driverSearchQuery,
+                        data = drivers.map { it.name },
+                        selection = driverName.text.toString(),
                         readOnly = isEdit,
-                        modifier = Modifier.weight(1f),
-                        placeholder = Res.string.driver.string
+                        placeholder = Res.string.driver.string,
                     )
+
                     AppTextField(
                         state = plateNumber,
                         modifier = Modifier.weight(1f),
@@ -120,83 +119,12 @@ fun AddEditDispatchDialog(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    var isVehicleTypeDropDownVisible by remember { mutableStateOf(false) }
-                    var iconPressed by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(vehicleTypeSearchQuery.text) {
-                        if (vehicleTypeSearchQuery.text.length >= 3) {
-                            isVehicleTypeDropDownVisible = true
-                        }
-                    }
-
-                    LaunchedEffect(vehicleType) {
-                        vehicleTypeSearchQuery.clearText()
-                        vehicleTypeSearchQuery.edit {
-                            append(vehicleType.name)
-                        }
-                        isVehicleTypeDropDownVisible = false
-                    }
-
-                    Column {
-                        AppTextField(
-                            state = vehicleTypeSearchQuery,
-                            placeholder = Res.string.vehicle_type.string,
-                            trailingIcon = {
-                                IconButton(
-                                    onClick = { isVehicleTypeDropDownVisible = !isVehicleTypeDropDownVisible },
-                                    modifier = Modifier
-                                        .handPointerHover()
-                                        .pointerInput(Unit) {
-                                            awaitPointerEventScope {
-                                                while (true) {
-                                                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                                                    if (event.type == PointerEventType.Press) {
-                                                        iconPressed = true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                ) {
-                                    Icon(
-                                        painter = if (isVehicleTypeDropDownVisible)
-                                            Res.drawable.ic_arrow_drop_up.painter
-                                        else
-                                            Res.drawable.ic_arrow_drop_down.painter,
-                                        contentDescription = null,
-                                    )
-                                }
-                            },
-                            modifier = Modifier
-                                .onFocusEvent {
-                                    if (it.isFocused)
-                                        isVehicleTypeDropDownVisible = true
-                                }
-                        )
-                        DropdownMenu(
-                            expanded = isVehicleTypeDropDownVisible,
-                            onDismissRequest = {
-                                if (iconPressed) {
-                                    iconPressed = false
-                                } else {
-                                    isVehicleTypeDropDownVisible = false
-                                }
-                            },
-                            properties = PopupProperties(focusable = false)
-                        ) {
-                            vehiclesTypes.forEach { selection ->
-                                DropdownMenuItem(
-                                    text = { Text(text = selection.name) },
-                                    onClick = {
-                                        vehicleTypeSearchQuery.clearText()
-                                        vehicleTypeSearchQuery.edit {
-                                            append(selection.name)
-                                        }
-                                        isVehicleTypeDropDownVisible = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    DropDownTextField(
+                        query = vehicleTypeSearchQuery,
+                        data = vehiclesTypes.map { it.name },
+                        placeholder = Res.string.vehicle_type.string,
+                        selection = vehicleType.name
+                    )
 
                     AppTextField(
                         state = type,
@@ -206,36 +134,12 @@ fun AddEditDispatchDialog(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    var isLineDropDownVisible by remember { mutableStateOf(false) }
-
-                    Column {
-                        Box(modifier = Modifier.clickable { isLineDropDownVisible = true }) {
-                            AppTextField(
-                                value = line.name,
-                                onValueChange = { },
-                                placeholder = Res.string.line_label.string,
-                                readOnly = false,
-                                enabled = false
-                            )
-
-                            Box(modifier = Modifier.matchParentSize().handPointerHover())
-                        }
-
-                        DropdownMenu(
-                            expanded = isLineDropDownVisible,
-                            onDismissRequest = { isLineDropDownVisible = false }
-                        ) {
-                            lines.forEach { selection ->
-                                DropdownMenuItem(
-                                    text = { Text(text = selection.name) },
-                                    onClick = {
-                                        line = selection
-                                        isLineDropDownVisible = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    DropDownTextField(
+                        data = lines.map { it.name },
+                        readOnly = true,
+                        placeholder = Res.string.line_label.string,
+                        selection = line.name
+                    )
                 }
 
                 Row(
@@ -244,34 +148,11 @@ fun AddEditDispatchDialog(
                 ) {
                     AppTextField(
                         state = price,
-                        readOnly = isEdit,
+                        readOnly = true,
+                        enabled = false,
                         modifier = Modifier.weight(1f),
                         placeholder = Res.string.price.string
                     )
-
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "${Res.string.status.string}: ",
-                            style = MaterialTheme.typography.body1,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        RadioButton(
-                            selected = status == DriverStatus.INSIDE,
-                            onClick = { status = DriverStatus.INSIDE }
-                        )
-                        Text(text = Res.string.inside.string)
-                        Spacer(Modifier.width(8.dp))
-                        RadioButton(
-                            selected = status == DriverStatus.OUTSIDE,
-                            onClick = { status = DriverStatus.OUTSIDE },
-                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
-                        )
-                        Text(text = Res.string.outside.string)
-                    }
                 }
 
                 HorizontalDivider()
@@ -296,7 +177,6 @@ fun AddEditDispatchDialog(
                                         carType = vehicleType.name,
                                         type = type.text.toString(),
                                         line = line,
-                                        status = status ?: DriverStatus.INSIDE,
                                         price = vehicle.price
                                     )
                                 )
@@ -308,7 +188,6 @@ fun AddEditDispatchDialog(
                                         carType = vehicleType.name,
                                         type = type.text.toString(),
                                         line = line,
-                                        status = status ?: DriverStatus.INSIDE,
                                         price = vehicle?.price.orEmpty()
                                     )
                                 )
@@ -318,6 +197,115 @@ fun AddEditDispatchDialog(
                         Text(text = if (isEdit) Res.string.save_changes.string else Res.string.confirm.string)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun DropDownTextField(
+    query: TextFieldState = rememberTextFieldState(),
+    data: List<String>,
+    placeholder: String,
+    selection: String,
+    readOnly: Boolean = false,
+    addLimit: Boolean = true,
+) {
+    var isVehicleTypeDropDownVisible by remember { mutableStateOf(false) }
+    var iconPressed by remember { mutableStateOf(false) }
+
+    fun showDropDown() {
+        if (data.size <= 50)
+            isVehicleTypeDropDownVisible = true
+    }
+
+    fun hideDropDown() {
+        isVehicleTypeDropDownVisible = false
+    }
+
+    LaunchedEffect(query.text) {
+        if (query.text.length >= 3)
+            showDropDown()
+    }
+
+    LaunchedEffect(selection) {
+        query.clearText()
+        query.edit {
+            append(selection)
+        }
+        hideDropDown()
+    }
+
+    Column {
+        AppTextField(
+            state = query,
+            placeholder = placeholder,
+            readOnly = readOnly,
+            trailingIcon = {
+                IconButton(
+                    enabled = data.size <= 50 || !addLimit,
+                    onClick = { if (isVehicleTypeDropDownVisible) hideDropDown() else showDropDown() },
+                    modifier = Modifier
+                        .handPointerHover()
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                                    if (event.type == PointerEventType.Press) {
+                                        iconPressed = true
+                                    }
+                                }
+                            }
+                        }
+                ) {
+                    Icon(
+                        painter = if (isVehicleTypeDropDownVisible)
+                            Res.drawable.ic_arrow_drop_up.painter
+                        else
+                            Res.drawable.ic_arrow_drop_down.painter,
+                        contentDescription = null,
+                    )
+                }
+            },
+            modifier = Modifier
+                .onFocusEvent {
+                    if (it.isFocused)
+                        showDropDown()
+                }
+                .pointerInput(isVehicleTypeDropDownVisible) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                            if (event.type == PointerEventType.Release && !iconPressed) {
+                                if (isVehicleTypeDropDownVisible) hideDropDown() else showDropDown()
+                            }
+                        }
+                    }
+                }
+        )
+        DropdownMenu(
+            expanded = isVehicleTypeDropDownVisible,
+            onDismissRequest = {
+                if (iconPressed) {
+                    iconPressed = false
+                } else {
+                    hideDropDown()
+                }
+            },
+            properties = PopupProperties(focusable = false),
+            modifier = Modifier.heightIn(max = 400.dp)
+        ) {
+            data.forEach { selection ->
+                DropdownMenuItem(
+                    text = { Text(text = selection) },
+                    onClick = {
+                        query.clearText()
+                        query.edit {
+                            append(selection)
+                        }
+                        hideDropDown()
+                    }
+                )
             }
         }
     }

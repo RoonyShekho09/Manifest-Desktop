@@ -142,13 +142,15 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
 
     if (state.isDialogVisible)
         AddEditDispatchDialog(
+            drivers = state.filteredDrivers,
+            driverSearchQuery = state.driverSearchState.query,
+            vehicleTypeSearchQuery = state.vehicleTypeSearchState.query,
             vehicle = state.dispatchToEdit,
             isEdit = state.dispatchToEdit != null,
             vehiclesTypes = state.filteredVehicleTypes,
             lines = state.lines,
             onDismiss = viewModel::onDismissDialog,
             onConfirm = viewModel::onConfirmAddEditVehicle,
-            vehicleTypeSearchQuery = state.vehicleTypeSearchState.query,
         )
 }
 

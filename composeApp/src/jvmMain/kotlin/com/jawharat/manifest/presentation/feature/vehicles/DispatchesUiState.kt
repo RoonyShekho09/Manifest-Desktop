@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.jawharat.manifest.domain.entity.Line
 import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.presentation.feature.shared.SearchState
 
@@ -20,6 +21,9 @@ data class DispatchesUiState(
     val vehicleTypes: List<VehicleType> = emptyList(),
     val filteredVehicleTypes: List<VehicleType> = emptyList(),
     val vehicleTypeSearchState: SearchState<VehicleType> = SearchState(),
+    val filteredDrivers: List<Driver> = emptyList(),
+    val driverSearchState: SearchState<Driver> = SearchState(),
+    val drivers: List<Driver> = emptyList(),
 )
 
 @Stable

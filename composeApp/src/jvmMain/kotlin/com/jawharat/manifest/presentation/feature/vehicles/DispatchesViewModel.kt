@@ -21,6 +21,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         initializeDispatches()
         initializeLines()
         initializeVehicleTypes()
+        initializeDrivers()
         state.value.dispatchSearchState.query.initializeSearch(
             onSearch = ::onSearch,
             onEmptyStateUpdater = { copy(filteredDispatches = dispatches) }
@@ -28,6 +29,30 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         state.value.vehicleTypeSearchState.query.initializeSearch(
             onSearch = ::onVehicleTypeSearch,
             onEmptyStateUpdater = { copy(filteredVehicleTypes = vehicleTypes) }
+        )
+        state.value.driverSearchState.query.initializeSearch(
+            onSearch = ::onDriverSearch,
+            onEmptyStateUpdater = { copy(filteredDrivers = drivers) }
+        )
+    }
+
+    private fun initializeDrivers(fetch: Boolean = false) = tryToExecute(
+        onStart = { updateState { copy(isLoading = true) } },
+        block = { repository.getDrivers(fetch = fetch) },
+        onSuccess = { updateState { copy(drivers = it, filteredDrivers = it) } },
+        onCompleted = { updateState { copy(isLoading = false) } }
+    )
+
+    private fun onDriverSearch(query: String) = updateState {
+        val normalizedQuery = query.normalizeArabicKurdish()
+
+        copy(
+            filteredDrivers = state.value.drivers.filter {
+                it.name.normalizeArabicKurdish().contains(
+                    normalizedQuery,
+                    ignoreCase = true
+                )
+            }.sortedBy { it.name }
         )
     }
 
@@ -97,7 +122,8 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                     id = value.id,
                 )
             }
-        }
+        },
+        onCompleted = { updateState { copy(isDialogVisible = false) } }
     )
 
     fun addVehicle(value: DispatchUiState?) = tryToExecute(
@@ -113,7 +139,8 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                     id = value.id,
                 )
             }
-        }
+        },
+        onCompleted = { updateState { copy(isDialogVisible = false) } }
     )
 
     fun onRefresh() {

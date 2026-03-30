@@ -32,5 +32,5 @@ data class Passenger(
     @SerialName("nationality")
     val nationality: String? = null,
     @SerialName("manual")
-    val manual: String? = null
+    val manual: Boolean? = null
 )
