@@ -1,5 +1,6 @@
 package com.jawharat.manifest.presentation.feature.home
 
+import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
@@ -26,7 +27,29 @@ class HomeViewModel(
         onSuccess = { emitEvent(HomeUiEvent.OnLogout) }
     )
 
-    fun onStartScanning() = updateState { copy(startScanning = true) }
+    fun onStartScanning() {
+        tryToExecute(
+            block = {
+                manifestRepository.submitManifest(
+                    driverName = state.value.manifest.driverName,
+                    vehicleNumber = state.value.manifest.vehicleNumber,
+                    vehicleType = state.value.manifest.vehicleType,
+                    phoneNumber = state.value.manifest.driverPhoneNumber,
+                    to = state.value.manifest.to,
+                    price = state.value.manifest.price,
+                    passengers = state.value.passengers.map {
+                        Passenger(
+                            id = it.id.text.toString(),
+                            name = it.name.text.toString(),
+                            nationality = it.country.text.toString(),
+                        )
+                    },
+                    driverId = state.value.manifest.driverIdNumber,
+                )
+            }
+        )
+        updateState { copy(startScanning = true) }
+    }
 
     fun onQrCodeResult(value: String) {
         val driverId = value.substringAfter("D:", missingDelimiterValue = "").ifEmpty { null }
@@ -72,7 +95,7 @@ class HomeViewModel(
             updateState {
                 copy(
                     manifest = state.value.manifest.copy(
-                        driverIdNumber = it.id,
+                        driverIdNumber = it.driverId,
                         to = it.destination,
                         driverName = it.name,
                         driverPhoneNumber = it.phone,

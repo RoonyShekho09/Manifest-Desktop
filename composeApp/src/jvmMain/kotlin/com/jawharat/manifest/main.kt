@@ -13,7 +13,7 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Manifest",
-        resizable = false,
+        resizable = true,
         icon = Res.drawable.ic_jawharat.painter,
         state = rememberWindowState(size = DpSize(1200.dp, 800.dp))
     ) {

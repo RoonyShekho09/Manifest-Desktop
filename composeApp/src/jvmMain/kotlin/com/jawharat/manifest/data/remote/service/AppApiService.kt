@@ -1,23 +1,26 @@
 package com.jawharat.manifest.data.remote.service
 
-import com.jawharat.manifest.data.local.model.drivers.DriverQrCodeResponse
-import com.jawharat.manifest.data.local.model.drivers.DriverResponse
-import com.jawharat.manifest.data.local.model.vehicles.VehicleQrCodeResponse
-import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
-import com.jawharat.manifest.data.remote.model.AddDriverRequestBody
-import com.jawharat.manifest.data.remote.model.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.LineResponse
-import com.jawharat.manifest.data.remote.model.LoginRequestBody
-import com.jawharat.manifest.data.remote.model.LoginResponse
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
+import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
+import com.jawharat.manifest.data.remote.model.auth.LoginResponse
+import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
+import com.jawharat.manifest.data.remote.model.drivers.DriverQrCodeResponse
+import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
+import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
+import com.jawharat.manifest.data.remote.model.vehicles.DispatchQrCodeResponse
+import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
+import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 import de.jensklingenberg.ktorfit.Response
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.Header
 import de.jensklingenberg.ktorfit.http.Headers
 import de.jensklingenberg.ktorfit.http.PATCH
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.PUT
 import de.jensklingenberg.ktorfit.http.Path
+import io.ktor.client.statement.HttpResponse
 
 interface AppApiService {
 
@@ -28,8 +31,11 @@ interface AppApiService {
     @POST("logout")
     suspend fun logout(): Response<LoginResponse>
 
-    @PATCH("manifests/{id}")
-    suspend fun submitManifest(@Body body: SubmitManifestRequestBody): Response<Unit>
+    @POST("manifests")
+    suspend fun submitManifest(
+        @Body body: SubmitManifestRequestBody,
+        @Header("Accept") accept: String = "application/pdf",
+    ): HttpResponse
 
     @PATCH("manifests/{id}")
     suspend fun scanManifestQrCode(@Path("id") id: String): Response<Unit>
@@ -38,13 +44,13 @@ interface AppApiService {
     suspend fun scanDriverQrCode(@Path("id") id: String): Response<DriverQrCodeResponse>
 
     @GET("vehicles/{id}")
-    suspend fun scanVehicleQrCode(@Path("id") id: String): Response<VehicleQrCodeResponse>
+    suspend fun scanVehicleQrCode(@Path("id") id: String): Response<DispatchQrCodeResponse>
 
     @GET("drivers")
     suspend fun getDrivers(): Response<List<DriverResponse>>
 
     @GET("vehicles")
-    suspend fun getVehicles(): Response<List<VehicleResponse>>
+    suspend fun getVehicles(): Response<List<DispatchResponse>>
 
     @POST("drivers")
     suspend fun addDriver(@Body body: AddDriverRequestBody): Response<Unit>
@@ -63,6 +69,9 @@ interface AppApiService {
 
     @GET("lines")
     suspend fun getLines(): Response<List<LineResponse>>
+
+    @GET("car-types")
+    suspend fun getVehicleTypes(): Response<List<VehicleRemote>>
 
     companion object {
         const val NO_AUTH_HEADER_KEY = "No-Authentication"

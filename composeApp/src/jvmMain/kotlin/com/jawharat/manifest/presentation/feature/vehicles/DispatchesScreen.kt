@@ -43,8 +43,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jawharat.manifest.presentation.components.AddEditDispatchDialog
+import com.jawharat.manifest.presentation.components.AddItemButton
 import com.jawharat.manifest.presentation.components.AppTextField
-import com.jawharat.manifest.presentation.components.EditVehicleDialog
 import com.jawharat.manifest.presentation.components.ScrollToTopBox
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.cars_management
@@ -52,7 +53,7 @@ import com.jawharat.manifest.resources.edit
 import com.jawharat.manifest.resources.ic_edit
 import com.jawharat.manifest.resources.ic_refresh
 import com.jawharat.manifest.resources.inside
-import com.jawharat.manifest.resources.line
+import com.jawharat.manifest.resources.line_with_value
 import com.jawharat.manifest.resources.outside
 import com.jawharat.manifest.resources.price_iqd
 import com.jawharat.manifest.resources.search_driver_placeholder
@@ -62,7 +63,7 @@ import com.jawharat.manifest.utils.string
 import kotlinx.coroutines.launch
 
 @Composable
-fun CarsScreen(viewModel: VehiclesViewModel) {
+fun CarsScreen(viewModel: DispatchesViewModel) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -71,7 +72,7 @@ fun CarsScreen(viewModel: VehiclesViewModel) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
+private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,18 +86,18 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
                         onClick = viewModel::onRefresh,
                         shape = CircleShape,
                         colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+                        modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Icon(painter = Res.drawable.ic_refresh.painter, contentDescription = null)
                     }
                 }
             )
-        },
-
-        ) { paddingValues ->
+        }
+    ) { paddingValues ->
         val listState = rememberLazyListState()
 
-        val filteredVehicles = state.filteredVehicles
-        val query = state.searchState.query
+        val filteredVehicles = state.filteredDispatches
+        val query = state.dispatchSearchState.query
 
         if (state.isLoading)
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -112,11 +113,15 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
             contentPadding = PaddingValues(24.dp)
         ) {
             item {
-                AppTextField(
-                    state = query,
-                    placeholder = Res.string.search_driver_placeholder.string,
-                    modifier = Modifier.width(400.dp)
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                    AppTextField(
+                        state = query,
+                        placeholder = Res.string.search_driver_placeholder.string,
+                        modifier = Modifier.width(400.dp)
+                    )
+
+                    AddItemButton(onClick = viewModel::onEditClick)
+                }
             }
             items(filteredVehicles, key = { it.id }) { car ->
                 CarRow(
@@ -135,17 +140,21 @@ private fun Content(state: VehiclesUiState, viewModel: VehiclesViewModel) {
             }
     }
 
-    if (state.isDialogVisible && state.vehicleToEdit != null)
-        EditVehicleDialog(
-            car = state.vehicleToEdit,
+    if (state.isDialogVisible)
+        AddEditDispatchDialog(
+            vehicle = state.dispatchToEdit,
+            isEdit = state.dispatchToEdit != null,
+            vehiclesTypes = state.filteredVehicleTypes,
+            lines = state.lines,
             onDismiss = viewModel::onDismissDialog,
-            onSave = {}
+            onConfirm = viewModel::onConfirmAddEditVehicle,
+            vehicleTypeSearchQuery = state.vehicleTypeSearchState.query,
         )
 }
 
 @Composable
-fun CarRow(
-    driver: VehicleUiState,
+private fun CarRow(
+    driver: DispatchUiState,
     onEditClick: (String) -> Unit,
 ) {
     Card(
@@ -168,7 +177,7 @@ fun CarRow(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = Res.string.line.string(driver.line),
+                    text = Res.string.line_with_value.string(driver.line.name),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.height(4.dp))

@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlin.collections.filter
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class DriversViewModel(private val repository: ManifestRepository) :
     BaseViewModel<DriverUiState, Unit>(DriverUiState()) {
@@ -50,7 +49,7 @@ class DriversViewModel(private val repository: ManifestRepository) :
             with(value) {
                 this?.id?.let {
                     repository.addDriver(
-                        driverId = Uuid.generateV7().toHexString(),
+                        driverId = driverId,
                         name = name,
                         phoneNumber = phone,
                         destination = destination,
@@ -71,11 +70,11 @@ class DriversViewModel(private val repository: ManifestRepository) :
             with(value) {
                 this?.id?.let {
                     repository.editDriver(
-                        driverId = id,
+                        driverId = driverId,
                         name = name,
                         phoneNumber = phone,
                         destination = destination,
-                        id = it,
+                        id = id,
                     )
                 }
             }

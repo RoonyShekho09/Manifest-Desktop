@@ -1,12 +1,12 @@
-package com.jawharat.manifest.data.local.model.vehicles
+package com.jawharat.manifest.data.remote.model.auth
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserLocal(
+data class LoginRequestBody(
     @SerialName("email")
-    val email: String? = null,
+    val username: String? = null,
     @SerialName("password")
     val password: String? = null,
 )

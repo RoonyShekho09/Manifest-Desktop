@@ -15,14 +15,14 @@ data class HomeUiState(
     val isLogoutConfirmationVisible: Boolean = false,
     val scanState: ScanState = ScanState(),
     val isAddPassengersDialogVisible: Boolean = false,
-    val passengers: List<PassengerFieldState> = emptyList(),
+    val passengers: List<PassengerFieldState> = listOf(PassengerFieldState()),
 )
 
 @Stable
 class PassengerFieldState {
-    val id = TextFieldState()
-    val name = TextFieldState()
-    val country = TextFieldState()
+    val id = TextFieldState("153")
+    val name = TextFieldState("Roony")
+    val country = TextFieldState("Iraq")
 }
 
 data class ScanState(

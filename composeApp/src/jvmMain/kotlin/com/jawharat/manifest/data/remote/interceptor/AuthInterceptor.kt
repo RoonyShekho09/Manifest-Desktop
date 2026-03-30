@@ -8,6 +8,7 @@ import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.plugin
 import io.ktor.client.request.header
+import io.ktor.http.HttpHeaders
 
 class AuthInterceptor(private val localDataSource: AppLocalDataSource) {
 
@@ -15,6 +16,12 @@ class AuthInterceptor(private val localDataSource: AppLocalDataSource) {
 
     private val plugin = createClientPlugin("${name}Plugin") {
         onRequest { request, _ ->
+            val desiredAccept = request.headers[HttpHeaders.Accept]
+            if (desiredAccept != null) {
+                request.headers.remove(HttpHeaders.Accept)
+                request.headers.append(HttpHeaders.Accept, desiredAccept.split(";").first().trim())
+            }
+
             val skipAuthorization = request.headers.contains(NO_AUTH_HEADER_KEY)
             if (!skipAuthorization)
                 request.header("Cookie", "I=${localDataSource.token}")

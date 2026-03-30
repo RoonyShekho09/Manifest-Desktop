@@ -1,12 +1,36 @@
 package com.jawharat.manifest.presentation.feature.drivers
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -17,21 +41,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.domain.entity.Driver
-import com.jawharat.manifest.presentation.components.AppTextField
 import com.jawharat.manifest.presentation.components.AddEditDriverDialog
+import com.jawharat.manifest.presentation.components.AddItemButton
+import com.jawharat.manifest.presentation.components.AppTextField
 import com.jawharat.manifest.presentation.components.ScrollToTopBox
-import com.jawharat.manifest.utils.painter
-import com.jawharat.manifest.utils.string
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.driver_id
 import com.jawharat.manifest.resources.driver_management
 import com.jawharat.manifest.resources.edit
-import com.jawharat.manifest.resources.ic_add
 import com.jawharat.manifest.resources.ic_edit
 import com.jawharat.manifest.resources.ic_location_on
 import com.jawharat.manifest.resources.ic_profile
 import com.jawharat.manifest.resources.ic_refresh
 import com.jawharat.manifest.resources.search_placeholder
+import com.jawharat.manifest.utils.handPointerHover
+import com.jawharat.manifest.utils.painter
+import com.jawharat.manifest.utils.string
 import kotlinx.coroutines.launch
 
 @Composable
@@ -58,6 +83,8 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
                         onClick = viewModel::onRefresh,
                         shape = CircleShape,
                         colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+                        modifier = Modifier.padding(end = 16.dp)
+                            .handPointerHover()
                     ) {
                         Icon(painter = Res.drawable.ic_refresh.painter, contentDescription = null)
                     }
@@ -83,22 +110,13 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
             contentPadding = PaddingValues(24.dp)
         ) {
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(48.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                     AppTextField(
                         state = query,
                         placeholder = Res.string.search_placeholder.string,
                         modifier = Modifier.width(400.dp)
                     )
-                    IconButton(
-                        onClick = { viewModel.onEditClick("") },
-                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    ) {
-                        Icon(
-                            painter = Res.drawable.ic_add.painter,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                    AddItemButton { viewModel.onEditClick("") }
                 }
             }
             items(filteredDrivers, key = { it.id }) { driver ->
@@ -157,16 +175,14 @@ fun DriverRow(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = driver.name,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = Res.string.driver_id.string(driver.id),
+                    text = Res.string.driver_id.string(driver.driverId),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )

@@ -26,6 +26,7 @@ import com.jawharat.manifest.resources.cancel
 import com.jawharat.manifest.resources.logout
 import com.jawharat.manifest.resources.logout_confirmation
 import com.jawharat.manifest.resources.logout_title
+import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.string
 
 
@@ -69,6 +70,7 @@ fun LogoutConfirmationDialog(
                     TextButton(
                         onClick = onDismissLogoutConfirmation,
                         modifier = Modifier.padding(end = 8.dp)
+                            .handPointerHover()
                     ) {
                         Text(Res.string.cancel.string)
                     }
@@ -76,7 +78,8 @@ fun LogoutConfirmationDialog(
                         onClick = onLogout,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error
-                        )
+                        ),
+                        modifier = Modifier.handPointerHover()
                     ) {
                         Text(Res.string.logout.string)
                     }

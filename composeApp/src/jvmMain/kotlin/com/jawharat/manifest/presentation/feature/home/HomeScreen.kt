@@ -2,7 +2,6 @@
 
 package com.jawharat.manifest.presentation.feature.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +63,10 @@ import com.jawharat.manifest.resources.vehicle_information
 import com.jawharat.manifest.resources.vehicle_number
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.Listen
+import com.jawharat.manifest.utils.Platform
+import com.jawharat.manifest.utils.currentPlatform
+import com.jawharat.manifest.utils.handClickable
+import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -100,7 +103,8 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                 actions = {
                     Button(
                         onClick = viewModel::onLogoutClick,
-                        modifier = Modifier.padding(end = 16.dp),
+                        modifier = Modifier.padding(end = 16.dp)
+                            .handPointerHover(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
                     ) {
                         Text(text = Res.string.logout.string, color = Color(0xC1A52B2B))
@@ -142,10 +146,11 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
         var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            QrCodeScanner(
-                onResult = viewModel::onQrCodeResult,
-                onFrame = { imageBitmap = it },
-            )
+            if (currentPlatform != Platform.MacOS)
+                QrCodeScanner(
+                    onResult = viewModel::onQrCodeResult,
+                    onFrame = { imageBitmap = it },
+                )
 
 //                imageBitmap?.let {
 //                    Image(
@@ -210,7 +215,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
                         Box(
                             modifier = Modifier.weight(1f)
-                                .clickable(onClick = viewModel::onPassengerFieldClick)
+                                .handClickable(onClick = viewModel::onPassengerFieldClick)
                         ) {
                             AppTextField(
                                 value = state.passengers.joinToString(", ") { it.name.text.toString() },
@@ -254,6 +259,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                     Button(
                         onClick = viewModel::onStartScanning,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
+                            .handPointerHover()
                     ) {
                         Icon(
                             painter = Res.drawable.ic_qr_code_scanning.painter,

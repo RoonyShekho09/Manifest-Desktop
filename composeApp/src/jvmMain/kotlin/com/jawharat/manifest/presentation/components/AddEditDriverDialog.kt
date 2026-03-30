@@ -34,6 +34,7 @@ import com.jawharat.manifest.resources.driver_phone_number
 import com.jawharat.manifest.resources.edit_driver_details
 import com.jawharat.manifest.resources.save_changes
 import com.jawharat.manifest.resources.to
+import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.string
 
 @Composable
@@ -99,14 +100,16 @@ fun AddEditDriverDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    TextButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.handPointerHover()
+                    ) {
                         Text(text = Res.string.cancel.string, color = Color.Gray)
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         onClick = {
-                            if (isEdit) {
-                                println("onclick: ${driver?.id}")
+                            if (isEdit)
                                 onConfirm(
                                     driver?.copy(
                                         name = driverName.text.toString(),
@@ -114,7 +117,7 @@ fun AddEditDriverDialog(
                                         destination = destination.text.toString(),
                                     )
                                 )
-                            } else
+                            else
                                 onConfirm(
                                     Driver(
                                         id = "",
@@ -124,7 +127,8 @@ fun AddEditDriverDialog(
                                         driverId = driver?.driverId.orEmpty()
                                     )
                                 )
-                        }
+                        },
+                        modifier = Modifier.handPointerHover()
                     ) {
                         Text(text = if (isEdit) Res.string.save_changes.string else Res.string.confirm.string)
                     }

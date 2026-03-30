@@ -1,4 +1,4 @@
-package com.jawharat.manifest.data.local.model.drivers
+package com.jawharat.manifest.data.remote.model.drivers
 
 
 import kotlinx.serialization.SerialName

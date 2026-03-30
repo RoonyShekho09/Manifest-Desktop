@@ -1,7 +1,6 @@
 package com.jawharat.manifest.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,9 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.ic_arrow_upward
+import com.jawharat.manifest.utils.handClickable
+import com.jawharat.manifest.utils.painter
 
 @Composable
 fun ScrollToTopBox(onClick: () -> Unit) {
@@ -28,7 +28,7 @@ fun ScrollToTopBox(onClick: () -> Unit) {
     ) {
         Box(
             modifier = Modifier.clip(CircleShape)
-                .clickable(onClick = onClick)
+                .handClickable(onClick = onClick)
                 .background(MaterialTheme.colorScheme.primary)
         ) {
             Icon(
