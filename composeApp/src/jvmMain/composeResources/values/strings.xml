@@ -9,6 +9,7 @@
     <string name="passenger_count">عدد الركاب:</string>
     <string name="from">من</string>
     <string name="to">إلى</string>
+    <string name="destination">وجهة</string>
     <string name="time">الوقت</string>
     <string name="driver">السائق</string>
     <string name="username">اسم المستخدم</string>

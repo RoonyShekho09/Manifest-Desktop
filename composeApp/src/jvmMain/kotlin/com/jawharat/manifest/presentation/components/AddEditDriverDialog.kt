@@ -1,12 +1,9 @@
 package com.jawharat.manifest.presentation.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -17,8 +14,9 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -28,15 +26,16 @@ import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.add_new_driver
 import com.jawharat.manifest.resources.cancel
 import com.jawharat.manifest.resources.confirm
+import com.jawharat.manifest.resources.destination
 import com.jawharat.manifest.resources.driver_id_number
 import com.jawharat.manifest.resources.driver_name
 import com.jawharat.manifest.resources.driver_phone_number
 import com.jawharat.manifest.resources.edit_driver_details
 import com.jawharat.manifest.resources.save_changes
-import com.jawharat.manifest.resources.to
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.string
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditDriverDialog(
     driver: Driver?,
@@ -49,12 +48,7 @@ fun AddEditDriverDialog(
     val destination = rememberTextFieldState(initialText = driver?.destination.orEmpty())
     val driverId = rememberTextFieldState(initialText = driver?.driverId.orEmpty())
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.5f)),
-        contentAlignment = Alignment.Center
-    ) {
+    BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
                 .width(600.dp)
@@ -93,7 +87,7 @@ fun AddEditDriverDialog(
                 AppTextField(
                     state = destination,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = Res.string.to.string
+                    placeholder = Res.string.destination.string
                 )
 
                 Row(
