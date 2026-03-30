@@ -26,7 +26,7 @@ interface AppRemoteDataSource {
         price: String,
         passengers: List<Passenger>,
         driverId: String
-    )
+    ): ByteArray
 
     suspend fun addDriver(
         driverId: String? = null,

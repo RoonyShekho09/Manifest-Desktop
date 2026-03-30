@@ -16,6 +16,7 @@ data class HomeUiState(
     val scanState: ScanState = ScanState(),
     val isAddPassengersDialogVisible: Boolean = false,
     val passengers: List<PassengerFieldState> = listOf(PassengerFieldState()),
+    val pdfByteArray: ByteArray? = null,
 )
 
 @Stable

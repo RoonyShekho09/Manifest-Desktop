@@ -41,7 +41,7 @@ class ManifestRepositoryImpl(
         price: String,
         passengers: List<Passenger>,
         driverId: String,
-    ) = remoteDataSource.submitManifest(
+    ): ByteArray = remoteDataSource.submitManifest(
         driverName = driverName,
         vehicleNumber = vehicleNumber,
         vehicleType = vehicleType,

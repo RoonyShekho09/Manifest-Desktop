@@ -47,7 +47,8 @@ class HomeViewModel(
                     },
                     driverId = state.value.manifest.driverIdNumber,
                 )
-            }
+            },
+            onSuccess = { updateState { copy(pdfByteArray = it) } }
         )
         updateState { copy(startScanning = true) }
     }
