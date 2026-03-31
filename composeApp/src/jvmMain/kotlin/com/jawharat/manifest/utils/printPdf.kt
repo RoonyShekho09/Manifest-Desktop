@@ -13,6 +13,8 @@ import javax.print.attribute.standard.MediaSizeName
 import javax.print.attribute.standard.PageRanges
 import javax.print.attribute.standard.PrintQuality
 import javax.print.attribute.standard.Sides
+import javax.print.event.PrintJobAdapter
+import javax.print.event.PrintJobEvent
 
 fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
     if (pdfData.isEmpty()) return
@@ -54,6 +56,29 @@ fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
             } else {
                 onStatusChange("User cancelled the print dialog.")
             }
+
+            val printService = printerJob.printService
+            val job = printService.createPrintJob()
+
+            job.addPrintJobListener(
+                object : PrintJobAdapter() {
+                    override fun printJobCanceled(pje: PrintJobEvent?) {
+                        onStatusChange("Job Canceled")
+                    }
+
+                    override fun printJobCompleted(pje: PrintJobEvent?) {
+                        onStatusChange("Job Completed Successfully")
+                    }
+
+                    override fun printJobFailed(pje: PrintJobEvent?) {
+                        onStatusChange("Job Failed")
+                    }
+
+                    override fun printJobNoMoreEvents(pje: PrintJobEvent?) {
+                        onStatusChange("Finished: No more updates from printer")
+                    }
+                }
+            )
         }
     } catch (e: Exception) {
         onStatusChange("Error: ${e.message}")
