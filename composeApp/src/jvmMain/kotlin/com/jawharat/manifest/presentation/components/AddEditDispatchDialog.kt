@@ -1,5 +1,8 @@
 package com.jawharat.manifest.presentation.components
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +18,6 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -23,7 +25,6 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,10 +33,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -49,8 +53,6 @@ import com.jawharat.manifest.resources.cancel
 import com.jawharat.manifest.resources.confirm
 import com.jawharat.manifest.resources.driver
 import com.jawharat.manifest.resources.edit_vehicle_details
-import com.jawharat.manifest.resources.ic_arrow_drop_down
-import com.jawharat.manifest.resources.ic_arrow_drop_up
 import com.jawharat.manifest.resources.line_label
 import com.jawharat.manifest.resources.plate_number
 import com.jawharat.manifest.resources.price
@@ -58,28 +60,29 @@ import com.jawharat.manifest.resources.save_changes
 import com.jawharat.manifest.resources.status
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.handPointerHover
-import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditDispatchDialog(
-    vehicle: DispatchUiState?,
+    vehicleToEdit: DispatchUiState?,
     lines: List<Line>,
     vehiclesTypes: List<VehicleType>,
     drivers: List<Driver>,
     vehicleTypeSearchQuery: TextFieldState,
     driverSearchQuery: TextFieldState,
-    isEdit: Boolean = false,
+    isAddEditEnabled: Boolean = true,
     onDismiss: () -> Unit,
     onConfirm: (DispatchUiState?) -> Unit,
 ) {
-    val driverName = rememberTextFieldState(initialText = vehicle?.driverName.orEmpty())
-    val price = rememberTextFieldState(initialText = vehicle?.price.orEmpty())
-    val plateNumber = rememberTextFieldState(initialText = vehicle?.plateNumber.orEmpty())
-    var vehicleType by remember { mutableStateOf(vehicle?.vehicleType.orEmpty()) }
-    val type = rememberTextFieldState(initialText = vehicle?.type.orEmpty())
-    var line by remember { mutableStateOf(vehicle?.line ?: Line("", "")) }
+    val driverName = rememberTextFieldState(initialText = vehicleToEdit?.driverName.orEmpty())
+    val price = rememberTextFieldState(initialText = vehicleToEdit?.price.orEmpty())
+    val plateNumber = rememberTextFieldState(initialText = vehicleToEdit?.plateNumber.orEmpty())
+    var vehicleType by remember { mutableStateOf(vehicleToEdit?.vehicleType.orEmpty()) }
+    val type = rememberTextFieldState(initialText = vehicleToEdit?.type.orEmpty())
+    var line by remember { mutableStateOf(vehicleToEdit?.line ?: Line("", "")) }
+
+    val isEdit = vehicleToEdit != null
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
@@ -104,7 +107,6 @@ fun AddEditDispatchDialog(
                         query = driverSearchQuery,
                         data = drivers.map { it.name },
                         selection = driverName.text.toString(),
-                        readOnly = isEdit,
                         placeholder = Res.string.driver.string,
                     )
 
@@ -169,26 +171,27 @@ fun AddEditDispatchDialog(
                         onClick = {
                             if (isEdit)
                                 onConfirm(
-                                    vehicle?.copy(
+                                    vehicleToEdit.copy(
                                         plateNumber = plateNumber.text.toString(),
                                         vehicleType = vehicleType,
                                         type = type.text.toString(),
                                         line = line,
-                                        price = vehicle.price
+                                        price = vehicleToEdit.price
                                     )
                                 )
                             else
                                 onConfirm(
                                     DispatchUiState(
-                                        driverName = vehicle?.driverName.orEmpty(),
+                                        driverName = vehicleToEdit?.driverName.orEmpty(),
                                         plateNumber = plateNumber.text.toString(),
                                         vehicleType = vehicleType,
                                         type = type.text.toString(),
                                         line = line,
-                                        price = vehicle?.price.orEmpty()
+                                        price = vehicleToEdit?.price.orEmpty()
                                     )
                                 )
                         },
+                        enabled = isAddEditEnabled,
                         modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Text(text = if (isEdit) Res.string.save_changes.string else Res.string.confirm.string)
@@ -206,9 +209,10 @@ private fun DropDownTextField(
     placeholder: String,
     selection: String,
     readOnly: Boolean = false,
-    addLimit: Boolean = true,
 ) {
     var isVehicleTypeDropDownVisible by remember { mutableStateOf(false) }
+    var justSelected by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
 
     fun showDropDown() {
         if (data.size <= 50)
@@ -220,15 +224,21 @@ private fun DropDownTextField(
     }
 
     LaunchedEffect(query.text) {
-        if (query.text.toString() == selection) return@LaunchedEffect
-        if (query.text.length >= 3)
+        if (justSelected) {
+            justSelected = false
+            return@LaunchedEffect
+        }
+        if (query.text.length >= 3 && query.text != selection)
             showDropDown()
+        else
+            hideDropDown()
     }
 
     LaunchedEffect(selection) {
         query.clearText()
         query.edit { append(selection) }
         hideDropDown()
+        focusRequester.freeFocus()
     }
 
     Column {
@@ -236,24 +246,16 @@ private fun DropDownTextField(
             state = query,
             placeholder = placeholder,
             readOnly = readOnly,
-            trailingIcon = {
-                IconButton(
-                    enabled = data.size <= 50 || !addLimit,
-                    onClick = { if (isVehicleTypeDropDownVisible) hideDropDown() else showDropDown() },
-                    modifier = Modifier.handPointerHover()
-                ) {
-                    Icon(
-                        painter = if (isVehicleTypeDropDownVisible)
-                            Res.drawable.ic_arrow_drop_up.painter
-                        else
-                            Res.drawable.ic_arrow_drop_down.painter,
-                        contentDescription = null,
-                    )
-                }
-            },
             modifier = Modifier
-                .onFocusEvent {
-                    if (it.isFocused) showDropDown()
+                .focusRequester(focusRequester)
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        awaitFirstDown(pass = PointerEventPass.Initial)
+                        val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                        if (upEvent != null) {
+                            showDropDown()
+                        }
+                    }
                 }
         )
         DropdownMenu(
@@ -262,12 +264,13 @@ private fun DropDownTextField(
             properties = PopupProperties(focusable = false),
             modifier = Modifier.heightIn(max = 400.dp)
         ) {
-            data.forEach { selection ->
+            data.forEach { item ->
                 DropdownMenuItem(
-                    text = { Text(text = selection) },
+                    text = { Text(text = item) },
                     onClick = {
+                        justSelected = true
                         query.clearText()
-                        query.edit { append(selection) }
+                        query.edit { append(item) }
                         hideDropDown()
                     }
                 )

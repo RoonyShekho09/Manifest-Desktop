@@ -37,7 +37,9 @@ data class DispatchUiState(
     val price: String = "",
     val line: Line = Line("", ""),
     val status: DriverStatus = DriverStatus.INSIDE,
-)
+) {
+    val isAddEditEnabled: Boolean get() = driverName.length >= 3 && plateNumber.length >= 4 && vehicleType.length >= 3 && type.length >= 3 && price.length >= 3
+}
 
 enum class DriverStatus {
     INSIDE, OUTSIDE

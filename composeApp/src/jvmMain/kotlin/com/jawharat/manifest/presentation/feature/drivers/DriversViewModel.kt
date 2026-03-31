@@ -104,7 +104,10 @@ class DriversViewModel(private val repository: ManifestRepository) :
         }
     }
 
-    fun onRefresh() = initializeDrivers(fetch = true)
+    fun onRefresh() {
+        updateState { copy(searchState = SearchState()) }
+        initializeDrivers(fetch = true)
+    }
 
     private fun initializeDrivers(fetch: Boolean = false) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },

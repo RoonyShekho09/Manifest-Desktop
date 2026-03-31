@@ -20,4 +20,7 @@ fun String.normalizeArabicKurdish(): String = run {
     replace('ی', 'ى')
     replace('ێ', 'ي')
     replace('ە', 'ه')
+    replace('م', 'م')
+    replace('ح', 'ح')
+    replace('ه', 'ة')
 }

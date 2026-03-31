@@ -48,11 +48,22 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
 
         copy(
             filteredDrivers = state.value.drivers.filter {
-                it.name.normalizeArabicKurdish().contains(
-                    normalizedQuery,
-                    ignoreCase = true
+                it.name.normalizeArabicKurdish().contains(normalizedQuery, ignoreCase = true)
+            }.sortedWith(
+                compareBy(
+                    { !it.name.startsWith(query, ignoreCase = true) },
+                    { !it.name.split(" ").first().startsWith(normalizedQuery, ignoreCase = true) },
+                    { !it.name.split(" ").first().contains(normalizedQuery, ignoreCase = true) },
+                    {
+                        !it.name.split(" ").getOrElse(1) { "" }
+                            .startsWith(normalizedQuery, ignoreCase = true)
+                    },
+                    {
+                        !it.name.split(" ").getOrElse(2) { "" }
+                            .startsWith(normalizedQuery, ignoreCase = true)
+                    }
                 )
-            }.sortedBy { it.name }
+            )
         )
     }
 

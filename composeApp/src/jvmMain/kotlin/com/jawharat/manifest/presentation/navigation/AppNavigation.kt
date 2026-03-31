@@ -27,7 +27,7 @@ import com.jawharat.manifest.utils.string
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.Home) {
     val navController = rememberNavController()
-    val screens = listOf(Screen.Home, Screen.Drivers, Screen.Cars)
+    val screens = listOf(Screen.Home, Screen.Drivers, Screen.Dispatches)
 
     val state = rememberWideNavigationRailState(initialValue = WideNavigationRailValue.Collapsed)
 
