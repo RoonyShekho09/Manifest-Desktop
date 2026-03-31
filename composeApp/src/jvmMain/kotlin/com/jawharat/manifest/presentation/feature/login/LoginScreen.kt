@@ -186,7 +186,10 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                         Icon(painter = Res.drawable.ic_lock.painter, null, tint = Color.Gray)
                     },
                     trailingIcon = {
-                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        IconButton(
+                            onClick = { isPasswordVisible = !isPasswordVisible },
+                            modifier = Modifier.handPointerHover()
+                        ) {
                             Icon(
                                 painter =
                                     if (isPasswordVisible) Res.drawable.ic_password_visible.painter
