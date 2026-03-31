@@ -185,7 +185,7 @@ private fun CarRow(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = Res.string.vehicle_info.string(
-                        driver.carType,
+                        driver.vehicleType,
                         driver.type,
                         driver.plateNumber
                     ),

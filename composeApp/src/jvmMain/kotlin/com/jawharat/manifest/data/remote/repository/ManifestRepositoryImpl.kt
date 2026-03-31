@@ -97,7 +97,7 @@ class ManifestRepositoryImpl(
     override suspend fun editVehicle(
         vehicleNumber: String?,
         type: String?,
-        carType: String?,
+        vehicleType: String?,
         price: Int?,
         driverId: String?,
         line: String?,
@@ -105,7 +105,7 @@ class ManifestRepositoryImpl(
     ) = remoteDataSource.editVehicle(
         vehicleNumber = vehicleNumber,
         type = type,
-        carType = carType,
+        carType = vehicleType,
         price = price,
         driverId = driverId,
         line = line,

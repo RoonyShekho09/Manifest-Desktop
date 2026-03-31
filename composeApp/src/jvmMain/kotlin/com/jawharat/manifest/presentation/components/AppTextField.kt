@@ -144,7 +144,10 @@ private fun TextFieldDecorator(
             leadingIcon?.invoke()
             if (leadingIcon != null) Spacer(Modifier.width(8.dp))
 
-            Box(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
+            Box(
+                modifier = Modifier.weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
                 if (value.isBlank()) {
                     Text(
                         text = placeholder,
@@ -168,7 +171,6 @@ private fun TextFieldDecorator(
                 VerticalDivider(
                     modifier = Modifier
                         .fillHeightOfParent(8.dp)
-                        .padding()
                         .fillMaxHeight(),
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
@@ -200,6 +202,7 @@ private fun TextFieldDecorator(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.height(IntrinsicSize.Min)
         ) {
+            if (leadingIcon != null) Spacer(Modifier.width(8.dp))
             leadingIcon?.invoke()
             if (leadingIcon != null) Spacer(Modifier.width(8.dp))
 

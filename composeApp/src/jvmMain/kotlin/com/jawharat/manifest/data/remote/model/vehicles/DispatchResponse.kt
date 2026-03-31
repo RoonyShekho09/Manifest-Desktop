@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DispatchResponse(
     @SerialName("carType")
-    val carType: String? = null,
+    val vehicleType: String? = null,
     @SerialName("driverId")
     val driverId: DriverInformationRemote? = null,
     @SerialName("_id")

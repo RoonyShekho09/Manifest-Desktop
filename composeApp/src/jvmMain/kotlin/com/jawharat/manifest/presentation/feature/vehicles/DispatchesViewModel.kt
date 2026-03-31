@@ -115,7 +115,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                 repository.editVehicle(
                     vehicleNumber = value.plateNumber,
                     type = value.type,
-                    carType = value.carType,
+                    vehicleType = value.vehicleType,
                     price = value.price.toIntOrNull(),
                     driverId = value.driverId,
                     line = value.line.id,
@@ -132,7 +132,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                 repository.editVehicle(
                     vehicleNumber = value.plateNumber,
                     type = value.type,
-                    carType = value.carType,
+                    vehicleType = value.vehicleType,
                     price = value.price.toIntOrNull(),
                     driverId = value.id,
                     line = value.line.id,
@@ -147,6 +147,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         initializeDispatches(fetch = true)
         initializeLines(fetch = true)
         initializeVehicleTypes(fetch = true)
+        initializeDrivers(fetch = true)
     }
 
     private fun initializeDispatches(fetch: Boolean = false) = tryToExecute(

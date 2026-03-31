@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,9 +69,13 @@ import com.jawharat.manifest.utils.currentPlatform
 import com.jawharat.manifest.utils.handClickable
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
+import com.jawharat.manifest.utils.printPdf
 import com.jawharat.manifest.utils.string
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
+
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit) {
@@ -90,6 +95,20 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(state: HomeUiState, viewModel: HomeViewModel) {
+
+    LaunchedEffect(state.pdfByteArray) {
+        state.pdfByteArray?.let { bytes ->
+            withContext(Dispatchers.IO) {
+                printPdf(
+                    pdfData = bytes,
+                    onStatusChange = {
+                        println("onStatusChange: $it")
+                    }
+                )
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -289,7 +308,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 }
 
 @Composable
-fun FormSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+private fun FormSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {

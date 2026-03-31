@@ -16,9 +16,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 
@@ -49,26 +51,28 @@ class AppRemoteDataSourceImpl(
         passengers: List<Passenger>,
         driverId: String,
     ): ByteArray {
-        return httpClient.post(BASE_URL + "manifests") {
+        val response = httpClient.post(BASE_URL + "manifests") {
             header(HttpHeaders.Accept, "application/pdf")
             contentType(ContentType.Application.Json)
             setBody(
                 Json.encodeToString(
                     SubmitManifestRequestBody(
-                        driverName = "ريبوار رشيد احمد",
-                        vehicleNumber = "22 a 52528",
-                        vehicleType = "پاس",
-                        phoneNumber = "07702371881",
+                        driverName = "صفوان سفین صالح",
+                        vehicleNumber = "22A41891",
+                        vehicleType = "جمسی داخلی",
+                        phoneNumber = "07506967979",
                         to = "بەغداد",
                         price = 12000,
                         passengers = passengers,
-                        driverId = "198195862322"
+                        driverId = "200005570222"
                     )
                 )
             )
-        }.readRawBytes()
-
-
+        }
+        if (response.status == HttpStatusCode.OK)
+            return response.readRawBytes()
+        else
+            throw Exception(response.bodyAsText())
     }
 
     override suspend fun addDriver(

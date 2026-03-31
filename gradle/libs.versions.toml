@@ -41,7 +41,7 @@ zxing-qrcode = { module = "com.google.zxing:javase", version = "3.5.3" }
 webcam = { module = "com.github.sarxos:webcam-capture", version = "0.3.12" }
 sqldelight = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 countrycodepicker = { module = "io.github.joelkanyi:komposecountrycodepicker", version = "2.0.0" }
-
+pdfbox = { module = "org.apache.pdfbox:pdfbox", version = "2.0.30" }
 
 [plugins]
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
@@ -89,7 +89,8 @@ utils = [
     "openpdf",
     "zxing-qrcode",
     "webcam",
-    "countrycodepicker"
+    "countrycodepicker",
+    "pdfbox"
 ]
 
 database = [

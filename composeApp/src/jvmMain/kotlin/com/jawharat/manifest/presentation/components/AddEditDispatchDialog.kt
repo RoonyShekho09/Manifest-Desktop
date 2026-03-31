@@ -34,11 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -80,7 +77,7 @@ fun AddEditDispatchDialog(
     val driverName = rememberTextFieldState(initialText = vehicle?.driverName.orEmpty())
     val price = rememberTextFieldState(initialText = vehicle?.price.orEmpty())
     val plateNumber = rememberTextFieldState(initialText = vehicle?.plateNumber.orEmpty())
-    var vehicleType by remember { mutableStateOf(VehicleType("", "")) }
+    var vehicleType by remember { mutableStateOf(vehicle?.vehicleType.orEmpty()) }
     val type = rememberTextFieldState(initialText = vehicle?.type.orEmpty())
     var line by remember { mutableStateOf(vehicle?.line ?: Line("", "")) }
 
@@ -123,7 +120,7 @@ fun AddEditDispatchDialog(
                         query = vehicleTypeSearchQuery,
                         data = vehiclesTypes.map { it.name },
                         placeholder = Res.string.vehicle_type.string,
-                        selection = vehicleType.name
+                        selection = vehicleType
                     )
 
                     AppTextField(
@@ -174,7 +171,7 @@ fun AddEditDispatchDialog(
                                 onConfirm(
                                     vehicle?.copy(
                                         plateNumber = plateNumber.text.toString(),
-                                        carType = vehicleType.name,
+                                        vehicleType = vehicleType,
                                         type = type.text.toString(),
                                         line = line,
                                         price = vehicle.price
@@ -185,7 +182,7 @@ fun AddEditDispatchDialog(
                                     DispatchUiState(
                                         driverName = vehicle?.driverName.orEmpty(),
                                         plateNumber = plateNumber.text.toString(),
-                                        carType = vehicleType.name,
+                                        vehicleType = vehicleType,
                                         type = type.text.toString(),
                                         line = line,
                                         price = vehicle?.price.orEmpty()
@@ -203,7 +200,7 @@ fun AddEditDispatchDialog(
 }
 
 @Composable
-fun DropDownTextField(
+private fun DropDownTextField(
     query: TextFieldState = rememberTextFieldState(),
     data: List<String>,
     placeholder: String,
@@ -212,7 +209,6 @@ fun DropDownTextField(
     addLimit: Boolean = true,
 ) {
     var isVehicleTypeDropDownVisible by remember { mutableStateOf(false) }
-    var iconPressed by remember { mutableStateOf(false) }
 
     fun showDropDown() {
         if (data.size <= 50)
@@ -224,15 +220,14 @@ fun DropDownTextField(
     }
 
     LaunchedEffect(query.text) {
+        if (query.text.toString() == selection) return@LaunchedEffect
         if (query.text.length >= 3)
             showDropDown()
     }
 
     LaunchedEffect(selection) {
         query.clearText()
-        query.edit {
-            append(selection)
-        }
+        query.edit { append(selection) }
         hideDropDown()
     }
 
@@ -245,18 +240,7 @@ fun DropDownTextField(
                 IconButton(
                     enabled = data.size <= 50 || !addLimit,
                     onClick = { if (isVehicleTypeDropDownVisible) hideDropDown() else showDropDown() },
-                    modifier = Modifier
-                        .handPointerHover()
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                                    if (event.type == PointerEventType.Press) {
-                                        iconPressed = true
-                                    }
-                                }
-                            }
-                        }
+                    modifier = Modifier.handPointerHover()
                 ) {
                     Icon(
                         painter = if (isVehicleTypeDropDownVisible)
@@ -269,29 +253,12 @@ fun DropDownTextField(
             },
             modifier = Modifier
                 .onFocusEvent {
-                    if (it.isFocused)
-                        showDropDown()
-                }
-                .pointerInput(isVehicleTypeDropDownVisible) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                            if (event.type == PointerEventType.Release && !iconPressed) {
-                                if (isVehicleTypeDropDownVisible) hideDropDown() else showDropDown()
-                            }
-                        }
-                    }
+                    if (it.isFocused) showDropDown()
                 }
         )
         DropdownMenu(
             expanded = isVehicleTypeDropDownVisible,
-            onDismissRequest = {
-                if (iconPressed) {
-                    iconPressed = false
-                } else {
-                    hideDropDown()
-                }
-            },
+            onDismissRequest = { hideDropDown() },
             properties = PopupProperties(focusable = false),
             modifier = Modifier.heightIn(max = 400.dp)
         ) {
@@ -300,9 +267,7 @@ fun DropDownTextField(
                     text = { Text(text = selection) },
                     onClick = {
                         query.clearText()
-                        query.edit {
-                            append(selection)
-                        }
+                        query.edit { append(selection) }
                         hideDropDown()
                     }
                 )

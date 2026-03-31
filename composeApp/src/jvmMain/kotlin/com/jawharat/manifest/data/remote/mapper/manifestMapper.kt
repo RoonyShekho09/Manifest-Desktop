@@ -32,7 +32,7 @@ fun DriverResponse.toDomain() = Driver(
 )
 
 fun DispatchResponse.toDomain() = Dispatch(
-    vehicleType = carType.orEmpty(),
+    vehicleType = vehicleType.orEmpty(),
     driverInformation = DriverInformation(
         destination = driverId?.destination.orEmpty(),
         _id = driverId?._id.orEmpty(),
