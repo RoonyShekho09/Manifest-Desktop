@@ -9,7 +9,9 @@ import com.jawharat.manifest.db.VehicleRecord
 
 interface AppLocalDataSource {
     val token: String?
+    val lastUsedEmail: String?
     fun storeToken(value: String)
+    fun storeLastUsedEmail(value: String)
     fun storeUser(value: UserLocal)
     fun clearDataStore()
 

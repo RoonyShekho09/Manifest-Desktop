@@ -40,6 +40,7 @@ import com.jawharat.manifest.utils.string
 fun AddEditDriverDialog(
     driver: Driver?,
     isEdit: Boolean = false,
+    isAddEditEnabled: Boolean = false,
     onDismiss: () -> Unit,
     onConfirm: (Driver?) -> Unit
 ) {
@@ -122,6 +123,7 @@ fun AddEditDriverDialog(
                                     )
                                 )
                         },
+                        enabled = isAddEditEnabled,
                         modifier = Modifier.handPointerHover()
                     ) {
                         Text(text = if (isEdit) Res.string.save_changes.string else Res.string.confirm.string)

@@ -96,17 +96,17 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
 @Composable
 fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
-    // TODO: Remove this
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            printPdf(
-                pdfData = Res.readBytes("files/test_manifest.pdf"),
-                onStatusChange = {
-                    println("onStatusChange: $it")
-                }
-            )
-        }
-    }
+//    // TODO: Remove this
+//    LaunchedEffect(Unit) {
+//        withContext(Dispatchers.IO) {
+//            printPdf(
+//                pdfData = Res.readBytes("files/test_manifest.pdf"),
+//                onStatusChange = {
+//                    println("onStatusChange: $it")
+//                }
+//            )
+//        }
+//    }
 
     LaunchedEffect(state.pdfByteArray) {
         state.pdfByteArray?.let { bytes ->

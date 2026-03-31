@@ -20,7 +20,13 @@ class AppLocalDataSourceImpl(
     override val token: String?
         get() = settings.getString(TOKEN_KEY)
 
+    override val lastUsedEmail: String?
+        get() = settings.getString(LAST_USED_EMAIL)
+
     override fun storeToken(value: String) = settings.putObject(TOKEN_KEY, value)
+
+    override fun storeLastUsedEmail(value: String) =
+        settings.putString(key = LAST_USED_EMAIL, value = value)
 
     override fun storeUser(value: UserLocal) = settings.putObject(USER_KEY, value)
 
@@ -96,5 +102,6 @@ class AppLocalDataSourceImpl(
     companion object {
         const val TOKEN_KEY = "token_key"
         const val USER_KEY = "user_key"
+        const val LAST_USED_EMAIL = "last_used_email_key"
     }
 }
