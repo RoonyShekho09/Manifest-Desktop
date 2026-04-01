@@ -47,7 +47,7 @@ class AppRemoteDataSourceImpl(
         vehicleType: String,
         phoneNumber: String,
         to: String,
-        price: String,
+        price: Int,
         passengers: List<Passenger>,
         driverId: String,
     ): ByteArray {
@@ -57,14 +57,14 @@ class AppRemoteDataSourceImpl(
             setBody(
                 Json.encodeToString(
                     SubmitManifestRequestBody(
-                        driverName = "صفوان سفین صالح",
-                        vehicleNumber = "22A41891",
-                        vehicleType = "جمسی داخلی",
-                        phoneNumber = "07506967979",
-                        to = "بەغداد",
-                        price = 12000,
+                        driverName = driverName,
+                        vehicleNumber = vehicleNumber,
+                        vehicleType = vehicleType,
+                        phoneNumber = phoneNumber,
+                        to = to,
+                        price = price,
                         passengers = passengers,
-                        driverId = "200005570222"
+                        driverId = driverId
                     )
                 )
             )

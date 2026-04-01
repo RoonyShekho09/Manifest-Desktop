@@ -5,15 +5,15 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class Manifest(
-    val date: String = "2026-03-29",
-    val price: String = "0.00",
-    val from: String = "Unknown",
-    val to: String = "Unknown",
-    val vehicleNumber: String = "0000",
-    val vehicleType: String = "Standard",
-    val driverName: String = "Pending Assignment",
-    val driverIdNumber: String = "000000",
-    val driverPhoneNumber: String = "000-000-0000",
+    val date: String = "",
+    val price: Int? = null,
+    val from: String = "",
+    val to: String = "",
+    val vehicleNumber: String = "",
+    val vehicleType: String = "",
+    val driverName: String = " ",
+    val driverIdNumber: String = "",
+    val driverPhoneNumber: String = "",
 )
 
 fun parseManifest(text: String): Manifest {

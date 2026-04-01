@@ -8,22 +8,26 @@ import com.jawharat.manifest.domain.entity.Manifest
 @Immutable
 data class HomeUiState(
     val isLoading: Boolean = false,
-    val emailState: TextFieldState = TextFieldState(),
-    val passwordState: TextFieldState = TextFieldState(),
     val manifest: Manifest = Manifest(),
     val startScanning: Boolean = false,
     val isLogoutConfirmationVisible: Boolean = false,
     val scanState: ScanState = ScanState(),
     val isAddPassengersDialogVisible: Boolean = false,
-    val passengers: List<PassengerFieldState> = listOf(PassengerFieldState()),
+    val passengers: List<PassengerFieldState> = emptyList(),
     val pdfByteArray: ByteArray? = null,
-)
+) {
+    val isPassengersValid: Boolean get() = manifest.price != 10000 && passengers.isNotEmpty()
+    val isSubmitEnabled: Boolean
+        get() = manifest.to.isNotEmpty() && manifest.price != null &&
+                manifest.vehicleNumber.isNotEmpty() && manifest.driverName.isNotEmpty() &&
+                manifest.driverIdNumber.isNotEmpty() && manifest.driverPhoneNumber.isNotEmpty() && isPassengersValid
+}
 
 @Stable
 class PassengerFieldState {
-    val id = TextFieldState("153")
-    val name = TextFieldState("Roony")
-    val country = TextFieldState("Iraq")
+    val id = TextFieldState("")
+    val name = TextFieldState("")
+    val country = TextFieldState("")
 }
 
 data class ScanState(

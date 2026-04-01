@@ -23,7 +23,7 @@ interface AppRemoteDataSource {
         vehicleType: String,
         phoneNumber: String,
         to: String,
-        price: String,
+        price: Int,
         passengers: List<Passenger>,
         driverId: String
     ): ByteArray

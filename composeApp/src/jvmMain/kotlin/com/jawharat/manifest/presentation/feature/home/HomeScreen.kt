@@ -32,13 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.components.AppTextField
@@ -58,7 +54,7 @@ import com.jawharat.manifest.resources.passengers
 import com.jawharat.manifest.resources.personnel
 import com.jawharat.manifest.resources.price
 import com.jawharat.manifest.resources.register_trip
-import com.jawharat.manifest.resources.scan_qr_code
+import com.jawharat.manifest.resources.submit_manifest
 import com.jawharat.manifest.resources.trip_details
 import com.jawharat.manifest.resources.vehicle_information
 import com.jawharat.manifest.resources.vehicle_number
@@ -75,6 +71,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @Composable
@@ -95,18 +94,6 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(state: HomeUiState, viewModel: HomeViewModel) {
-
-//    // TODO: Remove this
-//    LaunchedEffect(Unit) {
-//        withContext(Dispatchers.IO) {
-//            printPdf(
-//                pdfData = Res.readBytes("files/test_manifest.pdf"),
-//                onStatusChange = {
-//                    println("onStatusChange: $it")
-//                }
-//            )
-//        }
-//    }
 
     LaunchedEffect(state.pdfByteArray) {
         state.pdfByteArray?.let { bytes ->
@@ -174,25 +161,12 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
         }
     ) { paddingValues ->
 
-        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             if (currentPlatform != Platform.MacOS)
                 QrCodeScanner(
                     onResult = viewModel::onQrCodeResult,
-                    onFrame = { imageBitmap = it },
+                    onFrame = { },
                 )
-
-//                imageBitmap?.let {
-//                    Image(
-//                        bitmap = it,
-//                        contentDescription = null,
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier.fillMaxSize()
-//                    )
-//                }
-//
-//                ScanGuideOverlay()
 
             Column(
                 modifier = Modifier.padding(24.dp).padding(paddingValues)
@@ -202,14 +176,14 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                 FormSection(title = Res.string.trip_details.string) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         AppTextField(
-                            value = state.manifest.date,
+                            value = formatedToday(),
                             placeholder = Res.string.date.string,
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.weight(1f)
                         )
                         AppTextField(
-                            value = state.manifest.price,
+                            value = if (state.manifest.price != null) state.manifest.price.toString() else "",
                             placeholder = Res.string.price.string,
                             onValueChange = {},
                             readOnly = true,
@@ -289,6 +263,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                 FormSection(title = "") {
                     Button(
                         onClick = viewModel::onStartScanning,
+                        enabled = state.isSubmitEnabled,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                             .handPointerHover()
                     ) {
@@ -298,7 +273,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                             contentDescription = null
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(text = Res.string.scan_qr_code.string)
+                        Text(text = Res.string.submit_manifest.string)
                     }
                 }
             }
@@ -317,6 +292,17 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             onDismissLogoutConfirmation = viewModel::onDismissLogoutConfirmation,
             onLogout = viewModel::logout
         )
+}
+
+@Composable
+private fun formatedToday(): String {
+    val dateTime = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern(
+        "EEEE, dd MMMM yyyy",
+        Locale("ckb")
+    )
+    val formattedDateTime = dateTime.format(formatter)
+    return formattedDateTime
 }
 
 @Composable

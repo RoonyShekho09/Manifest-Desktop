@@ -36,7 +36,7 @@ class HomeViewModel(
                     vehicleType = state.value.manifest.vehicleType,
                     phoneNumber = state.value.manifest.driverPhoneNumber,
                     to = state.value.manifest.to,
-                    price = state.value.manifest.price,
+                    price = state.value.manifest.price ?: 0,
                     passengers = state.value.passengers.map {
                         Passenger(
                             id = it.id.text.toString(),
@@ -79,7 +79,7 @@ class HomeViewModel(
                 copy(
                     manifest = state.value.manifest.copy(
                         vehicleNumber = it.vehicleNumber,
-                        price = it.price.toString(),
+                        price = it.price,
                         vehicleType = it.vehicleType,
                         from = it.line.name
                     ),
