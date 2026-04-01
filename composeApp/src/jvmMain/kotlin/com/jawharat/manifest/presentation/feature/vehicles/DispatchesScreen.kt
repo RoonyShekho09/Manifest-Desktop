@@ -2,12 +2,15 @@
 
 package com.jawharat.manifest.presentation.feature.vehicles
 
+import androidx.compose.foundation.ScrollbarStyle
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -104,31 +108,51 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                 LoadingIndicator()
             }
 
-        LazyColumn(
-            state = listState,
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(24.dp)
+                .padding(paddingValues)
         ) {
-            item {
-                Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                    AppTextField(
-                        state = query,
-                        placeholder = Res.string.search_driver_placeholder.string,
-                        modifier = Modifier.width(400.dp)
-                    )
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(24.dp)
+            ) {
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                        AppTextField(
+                            state = query,
+                            placeholder = Res.string.search_driver_placeholder.string,
+                            modifier = Modifier.width(400.dp)
+                        )
 
-                    AddItemButton(onClick = viewModel::onEditClick)
+                        AddItemButton(onClick = viewModel::onEditClick)
+                    }
+                }
+                items(filteredVehicles, key = { it.id }) { car ->
+                    CarRow(
+                        driver = car,
+                        onEditClick = viewModel::onEditClick,
+                    )
                 }
             }
-            items(filteredVehicles, key = { it.id }) { car ->
-                CarRow(
-                    driver = car,
-                    onEditClick = viewModel::onEditClick,
+            VerticalScrollbar(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 4.dp, top = 32.dp)
+                    .fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(listState),
+                style = ScrollbarStyle(
+                    minimalHeight = 32.dp,
+                    thickness = 8.dp,
+                    shape = RoundedCornerShape(4.dp),
+                    hoverDurationMillis = 300,
+                    unhoverColor = Color.Black.copy(alpha = 0.12f),
+                    hoverColor = Color.Black.copy(alpha = 0.50f)
                 )
-            }
+            )
         }
 
         val scope = rememberCoroutineScope()
