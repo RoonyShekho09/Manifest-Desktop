@@ -61,6 +61,7 @@ import com.jawharat.manifest.resources.login_to_continue
 import com.jawharat.manifest.resources.password
 import com.jawharat.manifest.resources.username
 import com.jawharat.manifest.utils.Listen
+import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
 
@@ -185,7 +186,10 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                         Icon(painter = Res.drawable.ic_lock.painter, null, tint = Color.Gray)
                     },
                     trailingIcon = {
-                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        IconButton(
+                            onClick = { isPasswordVisible = !isPasswordVisible },
+                            modifier = Modifier.handPointerHover()
+                        ) {
                             Icon(
                                 painter =
                                     if (isPasswordVisible) Res.drawable.ic_password_visible.painter
@@ -199,10 +203,11 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier.fillMaxWidth()
+                        .height(48.dp)
+                        .handPointerHover(),
                     onClick = viewModel::login,
                     shape = RoundedCornerShape(8.dp),
-
                     enabled = state.isLoginEnabled,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFE2B631),

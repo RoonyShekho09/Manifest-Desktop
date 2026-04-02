@@ -35,7 +35,7 @@ sealed interface Screen {
     }
 
     @Serializable
-    data object Cars : Screen {
+    data object Dispatches : Screen {
         override val label = Res.string.vehicles
         override val icon = Res.drawable.ic_vehicle
     }

@@ -1,27 +1,27 @@
 package com.jawharat.manifest.domain.repository
 
-import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.Line
-import com.jawharat.manifest.domain.entity.Vehicle
+import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.VehicleType
 
 interface ManifestRepository {
     suspend fun getDrivers(fetch: Boolean = false): List<Driver>
-    suspend fun getVehicles(fetch: Boolean = false): List<Vehicle>
+    suspend fun getDispatches(fetch: Boolean = false): List<Dispatch>
     suspend fun scanManifestQrCode(id: String)
     suspend fun scanDriverQrCode(id: String): Driver
-    suspend fun scanVehicleQrCode(id: String): Vehicle
+    suspend fun scanVehicleQrCode(id: String): Dispatch
     suspend fun submitManifest(
         driverName: String,
         vehicleNumber: String,
         vehicleType: String,
         phoneNumber: String,
         to: String,
-        price: String,
+        price: Int,
         passengers: List<Passenger>,
         driverId: String
-    )
+    ): ByteArray
 
     suspend fun addDriver(
         driverId: String? = null,
@@ -50,12 +50,13 @@ interface ManifestRepository {
     suspend fun editVehicle(
         vehicleNumber: String? = null,
         type: String? = null,
-        carType: String? = null,
+        vehicleType: String? = null,
         price: Int? = null,
         driverId: String? = null,
         line: String? = null,
         id: String
     )
 
-    suspend fun getLines(): List<Line>
+    suspend fun getLines(fetch: Boolean = false): List<Line>
+    suspend fun getVehicleTypes(fetch: Boolean = false): List<VehicleType>
 }

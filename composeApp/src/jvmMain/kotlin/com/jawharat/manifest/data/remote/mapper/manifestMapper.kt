@@ -1,10 +1,12 @@
 package com.jawharat.manifest.data.remote.mapper
 
-import com.jawharat.manifest.data.local.model.drivers.DriverQrCodeResponse
-import com.jawharat.manifest.data.local.model.drivers.DriverResponse
-import com.jawharat.manifest.data.local.model.vehicles.VehicleQrCodeResponse
-import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
+import com.jawharat.manifest.data.remote.model.drivers.DriverQrCodeResponse
+import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
+import com.jawharat.manifest.data.remote.model.vehicles.DispatchQrCodeResponse
+import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
+import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
+import com.jawharat.manifest.db.DispatchRecord
 import com.jawharat.manifest.db.DriverRecord
 import com.jawharat.manifest.db.LineRecord
 import com.jawharat.manifest.db.VehicleRecord
@@ -12,10 +14,11 @@ import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.DriverInformation
 import com.jawharat.manifest.domain.entity.Line
 import com.jawharat.manifest.domain.entity.Office
-import com.jawharat.manifest.domain.entity.Vehicle
+import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.VehicleType
 
 @JvmName("vehicleToDomain")
-fun List<VehicleResponse>.toDomain() = map { it.toDomain() }
+fun List<DispatchResponse>.toDomain() = map { it.toDomain() }
 
 @JvmName("driverToDomain")
 fun List<DriverResponse>.toDomain() = map { it.toDomain() }
@@ -28,8 +31,8 @@ fun DriverResponse.toDomain() = Driver(
     driverId = id.orEmpty()
 )
 
-fun VehicleResponse.toDomain() = Vehicle(
-    vehicleType = carType.orEmpty(),
+fun DispatchResponse.toDomain() = Dispatch(
+    vehicleType = vehicleType.orEmpty(),
     driverInformation = DriverInformation(
         destination = driverId?.destination.orEmpty(),
         _id = driverId?._id.orEmpty(),
@@ -57,7 +60,6 @@ fun DriverRecord.toDomain() = Driver(
     driverId = driverId
 )
 
-
 @JvmName("driverToEntity")
 fun List<Driver>.toEntity() = map { it.toEntity() }
 
@@ -70,9 +72,9 @@ fun Driver.toEntity() = DriverRecord(
 )
 
 @JvmName("vehicleRecordToDomain")
-fun List<VehicleRecord>.toDomain() = map { it.toDomain() }
+fun List<DispatchRecord>.toDomain() = map { it.toDomain() }
 
-fun VehicleRecord.toDomain() = Vehicle(
+fun DispatchRecord.toDomain() = Dispatch(
     id = id,
     vehicleType = carType,
     driverInformation = DriverInformation(
@@ -97,9 +99,9 @@ fun VehicleRecord.toDomain() = Vehicle(
 )
 
 @JvmName("vehicleToEntity")
-fun List<Vehicle>.toEntity() = map { it.toEntity() }
+fun List<Dispatch>.toEntity() = map { it.toEntity() }
 
-fun Vehicle.toEntity() = VehicleRecord(
+fun Dispatch.toEntity() = DispatchRecord(
     id = id,
     carType = vehicleType,
     driver_destination = driverInformation.destination,
@@ -116,7 +118,7 @@ fun Vehicle.toEntity() = VehicleRecord(
     vehicleNumber = vehicleNumber
 )
 
-fun VehicleQrCodeResponse.toDomain() = Vehicle(
+fun DispatchQrCodeResponse.toDomain() = Dispatch(
     vehicleType = vehicleType.orEmpty(),
     driverInformation = DriverInformation("", "", "", "", ""),
     id = "",
@@ -129,7 +131,7 @@ fun VehicleQrCodeResponse.toDomain() = Vehicle(
 )
 
 fun DriverQrCodeResponse.toDomain() = Driver(
-    id = driverId.orEmpty(),
+    id = "",
     name = driverName.orEmpty(),
     phone = phoneNumber.orEmpty(),
     destination = to.orEmpty(),
@@ -144,6 +146,7 @@ fun LineRecord.toDomain() = Line(
     name = name
 )
 
+@JvmName("lineResponseToDomain")
 fun List<LineResponse>.toDomain() = map { it.toDomain() }
 
 fun LineResponse.toDomain() = Line(
@@ -151,9 +154,34 @@ fun LineResponse.toDomain() = Line(
     name = name.orEmpty()
 )
 
+@JvmName("lineResponseToEntity")
 fun List<LineResponse>.toEntity() = map { it.toEntity() }
 
 fun LineResponse.toEntity() = LineRecord(
     id = id.orEmpty(),
     name = name.orEmpty()
 )
+
+@JvmName("vehicleRemoteToDomain")
+fun List<VehicleRemote>.toDomain() = map { it.toDomain() }
+
+fun VehicleRemote.toDomain() = VehicleType(
+    id = id.orEmpty(),
+    name = name.orEmpty()
+)
+
+fun List<VehicleRecord>.toDomain() = map { it.toDomain() }
+
+fun VehicleRecord.toDomain() = VehicleType(
+    id = id,
+    name = name
+)
+
+
+fun List<VehicleType>.toEntity() = map { it.toEntity() }
+
+fun VehicleType.toEntity() = VehicleRecord(
+    id = id,
+    name = name
+)
+

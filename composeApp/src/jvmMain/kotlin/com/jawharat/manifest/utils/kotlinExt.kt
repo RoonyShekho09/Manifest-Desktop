@@ -13,3 +13,14 @@ inline fun <reified T> T?.toJson(): String = runCatching {
 }.onFailure {
     throw SerializationException("Failed to convert ${T::class.simpleName} to JsonString")
 }.getOrThrow()
+
+fun String.normalizeArabicKurdish(): String = run {
+    replace('ک', 'ك')
+    replace('ی', 'ي')
+    replace('ی', 'ى')
+    replace('ێ', 'ي')
+    replace('ە', 'ه')
+    replace('م', 'م')
+    replace('ح', 'ح')
+    replace('ه', 'ة')
+}

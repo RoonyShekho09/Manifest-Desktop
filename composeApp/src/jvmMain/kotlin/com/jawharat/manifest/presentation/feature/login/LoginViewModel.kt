@@ -1,5 +1,7 @@
 package com.jawharat.manifest.presentation.feature.login
 
+import androidx.compose.foundation.text.input.TextFieldState
+import com.github.javakeyring.Keyring
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
@@ -7,10 +9,30 @@ import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.login_failed
 import org.jetbrains.compose.resources.getString
 
+
 class LoginViewModel(
     private val repository: AuthRepository,
     private val snackBar: AppSnackBarHostState,
+    private val keyring: Keyring
 ) : BaseViewModel<LoginUiState, LoginUiEvent>(LoginUiState()) {
+
+    init {
+        initializeSavedCredentials()
+    }
+
+    private fun initializeSavedCredentials() {
+        runCatching {
+            keyring.use { keyring ->
+                val secret = keyring.getPassword("jawharat-erbil", repository.lastUsedEmail)
+                updateState {
+                    copy(
+                        emailState = TextFieldState(initialText = repository.lastUsedEmail),
+                        passwordState = TextFieldState(initialText = secret)
+                    )
+                }
+            }
+        }
+    }
 
     fun login() = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
@@ -20,7 +42,16 @@ class LoginViewModel(
                 password = state.value.passwordState.text.trim().toString()
             )
         },
-        onSuccess = { emitEvent(LoginUiEvent.OnNavigateToHome) },
+        onSuccess = {
+            keyring.use { keyring ->
+                keyring.setPassword(
+                    "jawharat-erbil",
+                    state.value.emailState.text.toString(),
+                    state.value.passwordState.text.toString()
+                )
+            }
+            emitEvent(LoginUiEvent.OnNavigateToHome)
+        },
         onError = {
             snackBar.showFailure(message = getString(Res.string.login_failed))
         },

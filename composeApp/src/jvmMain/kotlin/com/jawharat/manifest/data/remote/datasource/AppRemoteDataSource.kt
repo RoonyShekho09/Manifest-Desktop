@@ -1,31 +1,32 @@
 package com.jawharat.manifest.data.remote.datasource
 
-import com.jawharat.manifest.data.local.model.drivers.DriverQrCodeResponse
-import com.jawharat.manifest.data.local.model.drivers.DriverResponse
-import com.jawharat.manifest.data.local.model.vehicles.VehicleQrCodeResponse
-import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
+import com.jawharat.manifest.data.remote.model.drivers.DriverQrCodeResponse
+import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
+import com.jawharat.manifest.data.remote.model.vehicles.DispatchQrCodeResponse
+import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
-import com.jawharat.manifest.data.remote.model.LoginResponse
+import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 
 interface AppRemoteDataSource {
     suspend fun logout(): Boolean
     suspend fun login(email: String, password: String): LoginResponse
     suspend fun scanManifestQrCode(id: String)
     suspend fun scanDriverQrCode(id: String): DriverQrCodeResponse
-    suspend fun scanVehicleQrCode(id: String): VehicleQrCodeResponse
+    suspend fun scanDispatchQrCode(id: String): DispatchQrCodeResponse
     suspend fun getDrivers(): List<DriverResponse>
-    suspend fun getVehicles(): List<VehicleResponse>
+    suspend fun getDispatches(): List<DispatchResponse>
     suspend fun submitManifest(
         driverName: String,
         vehicleNumber: String,
         vehicleType: String,
         phoneNumber: String,
         to: String,
-        price: String,
+        price: Int,
         passengers: List<Passenger>,
         driverId: String
-    )
+    ): ByteArray
 
     suspend fun addDriver(
         driverId: String? = null,
@@ -62,4 +63,5 @@ interface AppRemoteDataSource {
     )
 
     suspend fun getLines(): List<LineResponse>
+    suspend fun getVehicleTypes(): List<VehicleRemote>
 }

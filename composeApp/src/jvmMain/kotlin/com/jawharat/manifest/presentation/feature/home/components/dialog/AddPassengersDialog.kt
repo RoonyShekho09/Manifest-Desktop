@@ -1,7 +1,6 @@
 package com.jawharat.manifest.presentation.feature.home.components.dialog
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,9 +45,10 @@ import com.jawharat.manifest.resources.ic_add
 import com.jawharat.manifest.resources.ic_remove
 import com.jawharat.manifest.resources.id_placeholder
 import com.jawharat.manifest.resources.save_changes
+import com.jawharat.manifest.utils.allCountries
+import com.jawharat.manifest.utils.handClickable
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
-import com.joelkanyi.jcomposecountrycodepicker.component.rememberKomposeCountryCodePickerState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -134,13 +133,6 @@ fun AddPassengersDialog(
                             }
 
                             Box(modifier = Modifier.weight(1f)) {
-                                val state = rememberKomposeCountryCodePickerState(
-                                    showCountryCode = false,
-                                    showCountryFlag = true,
-                                    defaultCountryCode = "IQ",
-                                    priorityCountries = listOf("IQ", "Turkey", "Iran")
-                                )
-
                                 Column {
                                     Box {
                                         AppTextField(
@@ -152,12 +144,12 @@ fun AddPassengersDialog(
                                         Box(
                                             modifier = Modifier
                                                 .matchParentSize()
-                                                .clickable { isDropDownExpanded = true }
+                                                .handClickable { isDropDownExpanded = true }
                                         )
                                     }
 
                                     CountrySelectionDropDown(
-                                        countryList = state.countryList,
+                                        countryList = allCountries,
                                         containerColor = MaterialTheme.colorScheme.background,
                                         contentColor = MaterialTheme.colorScheme.onBackground,
                                         onDismissRequest = { isDropDownExpanded = false },
@@ -172,7 +164,7 @@ fun AddPassengersDialog(
                             }
 
                             when {
-                                (index == 0) -> FilledIconButton(
+                                index == 0 -> FilledIconButton(
                                     onClick = { passengers.add(PassengerFieldState()) },
                                     enabled = passengers.size <= 15,
                                 ) {

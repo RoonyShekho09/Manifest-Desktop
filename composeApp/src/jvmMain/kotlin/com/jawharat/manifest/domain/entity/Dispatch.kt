@@ -1,6 +1,6 @@
 package com.jawharat.manifest.domain.entity
 
-data class Vehicle(
+data class Dispatch(
     val vehicleType: String,
     val driverInformation: DriverInformation,
     val id: String,

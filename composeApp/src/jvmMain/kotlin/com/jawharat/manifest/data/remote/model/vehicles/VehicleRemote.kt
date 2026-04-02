@@ -1,11 +1,10 @@
-package com.jawharat.manifest.data.local.model.vehicles
-
+package com.jawharat.manifest.data.remote.model.vehicles
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LineRemote(
+data class VehicleRemote(
     @SerialName("_id")
     val id: String? = null,
     @SerialName("name")

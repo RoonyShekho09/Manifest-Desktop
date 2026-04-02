@@ -16,7 +16,7 @@ data class SubmitManifestRequestBody(
     @SerialName("to")
     val to: String? = null,
     @SerialName("price")
-    val price: String? = null,
+    val price: Int? = null,
     @SerialName("passengers")
     val passengers: List<Passenger>? = null,
     @SerialName("driver-id")
@@ -32,5 +32,5 @@ data class Passenger(
     @SerialName("nationality")
     val nationality: String? = null,
     @SerialName("manual")
-    val manual: String? = null
+    val manual: Boolean? = null
 )

@@ -1,11 +1,10 @@
-package com.jawharat.manifest.data.local.model.vehicles
-
+package com.jawharat.manifest.data.remote.model.vehicles
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class VehicleQrCodeResponse(
+data class DispatchQrCodeResponse(
     @SerialName("line")
     val line: String? = null,
     @SerialName("price")

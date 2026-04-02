@@ -10,7 +10,7 @@ object AppSettings {
     fun getInt(key: String, default: Int = 0) = prefs.getInt(key, default)
     fun putInt(key: String, value: Int) = prefs.putInt(key, value)
     fun getBoolean(key: String, default: Boolean = false) = prefs.getBoolean(key, default)
-    fun putBoolean(key: String, value: Boolean) = prefs.putBoolean(key, value)
+    fun putBoolean(key: String, value: Boolean) = prefs
     fun remove(key: String) = prefs.remove(key)
     fun clear() = prefs.clear()
 }

@@ -36,12 +36,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.ic_search
+import com.jawharat.manifest.resources.search
+import com.jawharat.manifest.utils.string
 import com.joelkanyi.jcomposecountrycodepicker.data.Country
-import com.joelkanyi.jcomposecountrycodepicker.resources.Res
-import com.joelkanyi.jcomposecountrycodepicker.resources.ic_search
-import com.joelkanyi.jcomposecountrycodepicker.resources.search_country
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import java.text.Normalizer
 import java.util.Locale.getDefault
 
@@ -87,7 +87,7 @@ fun CountrySelectionDropDown(
                 onValueChange = { searchValue = it },
                 placeholder = {
                     Text(
-                        text = stringResource(Res.string.search_country),
+                        text = Res.string.search.string,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },

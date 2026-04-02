@@ -39,7 +39,7 @@ kotlin {
 }
 
 dependencies {
-     add("kspJvm", libs.ktorfit.ksp)
+    add("kspJvm", libs.ktorfit.ksp)
 }
 
 sqldelight {

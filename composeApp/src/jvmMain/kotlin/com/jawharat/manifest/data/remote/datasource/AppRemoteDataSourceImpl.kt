@@ -1,21 +1,37 @@
 package com.jawharat.manifest.data.remote.datasource
 
-import com.jawharat.manifest.data.local.model.drivers.DriverResponse
-import com.jawharat.manifest.data.local.model.vehicles.VehicleResponse
-import com.jawharat.manifest.data.remote.model.AddDriverRequestBody
-import com.jawharat.manifest.data.remote.model.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.LineResponse
-import com.jawharat.manifest.data.remote.model.LoginRequestBody
-import com.jawharat.manifest.data.remote.model.LoginResponse
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
+import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
+import com.jawharat.manifest.data.remote.model.auth.LoginResponse
+import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
+import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
+import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
+import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
+import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 import com.jawharat.manifest.data.remote.service.AppApiService
+import com.jawharat.manifest.di.BASE_URL
+import io.ktor.client.HttpClient
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readRawBytes
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import kotlinx.serialization.json.Json
 
-class AppRemoteDataSourceImpl(private val apiService: AppApiService) : AppRemoteDataSource {
+class AppRemoteDataSourceImpl(
+    private val apiService: AppApiService,
+    private val httpClient: HttpClient,
+) : AppRemoteDataSource {
 
     override suspend fun logout(): Boolean {
-        apiService.logout()
-        return true
+        val response = apiService.logout()
+        return response.isSuccessful
     }
 
     override suspend fun login(
@@ -25,29 +41,38 @@ class AppRemoteDataSourceImpl(private val apiService: AppApiService) : AppRemote
         apiService.login(body = LoginRequestBody(username = email, password = password)).body()
             ?: throw Exception()
 
-
     override suspend fun submitManifest(
         driverName: String,
         vehicleNumber: String,
         vehicleType: String,
         phoneNumber: String,
         to: String,
-        price: String,
+        price: Int,
         passengers: List<Passenger>,
         driverId: String,
-    ) {
-        apiService.submitManifest(
-            body = SubmitManifestRequestBody(
-                driverName = driverName,
-                vehicleNumber = vehicleNumber,
-                vehicleType = vehicleType,
-                phoneNumber = phoneNumber,
-                to = to,
-                price = price,
-                passengers = passengers,
-                driverId = driverId
+    ): ByteArray {
+        val response = httpClient.post(BASE_URL + "manifests") {
+            header(HttpHeaders.Accept, "application/pdf")
+            contentType(ContentType.Application.Json)
+            setBody(
+                Json.encodeToString(
+                    SubmitManifestRequestBody(
+                        driverName = driverName,
+                        vehicleNumber = vehicleNumber,
+                        vehicleType = vehicleType,
+                        phoneNumber = phoneNumber,
+                        to = to,
+                        price = price,
+                        passengers = passengers,
+                        driverId = driverId
+                    )
+                )
             )
-        )
+        }
+        if (response.status == HttpStatusCode.OK)
+            return response.readRawBytes()
+        else
+            throw Exception(response.bodyAsText())
     }
 
     override suspend fun addDriver(
@@ -99,7 +124,6 @@ class AppRemoteDataSourceImpl(private val apiService: AppApiService) : AppRemote
             id = id
         )
 
-        println("error: ${result.message}")
         return result.body() ?: throw Exception(result.message)
     }
 
@@ -126,20 +150,21 @@ class AppRemoteDataSourceImpl(private val apiService: AppApiService) : AppRemote
     override suspend fun getLines(): List<LineResponse> =
         apiService.getLines().body() ?: throw Exception()
 
+    override suspend fun getDispatches(): List<DispatchResponse> =
+        apiService.getVehicles().body() ?: throw Exception()
+
     override suspend fun scanManifestQrCode(id: String) =
         apiService.scanManifestQrCode(id).body() ?: throw Exception()
 
     override suspend fun scanDriverQrCode(id: String) =
         apiService.scanDriverQrCode(id).body() ?: throw Exception()
 
-    override suspend fun scanVehicleQrCode(id: String) =
+    override suspend fun scanDispatchQrCode(id: String) =
         apiService.scanVehicleQrCode(id).body() ?: throw Exception()
 
-    override suspend fun getDrivers(): List<DriverResponse> {
-        return apiService.getDrivers().body() ?: throw Exception()
-    }
+    override suspend fun getDrivers(): List<DriverResponse> =
+        apiService.getDrivers().body() ?: throw Exception()
 
-    override suspend fun getVehicles(): List<VehicleResponse> {
-        return apiService.getVehicles().body() ?: throw Exception()
-    }
+    override suspend fun getVehicleTypes(): List<VehicleRemote> =
+        apiService.getVehicleTypes().body() ?: throw Exception()
 }

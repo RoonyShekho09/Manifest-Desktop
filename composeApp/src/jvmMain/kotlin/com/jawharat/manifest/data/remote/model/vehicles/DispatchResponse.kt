@@ -1,13 +1,14 @@
-package com.jawharat.manifest.data.local.model.vehicles
+package com.jawharat.manifest.data.remote.model.vehicles
 
-
+import com.jawharat.manifest.data.remote.model.drivers.DriverInformationRemote
+import com.jawharat.manifest.data.remote.model.LineRemote
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class VehicleResponse(
+data class DispatchResponse(
     @SerialName("carType")
-    val carType: String? = null,
+    val vehicleType: String? = null,
     @SerialName("driverId")
     val driverId: DriverInformationRemote? = null,
     @SerialName("_id")

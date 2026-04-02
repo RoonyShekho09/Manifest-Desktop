@@ -1,11 +1,11 @@
-package com.jawharat.manifest.data.local.model.drivers
+package com.jawharat.manifest.data.remote.model.drivers
 
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DriverResponse(
+data class DriverInformationRemote(
     @SerialName("destination")
     val destination: String? = null,
     @SerialName("_id")
@@ -14,8 +14,6 @@ data class DriverResponse(
     val id: String? = null,
     @SerialName("name")
     val name: String? = null,
-    @SerialName("office")
-    val office: String? = null,
     @SerialName("phoneNumber")
     val phoneNumber: String? = null
 )

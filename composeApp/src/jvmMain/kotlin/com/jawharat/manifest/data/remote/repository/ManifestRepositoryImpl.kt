@@ -4,11 +4,11 @@ import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.mapper.toDomain
 import com.jawharat.manifest.data.remote.mapper.toEntity
-import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.Dispatch
 import com.jawharat.manifest.domain.entity.Line
-import com.jawharat.manifest.domain.entity.Vehicle
+import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.domain.repository.ManifestRepository
 
 class ManifestRepositoryImpl(
@@ -17,19 +17,19 @@ class ManifestRepositoryImpl(
 ) : ManifestRepository {
 
     override suspend fun getDrivers(fetch: Boolean): List<Driver> =
-        if (!fetch && localDataSource.hasDriversInDb)
-            localDataSource.queryDrivers().toDomain()
+        if (!fetch && localDataSource.drivers.hasRecords)
+            localDataSource.drivers.query().toDomain()
         else
             remoteDataSource.getDrivers().toDomain().also {
-                localDataSource.insertDrivers(it.toEntity())
+                localDataSource.drivers.insert(it.toEntity())
             }
 
-    override suspend fun getVehicles(fetch: Boolean): List<Vehicle> =
-        if (!fetch && localDataSource.hasVehiclesInDb)
-            localDataSource.queryVehicles().toDomain()
+    override suspend fun getDispatches(fetch: Boolean): List<Dispatch> =
+        if (!fetch && localDataSource.dispatches.hasRecords)
+            localDataSource.dispatches.query().toDomain()
         else
-            remoteDataSource.getVehicles().toDomain().also {
-                localDataSource.insertVehicles(it.toEntity())
+            remoteDataSource.getDispatches().toDomain().also {
+                localDataSource.dispatches.insert(it.toEntity())
             }
 
     override suspend fun submitManifest(
@@ -38,10 +38,10 @@ class ManifestRepositoryImpl(
         vehicleType: String,
         phoneNumber: String,
         to: String,
-        price: String,
+        price: Int,
         passengers: List<Passenger>,
         driverId: String,
-    ) = remoteDataSource.submitManifest(
+    ): ByteArray = remoteDataSource.submitManifest(
         driverName = driverName,
         vehicleNumber = vehicleNumber,
         vehicleType = vehicleType,
@@ -97,7 +97,7 @@ class ManifestRepositoryImpl(
     override suspend fun editVehicle(
         vehicleNumber: String?,
         type: String?,
-        carType: String?,
+        vehicleType: String?,
         price: Int?,
         driverId: String?,
         line: String?,
@@ -105,28 +105,34 @@ class ManifestRepositoryImpl(
     ) = remoteDataSource.editVehicle(
         vehicleNumber = vehicleNumber,
         type = type,
-        carType = carType,
+        carType = vehicleType,
         price = price,
         driverId = driverId,
         line = line,
         id = id
     )
 
-    override suspend fun getLines() =
-        if (localDataSource.hasLinesInDb)
-            localDataSource.queryLines().toDomain()
+    override suspend fun getLines(fetch: Boolean): List<Line> =
+        if (localDataSource.lines.hasRecords && !fetch)
+            localDataSource.lines.query().toDomain()
         else
             remoteDataSource.getLines()
-                .also { localDataSource.insertLines(it.toEntity()) }
+                .also { localDataSource.lines.insert(it.toEntity()) }
                 .toDomain()
 
-    override suspend fun scanManifestQrCode(id: String) {
-        remoteDataSource.scanManifestQrCode(id)
-    }
+    override suspend fun scanManifestQrCode(id: String) = remoteDataSource.scanManifestQrCode(id)
 
     override suspend fun scanDriverQrCode(id: String) =
         remoteDataSource.scanDriverQrCode(id).toDomain()
 
     override suspend fun scanVehicleQrCode(id: String) =
-        remoteDataSource.scanVehicleQrCode(id).toDomain()
+        remoteDataSource.scanDispatchQrCode(id).toDomain()
+
+    override suspend fun getVehicleTypes(fetch: Boolean): List<VehicleType> =
+        if (localDataSource.vehicleTypes.hasRecords && !fetch)
+            localDataSource.vehicleTypes.query().toDomain()
+        else
+            remoteDataSource.getVehicleTypes().toDomain().also {
+                localDataSource.vehicleTypes.insert((it.toEntity()))
+            }
 }

@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -25,7 +27,7 @@ import com.jawharat.manifest.utils.string
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.Home) {
     val navController = rememberNavController()
-    val screens = listOf(Screen.Home, Screen.Drivers, Screen.Cars)
+    val screens = listOf(Screen.Home, Screen.Drivers, Screen.Dispatches)
 
     val state = rememberWideNavigationRailState(initialValue = WideNavigationRailValue.Collapsed)
 
@@ -42,6 +44,7 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.
                 Spacer(Modifier.height(12.dp))
                 screens.forEach { destination ->
                     WideNavigationRailItem(
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
                         selected = currentRoute == destination::class.qualifiedName,
                         onClick = {
                             navController.navigate(route = destination)

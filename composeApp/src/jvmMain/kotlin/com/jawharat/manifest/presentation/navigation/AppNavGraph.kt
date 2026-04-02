@@ -45,7 +45,7 @@ fun AppNavGraph(
             )
         }
 
-        composable<Screen.Cars> {
+        composable<Screen.Dispatches> {
             val hostState = LocalSnackBarState.current
             CarsScreen(viewModel = koinViewModel(parameters = { parametersOf(hostState) }))
         }

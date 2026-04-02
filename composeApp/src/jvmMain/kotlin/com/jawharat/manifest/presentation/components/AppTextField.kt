@@ -2,9 +2,12 @@ package com.jawharat.manifest.presentation.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,12 +23,14 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jawharat.manifest.utils.fillHeightOfParent
 
 
 @Composable
@@ -112,19 +117,6 @@ fun AppTextField(
                 innerTextField = it
             )
         }
-//        decorationBox = object : TextFieldDecorator {
-//            @Composable
-//            override fun Decoration(innerTextField: @Composable () -> Unit) {
-//                TextFieldDecorator(
-//                    value = value,
-//                    placeholder = placeholder,
-//                    leadingIcon = leadingIcon,
-//                    trailingIcon = trailingIcon,
-//                    suffixText = suffixText,
-//                    innerTextField = innerTextField
-//                )
-//            }
-//        },
     )
 }
 
@@ -147,12 +139,15 @@ private fun TextFieldDecorator(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            modifier = Modifier.height(IntrinsicSize.Min)
         ) {
             leadingIcon?.invoke()
             if (leadingIcon != null) Spacer(Modifier.width(8.dp))
 
-            Box(modifier = Modifier.weight(1f)) {
+            Box(
+                modifier = Modifier.weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
                 if (value.isBlank()) {
                     Text(
                         text = placeholder,
@@ -170,7 +165,18 @@ private fun TextFieldDecorator(
                     fontSize = 14.sp
                 )
             }
-            trailingIcon?.invoke()
+
+
+            trailingIcon?.let {
+                VerticalDivider(
+                    modifier = Modifier
+                        .fillHeightOfParent(8.dp)
+                        .fillMaxHeight(),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                )
+                trailingIcon.invoke()
+            }
         }
     }
 }
@@ -194,12 +200,13 @@ private fun TextFieldDecorator(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            modifier = Modifier.height(IntrinsicSize.Min)
         ) {
+            if (leadingIcon != null) Spacer(Modifier.width(8.dp))
             leadingIcon?.invoke()
             if (leadingIcon != null) Spacer(Modifier.width(8.dp))
 
-            Box(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.weight(1f).padding(horizontal = 12.dp)) {
                 if (state.text.isBlank()) {
                     Text(
                         text = placeholder,
@@ -218,7 +225,17 @@ private fun TextFieldDecorator(
                     fontSize = 14.sp
                 )
             }
-            trailingIcon?.invoke()
+            trailingIcon?.let {
+                VerticalDivider(
+                    modifier = Modifier
+                        .fillHeightOfParent(8.dp)
+                        .padding()
+                        .fillMaxHeight(),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                )
+                trailingIcon.invoke()
+            }
         }
     }
 }
