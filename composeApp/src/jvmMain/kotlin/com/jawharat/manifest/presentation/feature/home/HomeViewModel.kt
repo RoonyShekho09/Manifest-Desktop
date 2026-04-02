@@ -1,6 +1,8 @@
 package com.jawharat.manifest.presentation.feature.home
 
+import androidx.compose.foundation.text.input.TextFieldState
 import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.domain.entity.Manifest
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
@@ -9,6 +11,19 @@ class HomeViewModel(
     private val authRepository: AuthRepository,
     private val manifestRepository: ManifestRepository
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState()) {
+
+    fun onDocumentScanResult(value: PersonDocument) {
+        if (value.documentId != null)
+            updateState {
+                copy(
+                    passengers = passengers + PassengerFieldState(
+                        id = TextFieldState(value.documentId),
+                        name = TextFieldState(value.fullName.orEmpty()),
+                        country = TextFieldState(value.country.orEmpty())
+                    )
+                )
+            }
+    }
 
     fun onLogoutClick() = updateState { copy(isLogoutConfirmationVisible = true) }
 

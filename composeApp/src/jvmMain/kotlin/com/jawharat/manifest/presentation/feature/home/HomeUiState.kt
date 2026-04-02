@@ -24,11 +24,11 @@ data class HomeUiState(
 }
 
 @Stable
-class PassengerFieldState {
-    val id = TextFieldState("")
-    val name = TextFieldState("")
-    val country = TextFieldState("")
-}
+data class PassengerFieldState (
+    val id: TextFieldState = TextFieldState(""),
+    val name: TextFieldState = TextFieldState(""),
+    val country: TextFieldState = TextFieldState("")
+)
 
 data class ScanState(
     val isVehicleScanned: Boolean = false,

@@ -25,7 +25,7 @@ import PrIns.Exceptions.InvalidParameter
 import PrIns.Exceptions.NoSuchDevice
 
 interface IPassportScanner {
-    fun scan()
+    fun scan(onResult: (PersonDocument) -> Unit)
 }
 
 class PassportScanner : IPassportScanner {
@@ -34,6 +34,7 @@ class PassportScanner : IPassportScanner {
 
     init {
         runCatching {
+            device = DocumentReaderDevice()
             device?.useDevice(0)
         }.onFailure {
             if (it is NoSuchDevice) {
@@ -42,30 +43,27 @@ class PassportScanner : IPassportScanner {
         }
     }
 
-    override fun scan() {
+    override fun scan(onResult: (PersonDocument) -> Unit) {
         val scanner = device?.scanner
         val scanTask = DocScannerTask()
 
-        println("Scanner: ${scanner}, name: ${device?.deviceName}")
         addScanEvents()
         eventListener()
-
-        scanner?.startScanning(DocScannerTask(), PagePosition.Current)
 
         scanTask.add(Light.White).add(Light.Infra)
         val docPage = scanner?.scan(scanTask, PagePosition.First)
 
         docPage?.let {
-            analyzeWithMrz(docPage)
+            analyzeWithMrz(docPage, onResult = onResult)
         }
 
         scanTask.add(Light.All)
 
         val vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
 
-        vizDocPage?.let {
-            analyzeWithViz(vizDocPage)
-        }
+//        vizDocPage?.let {
+//            analyzeWithViz(vizDocPage)
+//        }
     }
 
     private fun analyzeWithViz(docPage: Page) {
@@ -80,10 +78,10 @@ class PassportScanner : IPassportScanner {
         }.onFailure {
             println("Saving MRZ.xml failed: $it")
         }
-        vizDoc?.let { printDocFields(it) }
+        //   vizDoc?.let { printDocFields(it) }
     }
 
-    private fun analyzeWithMrz(docPage: Page) {
+    private fun analyzeWithMrz(docPage: Page, onResult: (PersonDocument) -> Unit) {
         val mrzReadingTask = EngineTask()
         val ocrEngine = device?.getEngine()
 
@@ -96,7 +94,7 @@ class PassportScanner : IPassportScanner {
             println("Saving MRZ.xml failed: $it")
         }
 
-        mrzDoc?.let { printDocFields(it) }
+        mrzDoc?.let { onResult(extractPersonDocument(it)) }
     }
 
     fun eventListener() {
@@ -155,10 +153,12 @@ class PassportScanner : IPassportScanner {
 
         System.out.printf("  %1$-20s%2$-17s%3\$s%n", "FieldId", "Status", "Value")
         System.out.printf("  %1$-20s%2$-17s%3\$s%n", "-------", "------", "-----")
+
         println()
 
         for (currentFieldRef in fields) {
             try {
+                println("currentFieldRef: $currentFieldRef")
                 val currentField = doc.getField(currentFieldRef)
                 var value: String? = ""
                 var formattedValue: String? = ""
@@ -233,3 +233,54 @@ class PassportScanner : IPassportScanner {
         return str + str2
     }
 }
+
+fun extractPersonDocument(doc: Document): PersonDocument {
+    var fullName: String? = null
+    var dateOfBirth: String? = null
+    var country: String? = null
+    var documentId: String? = null
+    var sex: String? = null
+    var documentType: String? = null
+
+    for (fieldRef in doc.fields) {
+        try {
+            val field = doc.getField(fieldRef)
+
+            val value = try {
+                field.formattedStringValue
+            } catch (e: Exception) {
+                null
+            }
+
+            when (fieldRef.toString()) {
+                "MrzName" -> fullName = value
+                "MrzBirthDate" -> dateOfBirth = field.standardizedStringValue
+                "MrzIssueCountry", "MrzNationality" -> country = value
+                "MrzDocumentNumber" -> documentId = value
+                "MrzSex" -> sex = value
+                "MrzDocType" -> documentType = value
+            }
+
+        } catch (e: Exception) {
+
+        }
+    }
+
+    return PersonDocument(
+        fullName = fullName,
+        dateOfBirth = dateOfBirth,
+        country = country,
+        documentId = documentId,
+        sex = sex,
+        documentType = documentType
+    )
+}
+
+data class PersonDocument(
+    val fullName: String?,
+    val dateOfBirth: String?,
+    val country: String?,
+    val documentId: String?,
+    val sex: String?,
+    val documentType: String?
+)

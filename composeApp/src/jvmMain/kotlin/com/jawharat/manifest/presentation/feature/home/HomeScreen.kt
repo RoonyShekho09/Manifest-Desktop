@@ -32,6 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,6 +73,7 @@ import com.jawharat.manifest.utils.string
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -106,6 +110,22 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                 )
             }
         }
+    }
+
+
+    val passportScanner: IPassportScanner = koinInject<IPassportScanner>()
+    var scan by remember { mutableStateOf(false) }
+
+    LaunchedEffect(scan) {
+        if (scan)
+            withContext(Dispatchers.IO) {
+                passportScanner.scan(onResult = {
+                    println("result: $it")
+                    viewModel.onDocumentScanResult(it)
+                }
+                )
+            }
+        scan = false
     }
 
     Scaffold(
@@ -162,11 +182,12 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
     ) { paddingValues ->
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            if (currentPlatform != Platform.MacOS)
-                QrCodeScanner(
-                    onResult = viewModel::onQrCodeResult,
-                    onFrame = { },
-                )
+//            if (currentPlatform != Platform.MacOS)
+//                QrCodeScanner(
+//                    onResult = viewModel::onQrCodeResult,
+//                    onFrame = { },
+//                )
+
 
             Column(
                 modifier = Modifier.padding(24.dp).padding(paddingValues)
@@ -189,6 +210,10 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                             readOnly = true,
                             modifier = Modifier.weight(1f)
                         )
+
+                        Button(onClick = { scan = true }, modifier = Modifier.weight(1f)) {
+                            Text("scan")
+                        }
                     }
 
                     AppTextField(

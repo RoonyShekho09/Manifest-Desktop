@@ -1,5 +1,6 @@
 /* This example shows how to get general information about the device capabilities.
  */
+package tutorial;
 
 import Pr22.DocumentReaderDevice;
 import Pr22.Events.Connection;
