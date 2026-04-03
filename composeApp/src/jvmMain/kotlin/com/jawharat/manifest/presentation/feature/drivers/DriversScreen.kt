@@ -99,7 +99,7 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
         }
     ) { paddingValues ->
         val listState = rememberLazyListState()
-        val filteredDrivers = state.filteredDrivers
+        val filteredDrivers = state.searchState.searchResults
         val query = state.searchState.query
 
         if (state.isLoading)

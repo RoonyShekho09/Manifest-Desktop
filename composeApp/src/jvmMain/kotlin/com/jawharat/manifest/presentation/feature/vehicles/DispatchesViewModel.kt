@@ -24,22 +24,41 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         initializeDrivers()
         state.value.dispatchSearchState.query.initializeSearch(
             onSearch = ::onSearch,
-            onEmptyStateUpdater = { copy(filteredDispatches = dispatches) }
+            onEmptyStateUpdater = {
+                copy(
+                    dispatchSearchState = dispatchSearchState.copy(
+                        searchResults = dispatches
+                    )
+                )
+            }
         )
         state.value.vehicleTypeSearchState.query.initializeSearch(
             onSearch = ::onVehicleTypeSearch,
-            onEmptyStateUpdater = { copy(filteredVehicleTypes = vehicleTypes) }
+            onEmptyStateUpdater = {
+                copy(
+                    vehicleTypeSearchState = vehicleTypeSearchState.copy(
+                        searchResults = vehicleTypes
+                    )
+                )
+            }
         )
         state.value.driverSearchState.query.initializeSearch(
             onSearch = ::onDriverSearch,
-            onEmptyStateUpdater = { copy(filteredDrivers = drivers) }
+            onEmptyStateUpdater = { copy(driverSearchState = driverSearchState.copy(searchResults = drivers)) }
         )
     }
 
     private fun initializeDrivers(fetch: Boolean = false) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { repository.getDrivers(fetch = fetch) },
-        onSuccess = { updateState { copy(drivers = it, filteredDrivers = it) } },
+        onSuccess = {
+            updateState {
+                copy(
+                    drivers = it,
+                    driverSearchState = driverSearchState.copy(searchResults = it)
+                )
+            }
+        },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 
@@ -47,21 +66,28 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         val normalizedQuery = query.normalizeArabicKurdish()
 
         copy(
-            filteredDrivers = state.value.drivers.filter {
-                it.name.normalizeArabicKurdish().contains(normalizedQuery, ignoreCase = true)
-            }.sortedWith(
-                compareBy(
-                    { !it.name.startsWith(query, ignoreCase = true) },
-                    { !it.name.split(" ").first().startsWith(normalizedQuery, ignoreCase = true) },
-                    { !it.name.split(" ").first().contains(normalizedQuery, ignoreCase = true) },
-                    {
-                        !it.name.split(" ").getOrElse(1) { "" }
-                            .startsWith(normalizedQuery, ignoreCase = true)
-                    },
-                    {
-                        !it.name.split(" ").getOrElse(2) { "" }
-                            .startsWith(normalizedQuery, ignoreCase = true)
-                    }
+            driverSearchState = driverSearchState.copy(
+                searchResults = state.value.drivers.filter {
+                    it.name.normalizeArabicKurdish().contains(normalizedQuery, ignoreCase = true)
+                }.sortedWith(
+                    compareBy(
+                        { !it.name.startsWith(query, ignoreCase = true) },
+                        {
+                            !it.name.split(" ").first()
+                                .startsWith(normalizedQuery, ignoreCase = true)
+                        },
+                        {
+                            !it.name.split(" ").first().contains(normalizedQuery, ignoreCase = true)
+                        },
+                        {
+                            !it.name.split(" ").getOrElse(1) { "" }
+                                .startsWith(normalizedQuery, ignoreCase = true)
+                        },
+                        {
+                            !it.name.split(" ").getOrElse(2) { "" }
+                                .startsWith(normalizedQuery, ignoreCase = true)
+                        }
+                    )
                 )
             )
         )
@@ -71,12 +97,14 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         val normalizedQuery = query.normalizeArabicKurdish()
 
         copy(
-            filteredVehicleTypes = state.value.vehicleTypes.filter {
-                it.name.normalizeArabicKurdish().contains(
-                    normalizedQuery,
-                    ignoreCase = true
-                )
-            }.sortedBy { it.name }
+            vehicleTypeSearchState = vehicleTypeSearchState.copy(
+                searchResults = state.value.vehicleTypes.filter {
+                    it.name.normalizeArabicKurdish().contains(
+                        normalizedQuery,
+                        ignoreCase = true
+                    )
+                }.sortedBy { it.name }
+            )
         )
     }
 
@@ -85,33 +113,35 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         onSuccess = { updateState { copy(vehicleTypes = it) } }
     )
 
-    fun onConfirmAddEditVehicle(value: DispatchUiState?) {
+    fun onConfirmAddEditDispatch(value: DispatchUiState?) {
         if (state.value.dispatchToEdit != null)
-            editVehicle(value)
+            editDispatch(value)
         else
-            addVehicle(value)
+            addDispatch(value)
     }
 
     private fun onSearch(query: String) = updateState {
         copy(
-            filteredDispatches = state.value.dispatches.filter {
-                it.driverName.contains(
-                    query,
-                    ignoreCase = true
-                ) || it.price.contains(
-                    query,
-                    ignoreCase = true
-                ) || it.line.name.contains(
-                    query,
-                    ignoreCase = true
-                )
-            }
-                .sortedBy {
-                    it.driverName
+            dispatchSearchState = dispatchSearchState.copy(
+                searchResults = state.value.dispatches.filter {
+                    it.driverName.contains(
+                        query,
+                        ignoreCase = true
+                    ) || it.price.contains(
+                        query,
+                        ignoreCase = true
+                    ) || it.line.name.contains(
+                        query,
+                        ignoreCase = true
+                    )
                 }
-                .sortedBy {
-                    !it.driverName.startsWith(query, ignoreCase = true)
-                }
+                    .sortedBy {
+                        it.driverName
+                    }
+                    .sortedBy {
+                        !it.driverName.startsWith(query, ignoreCase = true)
+                    }
+            )
         )
     }
 
@@ -120,7 +150,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         onSuccess = { updateState { copy(lines = it) } }
     )
 
-    fun editVehicle(value: DispatchUiState?) = tryToExecute(
+    fun editDispatch(value: DispatchUiState?) = tryToExecute(
         block = {
             value?.id?.let {
                 repository.editVehicle(
@@ -134,10 +164,13 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                 )
             }
         },
-        onCompleted = { updateState { copy(isDialogVisible = false) } }
+        onCompleted = {
+            initializeDispatches(fetch = true)
+            updateState { copy(isDialogVisible = false) }
+        }
     )
 
-    fun addVehicle(value: DispatchUiState?) = tryToExecute(
+    fun addDispatch(value: DispatchUiState?) = tryToExecute(
         block = {
             value?.id?.let {
                 repository.editVehicle(
@@ -151,7 +184,10 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                 )
             }
         },
-        onCompleted = { updateState { copy(isDialogVisible = false) } }
+        onCompleted = {
+            initializeDispatches(fetch = true)
+            updateState { copy(isDialogVisible = false) }
+        }
     )
 
     fun onRefresh() {
@@ -168,7 +204,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
             updateState {
                 copy(
                     dispatches = it.toUiState(),
-                    filteredDispatches = it.toUiState()
+                    dispatchSearchState = dispatchSearchState.copy(searchResults = it.toUiState())
                 )
             }
         },
@@ -179,7 +215,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         updateState {
             copy(
                 isDialogVisible = true,
-                dispatchToEdit = state.value.filteredDispatches.firstOrNull { it.id == id }
+                dispatchToEdit = state.value.dispatchSearchState.searchResults.firstOrNull { it.id == id }
             )
         }
     }

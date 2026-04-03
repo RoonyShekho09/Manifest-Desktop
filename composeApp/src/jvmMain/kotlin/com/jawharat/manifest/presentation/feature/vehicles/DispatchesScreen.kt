@@ -100,7 +100,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
     ) { paddingValues ->
         val listState = rememberLazyListState()
 
-        val filteredVehicles = state.filteredDispatches
+        val filteredVehicles = state.dispatchSearchState.searchResults
         val query = state.dispatchSearchState.query
 
         if (state.isLoading)

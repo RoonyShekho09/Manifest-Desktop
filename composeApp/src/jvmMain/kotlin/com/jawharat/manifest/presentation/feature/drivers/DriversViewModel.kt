@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
+import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.presentation.feature.shared.SearchState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -25,7 +26,7 @@ class DriversViewModel(private val repository: ManifestRepository) :
         getLines()
         state.value.searchState.query.initializeSearch(
             onSearch = ::onSearch,
-            onEmptyStateUpdater = { copy(filteredDrivers = drivers) }
+            onEmptyStateUpdater = { copy(searchState = searchState.copy(searchResults = drivers)) }
         )
     }
 
@@ -58,7 +59,7 @@ class DriversViewModel(private val repository: ManifestRepository) :
             }
         },
         onSuccess = {
-            initializeDrivers()
+            initializeDrivers(fetch = true)
             updateState { copy(searchState = SearchState()) }
         },
         onError = { }
@@ -79,13 +80,14 @@ class DriversViewModel(private val repository: ManifestRepository) :
                 }
             }
         },
+        onSuccess = { initializeDrivers(fetch = true) },
         onCompleted = { updateState { copy(isLoading = false, isDialogVisible = false) } },
     )
 
     private fun onSearch(query: String) {
         updateState {
             copy(
-                filteredDrivers = state.value.drivers.filter {
+                searchState = searchState.copy(searchResults = state.value.drivers.filter {
                     it.name.contains(query, ignoreCase = true) || it.destination.contains(
                         query,
                         ignoreCase = true
@@ -100,6 +102,7 @@ class DriversViewModel(private val repository: ManifestRepository) :
                     .sortedBy {
                         !it.name.startsWith(query, ignoreCase = true)
                     }
+                )
             )
         }
     }
@@ -112,14 +115,21 @@ class DriversViewModel(private val repository: ManifestRepository) :
     private fun initializeDrivers(fetch: Boolean = false) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { repository.getDrivers(fetch = fetch) },
-        onSuccess = { updateState { copy(drivers = it, filteredDrivers = it) } },
+        onSuccess = {
+            updateState {
+                copy(
+                    drivers = it,
+                    searchState = searchState.copy(searchResults = it)
+                )
+            }
+        },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 
     fun onEditClick(id: String? = null) = updateState {
         copy(
             isDialogVisible = true,
-            driverToEdit = state.value.filteredDrivers.firstOrNull { it.id == id }
+            driverToEdit = searchState.searchResults.firstOrNull { it.id == id }
         )
     }
 

@@ -1,10 +1,13 @@
 package com.jawharat.manifest.data.remote.repository
 
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
+import com.jawharat.manifest.data.local.model.LoginSessionLocal
 import com.jawharat.manifest.data.local.model.UserLocal
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.domain.repository.AuthRepository
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class AuthRepositoryImpl(
     private val localDataSource: AppLocalDataSource,
@@ -33,7 +36,15 @@ class AuthRepositoryImpl(
     }
 
     private fun LoginResponse.saveLocally(email: String, password: String) {
-        token?.let { localDataSource.storeToken(token) }
+        token?.let {
+            val expirationTime = Instant.now().plus(7, ChronoUnit.HOURS).toEpochMilli()
+            localDataSource.storeLoginSession(
+                LoginSessionLocal(
+                    token = token,
+                    expiresAt = expirationTime
+                )
+            )
+        }
 
         localDataSource.storeUser(
             UserLocal(
