@@ -38,12 +38,14 @@ class DocumentScanner : IDocumentScanner {
 
     val engine: Engine? by lazy { device.engine }
     var isDocumentPresent = false
+    var isInitial = true
 
     init {
         runCatching {
             println("initialize!!!!")
             device.useDevice(0)
             addScanEvents()
+            eventListener()
         }.onFailure {
             if (it is NoSuchDevice) {
                 println("No device found!")
@@ -52,19 +54,22 @@ class DocumentScanner : IDocumentScanner {
     }
 
     override fun scan(onResult: (PersonDocument) -> Unit) {
+        if (!isInitial)
+            device.useDevice(0)
+
+        isInitial = false
+
         val scanner = device.scanner
 
         val liveTask = scanner?.startTask(FreerunTask.detection())
 
         if (!isDocumentPresent) return
 
+        scanTask.add(Light.White).add(Light.Infra)
         val docPage = scanner?.scan(scanTask, PagePosition.First)
         var vizDocPage: Page?
 
         try {
-            scanTask.add(Light.White).add(Light.Infra)
-
-
             docPage?.let {
                 analyzeWithMrz(docPage = docPage, onResult = onResult)
             }
@@ -79,13 +84,13 @@ class DocumentScanner : IDocumentScanner {
 
         } finally {
             scanner?.cleanUpLastPage()
-            scanner?.cleanUpData()
-            liveTask?.Stop()
-            liveTask?.Wait()
-            isDocumentPresent = false
             scanTask.del(Light.White).del(Light.Infra).del(Light.All)
             docPage?.del(Light.All)
-
+            scanner?.cleanUpData()
+            println("stop task")
+            liveTask?.Stop()
+            isDocumentPresent = false
+            device.close()
         }
     }
 
@@ -103,9 +108,7 @@ class DocumentScanner : IDocumentScanner {
     }
 
     private fun analyzeWithMrz(docPage: Page, onResult: (PersonDocument) -> Unit) {
-        val ocrEngine = engine
-
-        var mrzDoc = ocrEngine?.analyze(docPage, mrzReadingTask)
+        var mrzDoc = engine?.analyze(docPage, mrzReadingTask)
 
         runCatching {
             mrzDoc?.save(Document.FileFormat.Xml)?.save("MRZ.xml")
@@ -139,22 +142,21 @@ class DocumentScanner : IDocumentScanner {
 
     @Throws(General::class)
     fun addScanEvents() {
-//        device?.addEventListener(
-//            object : ScanStarted {
-//                override fun onScanStart(e: PageEventArgs) {
-//                    println("Scan started. Page: " + e.page)
-//                }
-//            }
-//        )
-
-        //----------------------------------------------------------------------
-        device.addEventListener(
+        var called = false
+        device?.addEventListener(
             object : PresenceStateChanged {
                 override fun onStateChanged(e: DetectionEventArgs) {
-                    println("presence state: ${e.state}")
+                    println("state: ${e.state}")
                     if (e.state == PresenceState.NoMove) {
                         println("Not moving")
                         isDocumentPresent = true
+                        if (!called) {
+                            println("Not moving")
+                            isDocumentPresent = true
+                        }
+                        called = true
+                    } else {
+                        called = false
                     }
                 }
             }
@@ -182,6 +184,48 @@ class DocumentScanner : IDocumentScanner {
                     println("Document frame found. Page: " + e.page)
                 }
             }
+        )
+    }
+
+    private fun extractPersonDocument(doc: Document): PersonDocument {
+        var fullName: String? = null
+        var dateOfBirth: String? = null
+        var countryCode: String? = null
+        var documentId: String? = null
+        var sex: String? = null
+        var documentType: String? = null
+
+        for (fieldRef in doc.fields) {
+            try {
+                val field = doc.getField(fieldRef)
+
+                val value = try {
+                    field.formattedStringValue
+                } catch (e: Exception) {
+                    null
+                }
+
+                when (fieldRef.toString()) {
+                    "MrzName" -> fullName = value
+                    "MrzBirthDate" -> dateOfBirth = field.standardizedStringValue
+                    "MrzIssueCountry", "MrzNationality" -> countryCode = value
+                    "MrzDocumentNumber" -> documentId = value
+                    "MrzSex" -> sex = value
+                    "MrzDocType" -> documentType = value
+                }
+
+            } catch (e: Exception) {
+
+            }
+        }
+
+        return PersonDocument(
+            fullName = fullName,
+            dateOfBirth = dateOfBirth,
+            countryCode = countryCode,
+            documentId = documentId,
+            sex = sex,
+            documentType = documentType
         )
     }
 
@@ -274,47 +318,6 @@ class DocumentScanner : IDocumentScanner {
     }
 }
 
-private fun extractPersonDocument(doc: Document): PersonDocument {
-    var fullName: String? = null
-    var dateOfBirth: String? = null
-    var countryCode: String? = null
-    var documentId: String? = null
-    var sex: String? = null
-    var documentType: String? = null
-
-    for (fieldRef in doc.fields) {
-        try {
-            val field = doc.getField(fieldRef)
-
-            val value = try {
-                field.formattedStringValue
-            } catch (e: Exception) {
-                null
-            }
-
-            when (fieldRef.toString()) {
-                "MrzName" -> fullName = value
-                "MrzBirthDate" -> dateOfBirth = field.standardizedStringValue
-                "MrzIssueCountry", "MrzNationality" -> countryCode = value
-                "MrzDocumentNumber" -> documentId = value
-                "MrzSex" -> sex = value
-                "MrzDocType" -> documentType = value
-            }
-
-        } catch (e: Exception) {
-
-        }
-    }
-
-    return PersonDocument(
-        fullName = fullName,
-        dateOfBirth = dateOfBirth,
-        countryCode = countryCode,
-        documentId = documentId,
-        sex = sex,
-        documentType = documentType
-    )
-}
 
 data class PersonDocument(
     val fullName: String?,
