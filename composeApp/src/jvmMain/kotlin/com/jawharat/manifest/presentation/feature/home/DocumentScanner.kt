@@ -172,8 +172,6 @@ class DocumentScanner : IDocumentScanner {
                 override fun onStateChanged(e: DetectionEventArgs) {
                     println("state: ${e.state}")
                     if (e.state == PresenceState.NoMove) {
-                        println("Not moving")
-                        isDocumentPresent = true
                         if (!called) {
                             println("Not moving")
                             isDocumentPresent = true
