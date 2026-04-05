@@ -101,4 +101,6 @@
     <string name="add_new_vehicle">زیادکردنی ئۆتۆمبێلی نوێ</string>
     <string name="search">گەڕان</string>
     <string name="submit_manifest">پێشکەشکردنی لیستی بار</string>
+    <string name="scanner_required">بەرنامەی سکانکردنی دۆکیۆمێنت پێویستە.</string>
+    <string name="install_now">ئێستا دایبەزێنە</string>
 </resources>

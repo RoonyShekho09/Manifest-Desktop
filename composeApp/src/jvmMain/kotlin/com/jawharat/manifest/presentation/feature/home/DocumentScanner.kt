@@ -26,24 +26,33 @@ import PrIns.Exceptions.InvalidParameter
 import PrIns.Exceptions.NoSuchDevice
 
 interface IDocumentScanner {
+    val isSoftwareInstalled: Boolean
     fun scan(onResult: (PersonDocument) -> Unit)
 }
 
 class DocumentScanner : IDocumentScanner {
 
-    val device by lazy { DocumentReaderDevice() }
+    override var isSoftwareInstalled: Boolean = true
+
+    val device: DocumentReaderDevice? by lazy {
+        runCatching { DocumentReaderDevice() }
+            .onFailure {
+                isSoftwareInstalled = false
+            }
+            .getOrNull()
+    }
     val vizReadingTask = EngineTask().apply { add(FieldSource.Viz, FieldId.All) }
     val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
     val scanTask = DocScannerTask()
 
-    val engine: Engine? by lazy { device.engine }
+    val engine: Engine? by lazy { device?.engine }
     var isDocumentPresent = false
     var isInitial = true
 
     init {
         runCatching {
             println("initialize!!!!")
-            device.useDevice(0)
+            device?.useDevice(0)
             addScanEvents()
             eventListener()
         }.onFailure {
@@ -55,11 +64,11 @@ class DocumentScanner : IDocumentScanner {
 
     override fun scan(onResult: (PersonDocument) -> Unit) {
         if (!isInitial)
-            device.useDevice(0)
+            device?.useDevice(0)
 
         isInitial = false
 
-        val scanner = device.scanner
+        val scanner = device?.scanner
 
         val liveTask = scanner?.startTask(FreerunTask.detection())
 
@@ -90,7 +99,7 @@ class DocumentScanner : IDocumentScanner {
             println("stop task")
             liveTask?.Stop()
             isDocumentPresent = false
-            device.close()
+            device?.close()
         }
     }
 
@@ -125,7 +134,7 @@ class DocumentScanner : IDocumentScanner {
     }
 
     fun eventListener() {
-        device.addEventListener(
+        device?.addEventListener(
             object : DeviceUpdate {
                 override fun onDeviceUpdate(e: UpdateEventArgs) {
                     println("Update event.")
@@ -178,7 +187,7 @@ class DocumentScanner : IDocumentScanner {
 //            }
 //        )
 
-        device.addEventListener(
+        device?.addEventListener(
             object : DocFrameFound {
                 override fun onDocFrameFound(e: PageEventArgs) {
                     println("Document frame found. Page: " + e.page)

@@ -26,6 +26,7 @@ class HomeViewModel(
     var scanJob: Job? = null
 
     private fun startDocumentScanner() {
+        updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         scanJob?.cancel()
         scanJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {

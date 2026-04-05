@@ -2,6 +2,7 @@
 
 package com.jawharat.manifest.presentation.feature.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.components.AppTextField
@@ -49,17 +51,21 @@ import com.jawharat.manifest.resources.driver_name
 import com.jawharat.manifest.resources.driver_phone_number
 import com.jawharat.manifest.resources.from_to
 import com.jawharat.manifest.resources.ic_qr_code_scanning
+import com.jawharat.manifest.resources.install_now
 import com.jawharat.manifest.resources.logout
 import com.jawharat.manifest.resources.passengers
 import com.jawharat.manifest.resources.personnel
 import com.jawharat.manifest.resources.price
 import com.jawharat.manifest.resources.register_trip
+import com.jawharat.manifest.resources.scanner_required
 import com.jawharat.manifest.resources.submit_manifest
 import com.jawharat.manifest.resources.trip_details
 import com.jawharat.manifest.resources.vehicle_information
 import com.jawharat.manifest.resources.vehicle_number
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.Listen
+import com.jawharat.manifest.utils.Platform
+import com.jawharat.manifest.utils.currentPlatform
 import com.jawharat.manifest.utils.handClickable
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
@@ -160,18 +166,42 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
     ) { paddingValues ->
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-//            if (currentPlatform != Platform.MacOS)
-//                QrCodeScanner(
-//                    onResult = viewModel::onQrCodeResult,
-//                    onFrame = { },
-//                )
-
+            if (currentPlatform != Platform.MacOS)
+                QrCodeScanner(
+                    onResult = viewModel::onQrCodeResult,
+                    onFrame = { },
+                )
 
             Column(
                 modifier = Modifier.padding(24.dp).padding(paddingValues)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                if (!state.isDocumentScanningSoftwareInstalled) {
+                    val uriHandler = LocalUriHandler.current
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = Res.string.scanner_required.string,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Text(
+                            text = Res.string.install_now.string,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.clickable {
+                                uriHandler.openUri("https://adaptiverecognition.com/doc/id-scanners-readers/combo-scan-full-page-id1-and-mrz-scanner/#software")
+                            }
+                        )
+                    }
+                }
+
                 FormSection(title = Res.string.trip_details.string) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         AppTextField(
