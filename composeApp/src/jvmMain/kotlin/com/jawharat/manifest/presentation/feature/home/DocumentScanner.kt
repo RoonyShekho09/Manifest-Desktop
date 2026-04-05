@@ -24,11 +24,11 @@ import PrIns.Exceptions.General
 import PrIns.Exceptions.InvalidParameter
 import PrIns.Exceptions.NoSuchDevice
 
-interface IPassportScanner {
+interface IDocumentScanner {
     fun scan(onResult: (PersonDocument) -> Unit)
 }
 
-class PassportScanner : IPassportScanner {
+class DocumentScanner : IDocumentScanner {
 
     var device: DocumentReaderDevice? = null
 
@@ -54,16 +54,16 @@ class PassportScanner : IPassportScanner {
         val docPage = scanner?.scan(scanTask, PagePosition.First)
 
         docPage?.let {
-            analyzeWithMrz(docPage, onResult = onResult)
+            analyzeWithMrz(docPage = docPage, onResult = onResult)
         }
 
         scanTask.add(Light.All)
 
         val vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
 
-//        vizDocPage?.let {
-//            analyzeWithViz(vizDocPage)
-//        }
+        vizDocPage?.let {
+            analyzeWithViz(vizDocPage)
+        }
     }
 
     private fun analyzeWithViz(docPage: Page) {
@@ -78,7 +78,7 @@ class PassportScanner : IPassportScanner {
         }.onFailure {
             println("Saving MRZ.xml failed: $it")
         }
-        //   vizDoc?.let { printDocFields(it) }
+        vizDoc?.let { printDocFields(it) }
     }
 
     private fun analyzeWithMrz(docPage: Page, onResult: (PersonDocument) -> Unit) {
@@ -94,7 +94,10 @@ class PassportScanner : IPassportScanner {
             println("Saving MRZ.xml failed: $it")
         }
 
-        mrzDoc?.let { onResult(extractPersonDocument(it)) }
+        mrzDoc?.let {
+            printDocFields(it)
+            onResult(extractPersonDocument(it))
+        }
     }
 
     fun eventListener() {
@@ -156,6 +159,8 @@ class PassportScanner : IPassportScanner {
 
         println()
 
+        println("status: ${doc.status}")
+
         for (currentFieldRef in fields) {
             try {
                 println("currentFieldRef: $currentFieldRef")
@@ -195,10 +200,11 @@ class PassportScanner : IPassportScanner {
 
                 val lst = currentField.detailedStatus
                 for (chk in lst) {
-                    println(chk)
+                    println("detailed: $chk")
                 }
 
                 try {
+                    println("detailed: " + currentField.binaryValue)
                     currentField.image.save(RawImage.FileFormat.Png).save("$fieldName.png")
                 } catch (e: Exception) {
                 }
@@ -234,10 +240,10 @@ class PassportScanner : IPassportScanner {
     }
 }
 
-fun extractPersonDocument(doc: Document): PersonDocument {
+private fun extractPersonDocument(doc: Document): PersonDocument {
     var fullName: String? = null
     var dateOfBirth: String? = null
-    var country: String? = null
+    var countryCode: String? = null
     var documentId: String? = null
     var sex: String? = null
     var documentType: String? = null
@@ -255,7 +261,7 @@ fun extractPersonDocument(doc: Document): PersonDocument {
             when (fieldRef.toString()) {
                 "MrzName" -> fullName = value
                 "MrzBirthDate" -> dateOfBirth = field.standardizedStringValue
-                "MrzIssueCountry", "MrzNationality" -> country = value
+                "MrzIssueCountry", "MrzNationality" -> countryCode = value
                 "MrzDocumentNumber" -> documentId = value
                 "MrzSex" -> sex = value
                 "MrzDocType" -> documentType = value
@@ -269,7 +275,7 @@ fun extractPersonDocument(doc: Document): PersonDocument {
     return PersonDocument(
         fullName = fullName,
         dateOfBirth = dateOfBirth,
-        country = country,
+        countryCode = countryCode,
         documentId = documentId,
         sex = sex,
         documentType = documentType
@@ -279,7 +285,7 @@ fun extractPersonDocument(doc: Document): PersonDocument {
 data class PersonDocument(
     val fullName: String?,
     val dateOfBirth: String?,
-    val country: String?,
+    val countryCode: String?,
     val documentId: String?,
     val sex: String?,
     val documentType: String?

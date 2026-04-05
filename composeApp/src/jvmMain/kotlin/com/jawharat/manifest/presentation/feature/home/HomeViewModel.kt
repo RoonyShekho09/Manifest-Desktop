@@ -1,28 +1,54 @@
 package com.jawharat.manifest.presentation.feature.home
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.domain.entity.Manifest
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
+import com.jawharat.manifest.utils.allCountries
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val authRepository: AuthRepository,
-    private val manifestRepository: ManifestRepository
+    private val manifestRepository: ManifestRepository,
+    private val documentScanner: IDocumentScanner
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState()) {
 
-    fun onDocumentScanResult(value: PersonDocument) {
-        if (value.documentId != null)
-            updateState {
-                copy(
-                    passengers = passengers + PassengerFieldState(
-                        id = TextFieldState(value.documentId),
-                        name = TextFieldState(value.fullName.orEmpty()),
-                        country = TextFieldState(value.country.orEmpty())
-                    )
+    init {
+        startDocumentScanner()
+    }
+
+    private fun startDocumentScanner() = viewModelScope.launch(Dispatchers.IO) {
+        while (true) {
+            documentScanner.scan(::onDocumentScanResult)
+            delay(2000)
+        }
+    }
+
+    private fun onDocumentScanResult(value: PersonDocument) {
+        if (value.documentId == null) return
+        if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
+
+        updateState {
+            copy(
+                passengers = passengers + PassengerFieldState(
+                    id = TextFieldState(value.documentId),
+                    name = if (value.fullName != null)
+                        TextFieldState(
+                            initialText = value.fullName.split(" ")
+                                .joinToString(" ") { name ->
+                                    name.lowercase().replaceFirstChar { it.uppercase() }
+                                }
+                        )
+                    else
+                        TextFieldState(),
+                    country = TextFieldState(allCountries.firstOrNull { it.code == value.countryCode }?.code.orEmpty())
                 )
-            }
+            )
+        }
     }
 
     fun onLogoutClick() = updateState { copy(isLogoutConfirmationVisible = true) }
