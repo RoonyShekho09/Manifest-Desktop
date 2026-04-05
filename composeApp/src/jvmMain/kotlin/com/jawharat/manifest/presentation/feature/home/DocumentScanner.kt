@@ -28,6 +28,7 @@ import PrIns.Exceptions.NoSuchDevice
 interface IDocumentScanner {
     val isSoftwareInstalled: Boolean
     fun scan(onResult: (PersonDocument) -> Unit)
+    fun stop()
 }
 
 class DocumentScanner : IDocumentScanner {
@@ -101,6 +102,20 @@ class DocumentScanner : IDocumentScanner {
             isDocumentPresent = false
             device?.close()
         }
+    }
+
+    override fun stop() {
+        runCatching {
+            device?.scanner?.let { scanner ->
+                scanner.cleanUpLastPage()
+                scanner.cleanUpData()
+            }
+            device?.close()
+        }.onFailure {
+            println("Stop failed: $it")
+        }
+        isDocumentPresent = false
+        isInitial = true
     }
 
     private fun analyzeWithViz(docPage: Page) {
