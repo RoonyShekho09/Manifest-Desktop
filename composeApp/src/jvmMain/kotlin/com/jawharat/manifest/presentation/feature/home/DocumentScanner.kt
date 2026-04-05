@@ -1,13 +1,12 @@
 package com.jawharat.manifest.presentation.feature.home
 
 import Pr22.DocumentReaderDevice
+import Pr22.Engine
+import Pr22.Events.DetectionEventArgs
 import Pr22.Events.DeviceUpdate
 import Pr22.Events.DocFrameFound
-import Pr22.Events.ImageEventArgs
-import Pr22.Events.ImageScanned
 import Pr22.Events.PageEventArgs
-import Pr22.Events.ScanFinished
-import Pr22.Events.ScanStarted
+import Pr22.Events.PresenceStateChanged
 import Pr22.Events.UpdateEventArgs
 import Pr22.Imaging.Light
 import Pr22.Imaging.PagePosition
@@ -19,6 +18,8 @@ import Pr22.Processing.FieldSource
 import Pr22.Processing.Page
 import Pr22.Task.DocScannerTask
 import Pr22.Task.EngineTask
+import Pr22.Task.FreerunTask
+import Pr22.Util.PresenceState
 import PrIns.Exceptions.EntryNotFound
 import PrIns.Exceptions.General
 import PrIns.Exceptions.InvalidParameter
@@ -30,12 +31,19 @@ interface IDocumentScanner {
 
 class DocumentScanner : IDocumentScanner {
 
-    var device: DocumentReaderDevice? = null
+    val device by lazy { DocumentReaderDevice() }
+    val vizReadingTask = EngineTask().apply { add(FieldSource.Viz, FieldId.All) }
+    val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
+    val scanTask = DocScannerTask()
+
+    val engine: Engine? by lazy { device.engine }
+    var isDocumentPresent = false
 
     init {
         runCatching {
-            device = DocumentReaderDevice()
-            device?.useDevice(0)
+            println("initialize!!!!")
+            device.useDevice(0)
+            addScanEvents()
         }.onFailure {
             if (it is NoSuchDevice) {
                 println("No device found!")
@@ -44,48 +52,54 @@ class DocumentScanner : IDocumentScanner {
     }
 
     override fun scan(onResult: (PersonDocument) -> Unit) {
-        val scanner = device?.scanner
-        val scanTask = DocScannerTask()
+        val scanner = device.scanner
 
-        addScanEvents()
-        eventListener()
+        val liveTask = scanner?.startTask(FreerunTask.detection())
+
+        if (!isDocumentPresent) return
 
         scanTask.add(Light.White).add(Light.Infra)
         val docPage = scanner?.scan(scanTask, PagePosition.First)
+        var vizDocPage: Page?
 
-        docPage?.let {
-            analyzeWithMrz(docPage = docPage, onResult = onResult)
-        }
+        try {
+            docPage?.let {
+                analyzeWithMrz(docPage = docPage, onResult = onResult)
+            }
 
-        scanTask.add(Light.All)
+            scanTask.add(Light.All)
 
-        val vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
+            vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
 
-        vizDocPage?.let {
-            analyzeWithViz(vizDocPage)
+            vizDocPage?.let {
+                analyzeWithViz(vizDocPage)
+            }
+
+        } finally {
+            scanner?.cleanUpLastPage()
+            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
+            docPage?.del(Light.All)
+            scanner?.cleanUpData()
+            println("stop task")
+            liveTask?.Stop()
+            liveTask?.Wait()
+            isDocumentPresent = false
         }
     }
 
     private fun analyzeWithViz(docPage: Page) {
-        val vizReadingTask = EngineTask()
-        val ocrEngine = device?.getEngine()
-
-        vizReadingTask.add(FieldSource.Viz, FieldId.All)
-        val vizDoc = ocrEngine?.analyze(docPage, vizReadingTask)
+        val vizDoc = engine?.analyze(docPage, vizReadingTask)
 
         runCatching {
             vizDoc?.save(Document.FileFormat.Xml)?.save("VIZ.xml")
         }.onFailure {
             println("Saving MRZ.xml failed: $it")
         }
-        vizDoc?.let { printDocFields(it) }
     }
 
     private fun analyzeWithMrz(docPage: Page, onResult: (PersonDocument) -> Unit) {
-        val mrzReadingTask = EngineTask()
-        val ocrEngine = device?.getEngine()
+        val ocrEngine = engine
 
-        mrzReadingTask.add(FieldSource.Mrz, FieldId.All)
         val mrzDoc = ocrEngine?.analyze(docPage, mrzReadingTask)
 
         runCatching {
@@ -95,13 +109,12 @@ class DocumentScanner : IDocumentScanner {
         }
 
         mrzDoc?.let {
-            printDocFields(it)
             onResult(extractPersonDocument(it))
         }
     }
 
     fun eventListener() {
-        device?.addEventListener(
+        device.addEventListener(
             object : DeviceUpdate {
                 override fun onDeviceUpdate(e: UpdateEventArgs) {
                     println("Update event.")
@@ -118,31 +131,44 @@ class DocumentScanner : IDocumentScanner {
 
     @Throws(General::class)
     fun addScanEvents() {
-        device?.addEventListener(
-            object : ScanStarted {
-                override fun onScanStart(e: PageEventArgs) {
-                    println("Scan started. Page: " + e.page)
+//        device?.addEventListener(
+//            object : ScanStarted {
+//                override fun onScanStart(e: PageEventArgs) {
+//                    println("Scan started. Page: " + e.page)
+//                }
+//            }
+//        )
+
+        //----------------------------------------------------------------------
+        device.addEventListener(
+            object : PresenceStateChanged {
+                override fun onStateChanged(e: DetectionEventArgs) {
+                    println("presence state: ${e.state}")
+                    if (e.state == PresenceState.NoMove) {
+                        println("Not moving")
+                        isDocumentPresent = true
+                    }
                 }
             }
         )
 
-        device?.addEventListener(
-            object : ImageScanned {
-                override fun onImageScanned(e: ImageEventArgs) {
-                    println("Image scanned. Page: " + e.page + " Light: " + e.light)
-                }
-            }
-        )
+//        device?.addEventListener(
+//            object : ImageScanned {
+//                override fun onImageScanned(e: ImageEventArgs) {
+//                    println("Image scanned. Page: " + e.page + " Light: " + e.light)
+//                }
+//            }
+//        )
 
-        device?.addEventListener(
-            object : ScanFinished {
-                override fun onScanFinished(e: PageEventArgs) {
-                    println("Page scanned. Page: " + e.page + " Status: " + e.getStatus())
-                }
-            }
-        )
+//        device?.addEventListener(
+//            object : ScanFinished {
+//                override fun onScanFinished(e: PageEventArgs) {
+//                    println("Page scanned. Page: " + e.page + " Status: " + e.getStatus())
+//                }
+//            }
+//        )
 
-        device?.addEventListener(
+        device.addEventListener(
             object : DocFrameFound {
                 override fun onDocFrameFound(e: PageEventArgs) {
                     println("Document frame found. Page: " + e.page)

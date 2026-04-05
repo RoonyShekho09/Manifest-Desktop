@@ -8,7 +8,9 @@ import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.utils.allCountries
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -21,15 +23,21 @@ class HomeViewModel(
         startDocumentScanner()
     }
 
-    private fun startDocumentScanner() = viewModelScope.launch(Dispatchers.IO) {
-        while (true) {
-            documentScanner.scan(::onDocumentScanResult)
-            delay(2000)
+    var scanJob: Job? = null
+
+    private fun startDocumentScanner() {
+        scanJob?.cancel()
+        scanJob = viewModelScope.launch(Dispatchers.IO) {
+            while (isActive) {
+                documentScanner.scan(::onDocumentScanResult)
+            }
         }
     }
 
     private fun onDocumentScanResult(value: PersonDocument) {
         if (value.documentId == null) return
+        println("documentId: ${value.documentId}")
+        println("result: $value")
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
 
         updateState {
