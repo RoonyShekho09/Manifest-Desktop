@@ -30,7 +30,9 @@ class HomeViewModel(
         scanJob?.cancel()
         scanJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
+                println("called")
                 documentScanner.scan(::onDocumentScanResult)
+                delay(1000)
             }
         }
     }
@@ -160,4 +162,10 @@ class HomeViewModel(
     )
 
     fun onCancelScanning() = updateState { copy(startScanning = false) }
+
+    override fun onCleared() {
+        super.onCleared()
+        documentScanner.stop()
+        scanJob?.cancel()
+    }
 }

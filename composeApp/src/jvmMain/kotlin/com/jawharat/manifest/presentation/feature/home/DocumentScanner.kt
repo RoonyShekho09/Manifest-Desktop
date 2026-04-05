@@ -19,6 +19,7 @@ import Pr22.Processing.Page
 import Pr22.Task.DocScannerTask
 import Pr22.Task.EngineTask
 import Pr22.Task.FreerunTask
+import Pr22.Task.TaskControl
 import Pr22.Util.PresenceState
 import PrIns.Exceptions.EntryNotFound
 import PrIns.Exceptions.General
@@ -100,7 +101,6 @@ class DocumentScanner : IDocumentScanner {
             println("stop task")
             liveTask?.Stop()
             isDocumentPresent = false
-            device?.close()
         }
     }
 
@@ -175,6 +175,7 @@ class DocumentScanner : IDocumentScanner {
                         if (!called) {
                             println("Not moving")
                             isDocumentPresent = true
+                            called = true
                         }
                         called = true
                     } else {
@@ -183,22 +184,6 @@ class DocumentScanner : IDocumentScanner {
                 }
             }
         )
-
-//        device?.addEventListener(
-//            object : ImageScanned {
-//                override fun onImageScanned(e: ImageEventArgs) {
-//                    println("Image scanned. Page: " + e.page + " Light: " + e.light)
-//                }
-//            }
-//        )
-
-//        device?.addEventListener(
-//            object : ScanFinished {
-//                override fun onScanFinished(e: PageEventArgs) {
-//                    println("Page scanned. Page: " + e.page + " Status: " + e.getStatus())
-//                }
-//            }
-//        )
 
         device?.addEventListener(
             object : DocFrameFound {

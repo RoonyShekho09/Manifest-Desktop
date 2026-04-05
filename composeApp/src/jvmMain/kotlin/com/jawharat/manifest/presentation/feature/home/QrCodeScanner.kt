@@ -22,6 +22,7 @@ import com.google.zxing.common.GlobalHistogramBinarizer
 import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
@@ -33,39 +34,43 @@ fun QrCodeScanner(
     onFrame: (ImageBitmap) -> Unit,
 ) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
     var frameCount by remember { mutableStateOf(0) }
     val onResultRef by rememberUpdatedState(onResult)
+    var isRunning = true
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
+            val cam = Webcam.getDefault() ?: run {
+                withContext(Dispatchers.Main) { println("❌ No camera found") }
+                return@withContext
+            }
             try {
-                val cam = Webcam.getDefault() ?: run {
-                    withContext(Dispatchers.Main) { println("❌ No camera found") }
-                    return@withContext
-                }
+                var snapshot: BufferedImage? = null
                 cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
                 cam.open()
                 delay(1000)
 
                 withContext(Dispatchers.Main) {
                     webcam = cam
-                    isLoading = false
                 }
 
-                while (true) {
+                while (isActive && isRunning) {
                     val image = cam.image ?: run {
                         withContext(Dispatchers.Main) { println("⚠️ Got null frame") }
                         continue
                     }
 
-                    val snapshot =
-                        BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB).also {
-                            it.createGraphics().apply {
-                                drawImage(image, 0, 0, null)
-                                dispose()
-                            }
-                        }
+                    if (snapshot == null || snapshot.width != image.width || snapshot.height != image.height) {
+                        snapshot = BufferedImage(
+                            image.width,
+                            image.height,
+                            BufferedImage.TYPE_INT_ARGB
+                        )
+                    }
+
+                    val g = snapshot.createGraphics()
+                    g.drawImage(image, 0, 0, null)
+                    g.dispose()
 
                     onFrame(snapshot.toComposeImageBitmap())
 
@@ -95,10 +100,9 @@ fun QrCodeScanner(
                             }
                         }
                     }
-                    delay(200)
+                    delay(1200)
                 }
             } catch (e: Exception) {
-                isLoading = false
                 withContext(Dispatchers.Main) {
                     println("💥 Exception: ${e.message}")
                 }
@@ -107,13 +111,12 @@ fun QrCodeScanner(
     }
 
     DisposableEffect(Unit) {
-        onDispose { webcam?.let { if (it.isOpen) it.close() } }
+        onDispose {
+            isRunning = false
+            println("close")
+            webcam?.let { if (it.isOpen) it.close() }
+        }
     }
-
-//    Box(modifier = Modifier.fillMaxSize()) {
-//        if (isLoading)
-//            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-//    }
 }
 
 sealed class QRResult {
