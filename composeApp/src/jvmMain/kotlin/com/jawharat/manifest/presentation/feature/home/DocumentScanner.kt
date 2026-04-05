@@ -58,11 +58,13 @@ class DocumentScanner : IDocumentScanner {
 
         if (!isDocumentPresent) return
 
-        scanTask.add(Light.White).add(Light.Infra)
         val docPage = scanner?.scan(scanTask, PagePosition.First)
         var vizDocPage: Page?
 
         try {
+            scanTask.add(Light.White).add(Light.Infra)
+
+
             docPage?.let {
                 analyzeWithMrz(docPage = docPage, onResult = onResult)
             }
@@ -77,30 +79,33 @@ class DocumentScanner : IDocumentScanner {
 
         } finally {
             scanner?.cleanUpLastPage()
-            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
-            docPage?.del(Light.All)
             scanner?.cleanUpData()
-            println("stop task")
             liveTask?.Stop()
             liveTask?.Wait()
             isDocumentPresent = false
+            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
+            docPage?.del(Light.All)
+
         }
     }
 
     private fun analyzeWithViz(docPage: Page) {
-        val vizDoc = engine?.analyze(docPage, vizReadingTask)
+        var vizDoc = engine?.analyze(docPage, vizReadingTask)
 
         runCatching {
             vizDoc?.save(Document.FileFormat.Xml)?.save("VIZ.xml")
         }.onFailure {
             println("Saving MRZ.xml failed: $it")
         }
+
+        vizDoc?.toVariant()?.clear()
+        vizDoc = null
     }
 
     private fun analyzeWithMrz(docPage: Page, onResult: (PersonDocument) -> Unit) {
         val ocrEngine = engine
 
-        val mrzDoc = ocrEngine?.analyze(docPage, mrzReadingTask)
+        var mrzDoc = ocrEngine?.analyze(docPage, mrzReadingTask)
 
         runCatching {
             mrzDoc?.save(Document.FileFormat.Xml)?.save("MRZ.xml")
@@ -111,6 +116,9 @@ class DocumentScanner : IDocumentScanner {
         mrzDoc?.let {
             onResult(extractPersonDocument(it))
         }
+
+        mrzDoc?.toVariant()?.clear()
+        mrzDoc = null
     }
 
     fun eventListener() {
