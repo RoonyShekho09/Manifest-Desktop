@@ -141,11 +141,37 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
         return result
     }
 
+    fun dilate(source: BufferedImage): BufferedImage {
+        val width = source.width
+        val height = source.height
+        val result = BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
+
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                // Take the darkest pixel in a 2x2 neighborhood
+                var minGray = 255
+                for (dy in 0..1) {
+                    for (dx in 0..1) {
+                        val ny = (y + dy).coerceIn(0, height - 1)
+                        val nx = (x + dx).coerceIn(0, width - 1)
+                        val c = Color(source.getRGB(nx, ny))
+                        val gray = (c.red * 0.299 + c.green * 0.587 + c.blue * 0.114).toInt()
+                        if (gray < minGray) minGray = gray
+                    }
+                }
+                val grayColor = Color(minGray, minGray, minGray).rgb
+                result.setRGB(x, y, grayColor)
+            }
+        }
+        return result
+    }
+
     fun preprocess(source: BufferedImage): BufferedImage {
         val scaled = BufferedImage(source.width * 2, source.height * 2, BufferedImage.TYPE_INT_RGB)
-        val g = scaled.createGraphics()
+        val dilated = dilate(scaled)
+        val g = dilated.createGraphics()
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
-        g.drawImage(source, 0, 0, scaled.width, scaled.height, null)
+        g.drawImage(source, 0, 0, dilated.width, dilated.height, null)
         g.dispose()
 
         return adaptiveThreshold(scaled)
