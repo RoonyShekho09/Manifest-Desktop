@@ -212,6 +212,34 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
         )
     }
 
+    fun cleanImageForOcr(source: BufferedImage): BufferedImage {
+        val gray = BufferedImage(source.width, source.height, BufferedImage.TYPE_BYTE_GRAY)
+        val g = gray.createGraphics()
+        g.drawImage(source, 0, 0, null)
+        g.dispose()
+
+        for (y in 0 until gray.height) {
+            for (x in 0 until gray.width) {
+                val color = gray.getRGB(x, y) and 0xFF
+                if (color < 160) {
+                    gray.setRGB(x, y, 0x000000)
+                } else {
+                    gray.setRGB(x, y, 0xFFFFFF)
+                }
+            }
+        }
+        return gray
+    }
+
+    fun cleanOcrResult(raw: String): String {
+        val pattern = Regex("[\\u0600-\\u06FF\\s]+")
+        return pattern.findAll(raw)
+            .map { it.value }
+            .joinToString("")
+            .replace("\\s+".toRegex(), " ") // Fix double spaces
+            .trim()
+    }
+
     private fun extractPersonDocument(doc: Document): PersonDocument {
         var fullName: String? = null
         var dateOfBirth: String? = null
