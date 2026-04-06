@@ -122,6 +122,7 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
             tesseract.setLanguage("ara")
             tesseract.setPageSegMode(6)
             tesseract.setOcrEngineMode(1)
+            tesseract.setTessVariable("tessedit_char_whitelist", "ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيپچژگڕڵۆێ ")
             tesseract.setTessVariable("user_defined_dpi", "300")
             println("Creating tesseract...")
             println("Tesseract created OK")
