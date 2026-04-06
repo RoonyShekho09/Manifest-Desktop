@@ -27,6 +27,7 @@ import PrIns.Exceptions.InvalidParameter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.sourceforge.tess4j.Tesseract
+import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -210,6 +211,31 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
                 }
             }
         )
+    }
+
+    fun optimizeForIraqiID(source: BufferedImage): BufferedImage {
+        val width = source.width
+        val height = source.height
+        val result = BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
+
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val color = Color(source.getRGB(x, y))
+                // IDs often have red/blue patterns.
+                // We focus on the "Luminance" to find the black ink.
+                val grayValue = (color.red * 0.299 + color.green * 0.587 + color.blue * 0.114).toInt()
+
+                // THRESHOLDING:
+                // If it's dark (text), make it PURE black.
+                // If it's anything else (background), make it PURE white.
+                if (grayValue < 120) {
+                    result.setRGB(x, y, Color.BLACK.rgb)
+                } else {
+                    result.setRGB(x, y, Color.WHITE.rgb)
+                }
+            }
+        }
+        return result
     }
 
     fun cleanImageForOcr(source: BufferedImage): BufferedImage {
