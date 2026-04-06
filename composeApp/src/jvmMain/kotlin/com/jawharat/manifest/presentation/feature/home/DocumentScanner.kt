@@ -168,13 +168,12 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
 
     fun preprocess(source: BufferedImage): BufferedImage {
         val scaled = BufferedImage(source.width * 2, source.height * 2, BufferedImage.TYPE_INT_RGB)
-        val dilated = dilate(scaled)
-        val g = dilated.createGraphics()
+        val g = scaled.createGraphics()
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
-        g.drawImage(source, 0, 0, dilated.width, dilated.height, null)
+        g.drawImage(source, 0, 0, scaled.width, scaled.height, null)
         g.dispose()
 
-        return adaptiveThreshold(scaled)
+        return dilate(scaled)
     }
 
     fun preprocessImage(input: BufferedImage): BufferedImage {
