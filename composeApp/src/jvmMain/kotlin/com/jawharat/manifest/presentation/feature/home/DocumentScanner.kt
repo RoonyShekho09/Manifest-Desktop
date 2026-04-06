@@ -24,11 +24,11 @@ import Pr22.Util.PresenceState
 import PrIns.Exceptions.EntryNotFound
 import PrIns.Exceptions.General
 import PrIns.Exceptions.InvalidParameter
-import com.jawharat.manifest.resources.Res
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.sourceforge.tess4j.Tesseract
-import java.io.ByteArrayInputStream
+import java.awt.image.BufferedImage
+import java.io.File
 import javax.imageio.ImageIO
 
 interface IDocumentScanner {
@@ -48,18 +48,16 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
     }
     val vizReadingTask = EngineTask().apply { add(FieldSource.Viz, FieldId.All) }
     val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
-    val scanTask = DocScannerTask()
     val engine: Engine? by lazy { device?.engine }
     var isDocumentPresent = false
     var isInitial = true
     var liveTask: TaskControl? = null
     private var initialized = false
+    private var bufferedImage: BufferedImage? = null;
 
     private suspend fun ensureInitialized() {
-        println("initialized: $initialized")
         if (initialized) return
         withContext(Dispatchers.IO) {
-            println("initialize")
             device?.useDevice(0)
             addScanEvents()
             eventListener()
@@ -75,6 +73,7 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
 
         if (!isDocumentPresent) return
 
+        val scanTask = DocScannerTask()
         scanTask.add(Light.White).add(Light.Infra)
         val docPage = scanner?.scan(scanTask, PagePosition.First)
         var vizDocPage: Page?
@@ -86,16 +85,16 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
 
             scanTask.add(Light.All)
 
-            //    vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
-//            vizDocPage?.let {
-//                analyzeWithViz(vizDocPage)
-//            }
+            vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
+            vizDocPage?.let {
+                analyzeWithViz(vizDocPage)
+            }
 
         } finally {
-            scanner?.cleanUpLastPage()
-            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
-            docPage?.del(Light.All)
-            scanner?.cleanUpData()
+    //        scanner?.cleanUpLastPage()
+//            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
+//            docPage?.del(Light.All)
+        //    scanner?.cleanUpData()
             liveTask?.Stop()
             isDocumentPresent = false
         }
@@ -117,41 +116,61 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
         initialized = false
     }
 
-    private fun analyzeWithViz(docPage: Page) {
-        var vizDoc = engine?.analyze(docPage, vizReadingTask)
+    fun scanId(image: BufferedImage, onResult: (PersonDocument) -> Unit) {
+        try {
+            tesseract.setLanguage("ara")
+            tesseract.setPageSegMode(6)
+            tesseract.setOcrEngineMode(1)
+            tesseract.setTessVariable("user_defined_dpi", "300")
+            println("Creating tesseract...")
+            println("Tesseract created OK")
 
-        runCatching {
-            vizDoc?.save(Document.FileFormat.Xml)?.save("VIZ.xml")
-        }.onFailure {
-            println("Saving MRZ.xml failed: $it")
+            println("Image read OK: ${image.width}, ${image.height}")
+
+            ImageIO.write(bufferedImage, "png", File("debug_scan2.png"))
+            val result = tesseract.doOCR(bufferedImage)
+            println(result)
+        } catch (e: Error) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun analyzeWithViz(docPage: Page) {
+        val vizDoc = engine?.analyze(docPage, vizReadingTask)
+
+        vizDoc?.let {
+            printDocFields(it)
+            println("viz: " + extractPersonDocument(it))
         }
 
+        if (bufferedImage != null)
+            scanId(bufferedImage!!, onResult = { })
+
         vizDoc?.toVariant()?.clear()
-        vizDoc = null
     }
 
     private fun analyzeWithMrz(docPage: Page, onResult: (PersonDocument) -> Unit) {
-        var mrzDoc = engine?.analyze(docPage, mrzReadingTask)
+        val mrzDoc = engine?.analyze(docPage, mrzReadingTask)
 
-        runCatching {
-            mrzDoc?.save(Document.FileFormat.Xml)?.save("MRZ.xml")
-        }.onFailure {
-            println("Saving MRZ.xml failed: $it")
+        mrzDoc?.let {
+            printDocFields(it)
         }
 
         mrzDoc?.let {
             onResult(extractPersonDocument(it))
+            println("mrz: " + extractPersonDocument(it))
         }
 
+        if (bufferedImage != null)
+            scanId(bufferedImage!!, onResult = { })
+
         mrzDoc?.toVariant()?.clear()
-        mrzDoc = null
     }
 
     fun eventListener() {
         device?.addEventListener(
             object : DeviceUpdate {
                 override fun onDeviceUpdate(e: UpdateEventArgs) {
-                    println("Update event.")
                     when (e.part) {
                         1 -> println("  Reading calibration file from device.")
                         2 -> println("  Scanner firmware update.")
@@ -221,7 +240,7 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
                 }
 
             } catch (e: Exception) {
-
+                println("Exception: $e")
             }
         }
 
@@ -249,6 +268,9 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
             try {
                 println("currentFieldRef: $currentFieldRef")
                 val currentField = doc.getField(currentFieldRef)
+
+                bufferedImage = currentField.image.toImage()
+
                 var value: String? = ""
                 var formattedValue: String? = ""
                 var standardizedValue: String? = ""
@@ -282,13 +304,14 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
                     System.out.printf("\t%2$-31s[%1\$s]%n", standardizedValue, "   - Standardized")
                 }
 
+                println("current field: $currentField")
+
                 val lst = currentField.detailedStatus
                 for (chk in lst) {
                     println("detailed: $chk")
                 }
 
                 try {
-                    println("detailed: " + currentField.binaryValue)
                     currentField.image.save(RawImage.FileFormat.Png).save("$fieldName.png")
                 } catch (e: Exception) {
                 }

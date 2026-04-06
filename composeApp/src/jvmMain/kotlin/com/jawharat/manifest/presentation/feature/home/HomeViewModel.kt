@@ -63,7 +63,7 @@ class HomeViewModel(
                         )
                     else
                         TextFieldState(),
-                    country = TextFieldState(allCountries.firstOrNull { it.code == value.countryCode }?.code.orEmpty())
+                    countryCode = TextFieldState(allCountries.firstOrNull { it.code.equals(value.countryCode, ignoreCase = true) }?.code.orEmpty())
                 )
             )
         }
@@ -100,7 +100,7 @@ class HomeViewModel(
                         Passenger(
                             id = it.id.text.toString(),
                             name = it.name.text.toString(),
-                            nationality = it.country.text.toString(),
+                            nationality = it.countryCode.text.toString(),
                             manual = true
                         )
                     },

@@ -33,6 +33,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation("net.sourceforge.tess4j:tess4j:4.5.5")
             implementation(fileTree("src/jvmMain/java") { include("*.jar") })
         }
     }

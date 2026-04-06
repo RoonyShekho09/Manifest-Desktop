@@ -172,11 +172,11 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
         }
     ) { paddingValues ->
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            if (currentPlatform != Platform.MacOS)
-                QrCodeScanner(
-                    onResult = viewModel::onQrCodeResult,
-                    onFrame = { },
-                )
+//            if (currentPlatform != Platform.MacOS)
+//                QrCodeScanner(
+//                    onResult = viewModel::onQrCodeResult,
+//                    onFrame = { },
+//                )
 
             Column(
                 modifier = Modifier.padding(24.dp).padding(paddingValues)

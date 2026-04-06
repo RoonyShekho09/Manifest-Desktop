@@ -29,7 +29,7 @@ data class HomeUiState(
 data class PassengerFieldState (
     val id: TextFieldState = TextFieldState(""),
     val name: TextFieldState = TextFieldState(""),
-    val country: TextFieldState = TextFieldState("")
+    val countryCode: TextFieldState = TextFieldState("")
 )
 
 data class ScanState(
