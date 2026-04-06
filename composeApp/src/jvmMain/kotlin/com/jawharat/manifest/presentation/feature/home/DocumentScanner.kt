@@ -24,18 +24,21 @@ import Pr22.Util.PresenceState
 import PrIns.Exceptions.EntryNotFound
 import PrIns.Exceptions.General
 import PrIns.Exceptions.InvalidParameter
-import PrIns.Exceptions.NoSuchDevice
+import com.jawharat.manifest.resources.Res
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.sourceforge.tess4j.Tesseract
+import java.io.ByteArrayInputStream
+import javax.imageio.ImageIO
 
 interface IDocumentScanner {
     val isSoftwareInstalled: Boolean
-    fun scan(onResult: (PersonDocument) -> Unit)
+    suspend fun scan(onResult: (PersonDocument) -> Unit)
     fun stop()
 }
 
-class DocumentScanner : IDocumentScanner {
-
+class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumentScanner {
     override var isSoftwareInstalled: Boolean = true
-
     val device: DocumentReaderDevice? by lazy {
         runCatching { DocumentReaderDevice() }
             .onFailure {
@@ -46,33 +49,29 @@ class DocumentScanner : IDocumentScanner {
     val vizReadingTask = EngineTask().apply { add(FieldSource.Viz, FieldId.All) }
     val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
     val scanTask = DocScannerTask()
-
     val engine: Engine? by lazy { device?.engine }
     var isDocumentPresent = false
     var isInitial = true
+    var liveTask: TaskControl? = null
+    private var initialized = false
 
-    init {
-        runCatching {
-            println("initialize!!!!")
+    private suspend fun ensureInitialized() {
+        println("initialized: $initialized")
+        if (initialized) return
+        withContext(Dispatchers.IO) {
+            println("initialize")
             device?.useDevice(0)
             addScanEvents()
             eventListener()
-        }.onFailure {
-            if (it is NoSuchDevice) {
-                println("No device found!")
-            }
+            initialized = true
         }
     }
 
-    override fun scan(onResult: (PersonDocument) -> Unit) {
-        if (!isInitial)
-            device?.useDevice(0)
-
-        isInitial = false
-
+    override suspend fun scan(onResult: (PersonDocument) -> Unit) {
+        ensureInitialized()
         val scanner = device?.scanner
 
-        val liveTask = scanner?.startTask(FreerunTask.detection())
+        liveTask = scanner?.startTask(FreerunTask.detection())
 
         if (!isDocumentPresent) return
 
@@ -87,18 +86,16 @@ class DocumentScanner : IDocumentScanner {
 
             scanTask.add(Light.All)
 
-            vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
-
-            vizDocPage?.let {
-                analyzeWithViz(vizDocPage)
-            }
+            //    vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
+//            vizDocPage?.let {
+//                analyzeWithViz(vizDocPage)
+//            }
 
         } finally {
             scanner?.cleanUpLastPage()
             scanTask.del(Light.White).del(Light.Infra).del(Light.All)
             docPage?.del(Light.All)
             scanner?.cleanUpData()
-            println("stop task")
             liveTask?.Stop()
             isDocumentPresent = false
         }
@@ -115,7 +112,9 @@ class DocumentScanner : IDocumentScanner {
             println("Stop failed: $it")
         }
         isDocumentPresent = false
+        liveTask?.Stop()
         isInitial = true
+        initialized = false
     }
 
     private fun analyzeWithViz(docPage: Page) {

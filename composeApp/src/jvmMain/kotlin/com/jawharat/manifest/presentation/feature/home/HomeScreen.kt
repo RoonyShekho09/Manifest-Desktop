@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -89,6 +90,12 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
     event?.Listen {
         when (it) {
             HomeUiEvent.OnLogout -> onLogout()
+        }
+    }
+
+    DisposableEffect(Unit){
+        onDispose {
+            viewModel.onScreenDisposed()
         }
     }
 
@@ -164,7 +171,6 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             }
         }
     ) { paddingValues ->
-
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             if (currentPlatform != Platform.MacOS)
                 QrCodeScanner(

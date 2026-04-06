@@ -10,6 +10,7 @@ import com.jawharat.manifest.utils.allCountries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -19,17 +20,23 @@ class HomeViewModel(
     private val documentScanner: IDocumentScanner
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState()) {
 
+    var scanJob: Job? = null
+
     init {
         startDocumentScanner()
     }
 
-    var scanJob: Job? = null
+    fun onScreenDisposed() {
+        scanJob?.cancel()
+        documentScanner.stop()
+    }
 
     private fun startDocumentScanner() {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         scanJob?.cancel()
         scanJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
+                ensureActive()
                 println("called")
                 documentScanner.scan(::onDocumentScanResult)
                 delay(1000)
@@ -165,7 +172,7 @@ class HomeViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        documentScanner.stop()
         scanJob?.cancel()
+        documentScanner.stop()
     }
 }

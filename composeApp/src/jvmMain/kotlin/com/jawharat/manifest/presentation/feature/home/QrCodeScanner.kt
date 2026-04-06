@@ -46,7 +46,8 @@ fun QrCodeScanner(
             }
             try {
                 var snapshot: BufferedImage? = null
-                cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
+                if (!cam.isOpen)
+                    cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
                 cam.open()
                 delay(1000)
 
@@ -113,7 +114,7 @@ fun QrCodeScanner(
     DisposableEffect(Unit) {
         onDispose {
             isRunning = false
-            println("close")
+            println("close webcam")
             webcam?.let { if (it.isOpen) it.close() }
         }
     }
