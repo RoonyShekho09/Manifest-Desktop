@@ -137,6 +137,15 @@ class DocumentScanner(private val tesseract: Tesseract = Tesseract()) : IDocumen
         }
     }
 
+    fun cropImage(source: BufferedImage, x: Int, y: Int, w: Int, h: Int): BufferedImage {
+        val subImage = source.getSubimage(x, y, w, h)
+        val copy = BufferedImage(w, h, source.type)
+        val g = copy.createGraphics()
+        g.drawImage(subImage, 0, 0, null)
+        g.dispose()
+        return copy
+    }
+
     private fun analyzeWithViz(docPage: Page) {
         val vizDoc = engine?.analyze(docPage, vizReadingTask)
 
