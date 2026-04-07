@@ -11,6 +11,7 @@ import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 import com.jawharat.manifest.data.remote.service.AppApiService
+import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.di.BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
@@ -26,6 +27,7 @@ import kotlinx.serialization.json.Json
 
 class AppRemoteDataSourceImpl(
     private val apiService: AppApiService,
+    private val ocrApiService: OcrApiService,
     private val httpClient: HttpClient,
 ) : AppRemoteDataSource {
 
@@ -167,4 +169,7 @@ class AppRemoteDataSourceImpl(
 
     override suspend fun getVehicleTypes(): List<VehicleRemote> =
         apiService.getVehicleTypes().body() ?: throw Exception()
+
+    override suspend fun ocr(image: String): String =
+        ocrApiService.ocr(image = image).body() ?: throw Exception()
 }

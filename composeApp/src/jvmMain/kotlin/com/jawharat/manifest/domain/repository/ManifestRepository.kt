@@ -59,4 +59,5 @@ interface ManifestRepository {
 
     suspend fun getLines(fetch: Boolean = false): List<Line>
     suspend fun getVehicleTypes(fetch: Boolean = false): List<VehicleType>
+    suspend fun ocr(image: String): String
 }
