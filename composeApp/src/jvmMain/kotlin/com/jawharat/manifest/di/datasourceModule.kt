@@ -14,9 +14,10 @@ val dataSourceModule = module {
     single<AppRemoteDataSource> {
         AppRemoteDataSourceImpl(
             apiService = get(),
-            ocrApiService = get(qualifier = named("pdfClient")),
+            pdfHttpClient = get(named("pdfClient")),
+            mistralHttpClient = get(named("mistralClient")),
+            ocrApiService = get(),
             mistralApiService = get(),
-            httpClient = get(named("manifestClient"))
         )
     }
 }

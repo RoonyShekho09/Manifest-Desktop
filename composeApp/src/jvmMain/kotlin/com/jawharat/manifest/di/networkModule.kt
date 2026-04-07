@@ -40,7 +40,7 @@ val networkModule = module {
     single<MistralApiService> {
         ktorfit {
             baseUrl(url = MISTRAL_BASE_URL)
-            httpClient(client = get(named("manifestClient")))
+            httpClient(client = get(named("mistralClient")))
 
             converterFactories(
                 FlowConverterFactory(),
@@ -66,7 +66,7 @@ val networkModule = module {
     single<OcrApiService> {
         ktorfit {
             baseUrl(url = OCR_BASE_URL)
-            httpClient(client = get())
+            httpClient(client = get(named("manifestClient")))
 
             converterFactories(
                 FlowConverterFactory(),
@@ -87,6 +87,40 @@ val networkModule = module {
                 ResponseConverterFactory()
             )
         }.createAppPdfApiService()
+    }
+
+    single(named("mistralClient")) {
+        HttpClient {
+            expectSuccess = false
+            followRedirects = true
+
+            defaultRequest {
+                header("Content-Type", "application/json")
+            }
+
+            val json = Json {
+                isLenient = true
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+                explicitNulls = false
+            }
+
+            install(ContentNegotiation) {
+                json(json, ContentType.Application.Json)
+            }
+
+            install(DefaultRequest) {
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+
+            install(Logging) {
+                level = LogLevel.ALL
+                logger = object : Logger {
+                    override fun log(message: String) =
+                        println("HttpClient $message")
+                }
+            }
+        }
     }
 
     single(named("pdfClient")) {

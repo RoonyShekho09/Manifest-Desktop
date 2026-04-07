@@ -16,7 +16,7 @@ interface MistralApiService {
 
 @Serializable
 data class MistralRequestBody(
-    val model: String = "mistral-ocr-latest",
+    val model: String = "mistral-ocr-2512",
     val document: Document
 
 )

@@ -6,6 +6,8 @@ import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
+import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
 import com.jawharat.manifest.utils.allCountries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

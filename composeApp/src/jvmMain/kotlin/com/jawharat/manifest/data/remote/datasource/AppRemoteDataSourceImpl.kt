@@ -7,6 +7,7 @@ import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
 import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
+import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
@@ -34,7 +35,8 @@ import kotlinx.serialization.json.Json
 class AppRemoteDataSourceImpl(
     private val apiService: AppApiService,
     private val ocrApiService: OcrApiService,
-    private val httpClient: HttpClient,
+    private val pdfHttpClient: HttpClient,
+    private val mistralHttpClient: HttpClient,
     private val mistralApiService: MistralApiService,
 ) : AppRemoteDataSource {
 
@@ -60,7 +62,7 @@ class AppRemoteDataSourceImpl(
         passengers: List<Passenger>,
         driverId: String,
     ): ByteArray {
-        val response = httpClient.post(BASE_URL + "manifests") {
+        val response = pdfHttpClient.post(BASE_URL + "manifests") {
             header(HttpHeaders.Accept, "application/pdf")
             contentType(ContentType.Application.Json)
             setBody(
@@ -183,17 +185,21 @@ class AppRemoteDataSourceImpl(
         ).body().toString()
     }
 
-    override suspend fun ocr(image: String): String {
+    override suspend fun ocr(image: String, engine: String): OcrResponse {
         val multipart = MultiPartFormDataContent(
             formData {
                 append("apikey", "0cd0e66ab388957")
-                append("OCREngine", "3")
+                append("language", "auto")
+                append("OCREngine", 2)
                 append("base64Image", image)
+                append("isOverlayRequired", true)
+                append("scale", true)
+                append("detectOrientation", true)
             }
         )
 
-        return httpClient.post("https://api.ocr.space/parse/image") {
+        return mistralHttpClient.post("https://api.ocr.space/parse/image") {
             setBody(multipart)
-        }.body<Json>().toString()
+        }.body<OcrResponse>()
     }
 }

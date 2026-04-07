@@ -1,6 +1,7 @@
 package com.jawharat.manifest.domain.repository
 
 import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.Line
 import com.jawharat.manifest.domain.entity.Dispatch
@@ -60,4 +61,5 @@ interface ManifestRepository {
     suspend fun getLines(fetch: Boolean = false): List<Line>
     suspend fun getVehicleTypes(fetch: Boolean = false): List<VehicleType>
     suspend fun ocr(image: String): String
+    suspend fun ocrSpace(image: String, engine: String): OcrResponse
 }

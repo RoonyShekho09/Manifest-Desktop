@@ -64,6 +64,7 @@ val allCountries: List<Country> = listOf(
     Country("cu", "+53", "كوبي", Res.drawable.cu),
     Country("cw", "+599", "كوراساوي", Res.drawable.cw),
     Country("cy", "+357", "قبرصي", Res.drawable.cy),
+    Country("cyp", "+357", "قبرصي", Res.drawable.cy),
     Country("cz", "+420", "تشيكي", Res.drawable.cz),
     Country("ci", "+225", "إيفواري", Res.drawable.ci),
     Country("dk", "+45", "دنماركي", Res.drawable.dk),
@@ -94,7 +95,7 @@ val allCountries: List<Country> = listOf(
     Country("gh", "+233", "غاني", Res.drawable.gh),
     Country("gi", "+350", "جبل طارقي", Res.drawable.gi),
     Country("gr", "+30", "يوناني", Res.drawable.gr),
-    Country("gr", "+30", "يوناني", Res.drawable.gr), // Mapping for GR<
+    Country("gr", "+30", "يوناني", Res.drawable.gr),
     Country("gl", "+299", "جرينلاندي", Res.drawable.gl),
     Country("gd", "+1", "غرينادي", Res.drawable.gd),
     Country("gp", "+590", "غوادلوبي", Res.drawable.gp),
@@ -222,7 +223,7 @@ val allCountries: List<Country> = listOf(
     Country("sr", "+597", "سورينامي", Res.drawable.sr),
     Country("sj", "+47", "سفالباردي", Res.drawable.sj),
     Country("se", "+46", "سويدي", Res.drawable.se),
-    Country("se", "+46", "سويدي", Res.drawable.se), // Mapping for SE<
+    Country("se", "+46", "سويدي", Res.drawable.se),
     Country("ch", "+41", "سويسري", Res.drawable.ch),
     Country("sy", "+963", "سوري", Res.drawable.sy),
     Country("tw", "+886", "تايواني", Res.drawable.tw),
