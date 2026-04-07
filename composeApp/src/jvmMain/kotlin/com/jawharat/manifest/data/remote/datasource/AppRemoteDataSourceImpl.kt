@@ -14,6 +14,9 @@ import com.jawharat.manifest.data.remote.service.AppApiService
 import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.di.BASE_URL
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -170,6 +173,17 @@ class AppRemoteDataSourceImpl(
     override suspend fun getVehicleTypes(): List<VehicleRemote> =
         apiService.getVehicleTypes().body() ?: throw Exception()
 
-    override suspend fun ocr(image: String): String =
-        ocrApiService.ocr(image = image).body() ?: throw Exception()
+    override suspend fun ocr(image: String): String {
+        val multipart = MultiPartFormDataContent(
+            formData {
+                append("apikey", "0cd0e66ab388957")
+                append("OCREngine", "3")
+                append("base64Image", image)
+            }
+        )
+
+        return httpClient.post("https://api.ocr.space/parse/image") {
+            setBody(multipart)
+        }.body<Json>().toString()
+    }
 }
