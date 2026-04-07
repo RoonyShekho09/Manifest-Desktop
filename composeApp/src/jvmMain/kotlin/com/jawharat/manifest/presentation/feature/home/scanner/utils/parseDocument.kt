@@ -3,46 +3,52 @@ package com.jawharat.manifest.presentation.feature.home.scanner.utils
 import Pr22.Processing.Document
 
 fun parsePersonDocument(ocrText: String): PersonDocument {
-    val lines = ocrText.lines().map { it.trim() }.filter { it.isNotEmpty() }
+    val lines = ocrText.lines()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
 
     fun extractValue(line: String): String? {
-        return line.substringAfterLast(":").trim().takeIf { it.isNotEmpty() }
+        val colonIndex = line.lastIndexOf(':').takeIf { it >= 0 }
+            ?: line.lastIndexOf('：').takeIf { it >= 0 }
+            ?: return null
+        return line.substring(colonIndex + 1).trim().takeIf { it.isNotEmpty() }
     }
 
-    fun findLine(vararg keywords: String): String? {
-        return lines.firstOrNull { line -> keywords.any { line.contains(it) } }
+    fun findValue(vararg keywords: String): String? {
+        return lines
+            .firstOrNull { line -> keywords.any { kw -> line.contains(kw) } }
+            ?.let { extractValue(it) }
     }
 
-    val nameLine = findLine("الاسم")
-    val fatherLine = findLine("الأب", "الاب")
-    val grandFatherLine = findLine("الجد")
-    val familyLine = findLine("اللقب")
+    val name = findValue("الاسم")
+    val father = findValue("الأب", "الاب")
 
-    val fullName = listOfNotNull(
-        nameLine?.let { extractValue(it) },
-        fatherLine?.let { extractValue(it) },
-        grandFatherLine?.let { extractValue(it) },
-        familyLine?.let { extractValue(it) }
-    ).joinToString(" ").takeIf { it.isNotEmpty() }
+    val grandfather = lines
+        .firstOrNull { it.contains("الجد") && !it.contains("دايك") && !it.contains("الأم") }
+        ?.let { extractValue(it) }
+    val family = findValue("اللقب")
 
-    val gender = findLine("الجنس")?.let { extractValue(it) }
+    val fullName = listOfNotNull(name, father, grandfather, family)
+        .joinToString(" ")
+        .takeIf { it.isNotEmpty() }
 
-    val nationalId = lines.firstOrNull { it.matches(Regex("\\d{12}")) }
+    val gender = findValue("الجنس")
 
-    val documentNumber = lines.firstOrNull { it.matches(Regex("[A-Z]\\d{7,12}")) }
+    val nationalId = lines.firstOrNull { it.matches(Regex("""\d{12}""")) }
 
     val fullText = lines.joinToString(" ")
     val documentType = when {
         fullText.contains("باسيورت") || fullText.contains("جواز") -> "PASSPORT"
-        fullText.contains("البطاقة الوطنية") -> "NATIONAL_ID"
+        fullText.contains("البطاقة الوطنية") || fullText.contains("كارسي") -> "NATIONAL_ID"
         else -> null
     }
+
 
     return PersonDocument(
         fullName = fullName,
         dateOfBirth = null,
         countryCode = null,
-        documentId = documentNumber ?: nationalId,
+        documentId = nationalId,
         gender = gender,
         documentType = documentType
     )
