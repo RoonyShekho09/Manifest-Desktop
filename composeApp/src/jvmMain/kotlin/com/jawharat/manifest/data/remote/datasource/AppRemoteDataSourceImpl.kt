@@ -11,6 +11,9 @@ import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 import com.jawharat.manifest.data.remote.service.AppApiService
+import com.jawharat.manifest.data.remote.service.Document
+import com.jawharat.manifest.data.remote.service.MistralApiService
+import com.jawharat.manifest.data.remote.service.MistralRequestBody
 import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.di.BASE_URL
 import io.ktor.client.HttpClient
@@ -32,6 +35,7 @@ class AppRemoteDataSourceImpl(
     private val apiService: AppApiService,
     private val ocrApiService: OcrApiService,
     private val httpClient: HttpClient,
+    private val mistralApiService: MistralApiService,
 ) : AppRemoteDataSource {
 
     override suspend fun logout(): Boolean {
@@ -172,6 +176,12 @@ class AppRemoteDataSourceImpl(
 
     override suspend fun getVehicleTypes(): List<VehicleRemote> =
         apiService.getVehicleTypes().body() ?: throw Exception()
+
+    override suspend fun mistralOcr(image: String): String {
+        return mistralApiService.ocr(
+            body = MistralRequestBody(document = Document(documentUrl = image))
+        ).body().toString()
+    }
 
     override suspend fun ocr(image: String): String {
         val multipart = MultiPartFormDataContent(

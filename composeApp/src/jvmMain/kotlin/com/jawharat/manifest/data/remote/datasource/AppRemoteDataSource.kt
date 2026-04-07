@@ -65,4 +65,5 @@ interface AppRemoteDataSource {
     suspend fun getLines(): List<LineResponse>
     suspend fun getVehicleTypes(): List<VehicleRemote>
     suspend fun ocr(image: String): String
+    suspend fun mistralOcr(image: String): String
 }

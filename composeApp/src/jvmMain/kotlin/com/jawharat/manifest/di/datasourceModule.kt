@@ -11,5 +11,12 @@ import org.koin.dsl.module
 val dataSourceModule = module {
     single { SqliteEntityStoreFactory(get()) }
     single<AppLocalDataSource> { AppLocalDataSourceImpl(database = get(), sqliteFactory = get()) }
-    single<AppRemoteDataSource> { AppRemoteDataSourceImpl(get(), get(named("pdfClient"))) }
+    single<AppRemoteDataSource> {
+        AppRemoteDataSourceImpl(
+            apiService = get(),
+            ocrApiService = get(qualifier = named("pdfClient")),
+            mistralApiService = get(),
+            httpClient = get(named("manifestClient"))
+        )
+    }
 }

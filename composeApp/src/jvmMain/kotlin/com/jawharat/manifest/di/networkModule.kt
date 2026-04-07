@@ -3,9 +3,11 @@ package com.jawharat.manifest.di
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
 import com.jawharat.manifest.data.remote.service.AppApiService
 import com.jawharat.manifest.data.remote.service.AppPdfApiService
+import com.jawharat.manifest.data.remote.service.MistralApiService
 import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.data.remote.service.createAppApiService
 import com.jawharat.manifest.data.remote.service.createAppPdfApiService
+import com.jawharat.manifest.data.remote.service.createMistralApiService
 import com.jawharat.manifest.data.remote.service.createOcrApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
 import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
@@ -29,9 +31,24 @@ import org.koin.dsl.module
 const val BASE_URL = "http://192.168.0.150/"
 const val OCR_BASE_URL = "https://ocr.space/"
 
+const val MISTRAL_BASE_URL = "https://api.mistral.ai/v1/"
+
 val networkModule = module {
 
     single { AuthInterceptor(get()) }
+
+    single<MistralApiService> {
+        ktorfit {
+            baseUrl(url = MISTRAL_BASE_URL)
+            httpClient(client = get(named("manifestClient")))
+
+            converterFactories(
+                FlowConverterFactory(),
+                CallConverterFactory(),
+                ResponseConverterFactory()
+            )
+        }.createMistralApiService()
+    }
 
     single<AppApiService> {
         ktorfit {
