@@ -93,7 +93,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
         }
     }
 
-    DisposableEffect(Unit){
+    DisposableEffect(Unit) {
         onDispose {
             viewModel.onScreenDisposed()
         }
@@ -172,11 +172,11 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
         }
     ) { paddingValues ->
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-//            if (currentPlatform != Platform.MacOS)
-//                QrCodeScanner(
-//                    onResult = viewModel::onQrCodeResult,
-//                    onFrame = { },
-//                )
+            if (currentPlatform != Platform.MacOS)
+                QrCodeScanner(
+                    onResult = viewModel::onQrCodeResult,
+                    onCameraReady = viewModel::onCameraReady
+                )
 
             Column(
                 modifier = Modifier.padding(24.dp).padding(paddingValues)
@@ -202,7 +202,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.clickable {
-                                uriHandler.openUri("https://adaptiverecognition.com/doc/id-scanners-readers/combo-scan-full-page-id1-and-mrz-scanner/#software")
+                                uriHandler.openUri(ADAPTIVE_RECOGNITION_URL_DOWNLOAD)
                             }
                         )
                     }
@@ -357,3 +357,6 @@ private fun FormSection(title: String, content: @Composable ColumnScope.() -> Un
         content()
     }
 }
+
+private const val ADAPTIVE_RECOGNITION_URL_DOWNLOAD =
+    "https://adaptiverecognition.com/doc/id-scanners-readers/combo-scan-full-page-id1-and-mrz-scanner/#software"

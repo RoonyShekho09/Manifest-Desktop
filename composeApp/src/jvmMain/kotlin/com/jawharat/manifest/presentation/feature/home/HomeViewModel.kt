@@ -3,11 +3,16 @@ package com.jawharat.manifest.presentation.feature.home
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.data.remote.model.ocr.ParsedResult
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.fixMrzErrors
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.parsePersonDocument
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.utils.allCountries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -15,6 +20,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.awt.image.BufferedImage
 
 class HomeViewModel(
     private val authRepository: AuthRepository,
@@ -22,28 +28,51 @@ class HomeViewModel(
     private val documentScanner: IDocumentScanner
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState()) {
 
-    var scanJob: Job? = null
+    private var scanJob: Job? = null
+    private var isAnalyzingId = false
 
     init {
-        startDocumentScanner()
+        updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
     }
 
-    fun onScreenDisposed() {
-        scanJob?.cancel()
-        documentScanner.stop()
-    }
+    fun onCameraReady() = startDocumentScanner()
 
     private fun startDocumentScanner() {
-        updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
+        if (!documentScanner.isSoftwareInstalled) return
         scanJob?.cancel()
         scanJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 ensureActive()
-                println("called")
-                documentScanner.scan(::onDocumentScanResult)
-                delay(1000)
+                if (!isAnalyzingId) {
+                    documentScanner.scan(
+                        onResult = ::onDocumentScanResult,
+                        onPassportScanningFail = {
+                            val processedImage = preprocessImage(it)
+                            performIdOcr(processedImage)
+                        }
+                    )
+                    delay(1000)
+                }
             }
         }
+    }
+
+    private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
+        onStart = { isAnalyzingId = true },
+        block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
+        onSuccess = { result ->
+            onIdCardOcrResult(result.parsedResults?.firstOrNull())
+            result.parsedResults?.firstOrNull()?.parsedText?.let {
+                println("response: " + parsePersonDocument(it.fixMrzErrors()))
+            }
+        },
+        onCompleted = { isAnalyzingId = false }
+    )
+
+    private fun onIdCardOcrResult(firstOrNull: ParsedResult?) {
+        if (firstOrNull?.parsedText == null) return
+        val personDocument = parsePersonDocument(firstOrNull.parsedText.fixMrzErrors())
+        onDocumentScanResult(personDocument)
     }
 
     private fun onDocumentScanResult(value: PersonDocument) {
@@ -65,7 +94,12 @@ class HomeViewModel(
                         )
                     else
                         TextFieldState(),
-                    countryCode = TextFieldState(allCountries.firstOrNull { it.code.equals(value.countryCode, ignoreCase = true) }?.code.orEmpty())
+                    countryCode = TextFieldState(allCountries.firstOrNull {
+                        it.code.equals(
+                            value.countryCode,
+                            ignoreCase = true
+                        )
+                    }?.code.orEmpty())
                 )
             )
         }
@@ -169,6 +203,11 @@ class HomeViewModel(
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
+
+    fun onScreenDisposed() {
+        scanJob?.cancel()
+        documentScanner.stop()
+    }
 
     fun onCancelScanning() = updateState { copy(startScanning = false) }
 

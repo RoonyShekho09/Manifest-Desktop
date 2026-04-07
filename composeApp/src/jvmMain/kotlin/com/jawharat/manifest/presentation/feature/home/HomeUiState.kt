@@ -26,7 +26,7 @@ data class HomeUiState(
 }
 
 @Stable
-data class PassengerFieldState (
+data class PassengerFieldState(
     val id: TextFieldState = TextFieldState(""),
     val name: TextFieldState = TextFieldState(""),
     val countryCode: TextFieldState = TextFieldState("")

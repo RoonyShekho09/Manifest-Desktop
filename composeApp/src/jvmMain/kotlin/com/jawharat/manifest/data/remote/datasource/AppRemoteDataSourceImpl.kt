@@ -11,11 +11,10 @@ import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
-import com.jawharat.manifest.data.remote.service.AppApiService
+import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.data.remote.service.Document
 import com.jawharat.manifest.data.remote.service.MistralApiService
 import com.jawharat.manifest.data.remote.service.MistralRequestBody
-import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.di.BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -33,15 +32,14 @@ import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 
 class AppRemoteDataSourceImpl(
-    private val apiService: AppApiService,
-    private val ocrApiService: OcrApiService,
+    private val manifestApiService: ManifestApiService,
     private val pdfHttpClient: HttpClient,
     private val mistralHttpClient: HttpClient,
     private val mistralApiService: MistralApiService,
 ) : AppRemoteDataSource {
 
     override suspend fun logout(): Boolean {
-        val response = apiService.logout()
+        val response = manifestApiService.logout()
         return response.isSuccessful
     }
 
@@ -49,7 +47,7 @@ class AppRemoteDataSourceImpl(
         email: String,
         password: String
     ): LoginResponse =
-        apiService.login(body = LoginRequestBody(username = email, password = password)).body()
+        manifestApiService.login(body = LoginRequestBody(username = email, password = password)).body()
             ?: throw Exception()
 
     override suspend fun submitManifest(
@@ -91,7 +89,7 @@ class AppRemoteDataSourceImpl(
         name: String?,
         phoneNumber: String?,
         destination: String?
-    ) = apiService.addDriver(
+    ) = manifestApiService.addDriver(
         body = AddDriverRequestBody(
             driverId = driverId,
             name = name,
@@ -107,7 +105,7 @@ class AppRemoteDataSourceImpl(
         price: Int?,
         driverId: String?,
         line: String?
-    ) = apiService.addVehicle(
+    ) = manifestApiService.addVehicle(
         body = AddVehicleRequestBody(
             vehicleNumber = vehicleNumber,
             type = type,
@@ -125,7 +123,7 @@ class AppRemoteDataSourceImpl(
         destination: String?,
         id: String
     ) {
-        val result = apiService.editDriver(
+        val result = manifestApiService.editDriver(
             body = AddDriverRequestBody(
                 driverId = driverId,
                 name = name,
@@ -146,7 +144,7 @@ class AppRemoteDataSourceImpl(
         driverId: String?,
         line: String?,
         id: String
-    ) = apiService.editVehicle(
+    ) = manifestApiService.editVehicle(
         body = AddVehicleRequestBody(
             vehicleNumber = vehicleNumber,
             type = type,
@@ -159,25 +157,25 @@ class AppRemoteDataSourceImpl(
     ).body() ?: throw Exception()
 
     override suspend fun getLines(): List<LineResponse> =
-        apiService.getLines().body() ?: throw Exception()
+        manifestApiService.getLines().body() ?: throw Exception()
 
     override suspend fun getDispatches(): List<DispatchResponse> =
-        apiService.getVehicles().body() ?: throw Exception()
+        manifestApiService.getVehicles().body() ?: throw Exception()
 
     override suspend fun scanManifestQrCode(id: String) =
-        apiService.scanManifestQrCode(id).body() ?: throw Exception()
+        manifestApiService.scanManifestQrCode(id).body() ?: throw Exception()
 
     override suspend fun scanDriverQrCode(id: String) =
-        apiService.scanDriverQrCode(id).body() ?: throw Exception()
+        manifestApiService.scanDriverQrCode(id).body() ?: throw Exception()
 
     override suspend fun scanDispatchQrCode(id: String) =
-        apiService.scanVehicleQrCode(id).body() ?: throw Exception()
+        manifestApiService.scanVehicleQrCode(id).body() ?: throw Exception()
 
     override suspend fun getDrivers(): List<DriverResponse> =
-        apiService.getDrivers().body() ?: throw Exception()
+        manifestApiService.getDrivers().body() ?: throw Exception()
 
     override suspend fun getVehicleTypes(): List<VehicleRemote> =
-        apiService.getVehicleTypes().body() ?: throw Exception()
+        manifestApiService.getVehicleTypes().body() ?: throw Exception()
 
     override suspend fun mistralOcr(image: String): String {
         return mistralApiService.ocr(

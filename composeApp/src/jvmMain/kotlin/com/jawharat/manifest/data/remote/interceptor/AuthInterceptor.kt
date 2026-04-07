@@ -1,7 +1,7 @@
 package com.jawharat.manifest.data.remote.interceptor
 
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
-import com.jawharat.manifest.data.remote.service.AppApiService.Companion.NO_AUTH_HEADER_KEY
+import com.jawharat.manifest.data.remote.service.ManifestApiService.Companion.NO_AUTH_HEADER_KEY
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpSend
 import io.ktor.client.plugins.api.ClientPlugin

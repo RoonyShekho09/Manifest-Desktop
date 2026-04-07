@@ -13,47 +13,48 @@ import Pr22.Imaging.PagePosition
 import Pr22.Processing.FieldId
 import Pr22.Processing.FieldSource
 import Pr22.Processing.Page
+import Pr22.Processing.Status
 import Pr22.Task.DocScannerTask
 import Pr22.Task.EngineTask
 import Pr22.Task.FreerunTask
 import Pr22.Task.TaskControl
 import Pr22.Util.PresenceState
 import PrIns.Exceptions.General
-import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.cleanOcrResult
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractPersonDocument
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.printDocFields
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 
 interface IDocumentScanner {
     val isSoftwareInstalled: Boolean
-    suspend fun scan(onResult: (PersonDocument) -> Unit)
+    suspend fun scan(
+        onResult: (PersonDocument) -> Unit,
+        onPassportScanningFail: (BufferedImage) -> Unit
+    )
+
     fun stop()
 }
 
-class DocumentScanner(private val repository: ManifestRepository) : IDocumentScanner {
+class DocumentScanner : IDocumentScanner {
     override var isSoftwareInstalled: Boolean = true
-    val device: DocumentReaderDevice? by lazy {
-        runCatching { DocumentReaderDevice() }
-            .onFailure {
-                isSoftwareInstalled = false
-            }
+    private var device: DocumentReaderDevice? = null
+    private val vizReadingTask = EngineTask().apply { add(FieldSource.Viz, FieldId.All) }
+    private val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
+    private val engine: Engine? by lazy { device?.engine }
+    private var isDocumentPresent = false
+    private var isInitial = true
+    private var liveTask: TaskControl? = null
+    private var initialized = false
+    private var networkRequestInProgress: Boolean = false
+
+    init {
+        device = runCatching { DocumentReaderDevice() }
+            .onSuccess { isSoftwareInstalled = true }
+            .onFailure { isSoftwareInstalled = false }
             .getOrNull()
     }
-    val vizReadingTask = EngineTask().apply { add(FieldSource.Viz, FieldId.All) }
-    val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
-    val engine: Engine? by lazy { device?.engine }
-    var isDocumentPresent = false
-    var isInitial = true
-    var liveTask: TaskControl? = null
-    private var initialized = false
     private suspend fun ensureInitialized() {
         if (initialized) return
         withContext(Dispatchers.IO) {
@@ -64,8 +65,14 @@ class DocumentScanner(private val repository: ManifestRepository) : IDocumentSca
         }
     }
 
-    override suspend fun scan(onResult: (PersonDocument) -> Unit) {
+    override suspend fun scan(
+        onResult: (PersonDocument) -> Unit,
+        onPassportScanningFail: (BufferedImage) -> Unit
+    ) {
         ensureInitialized()
+
+        if (networkRequestInProgress) return
+
         val scanner = device?.scanner
 
         liveTask = scanner?.startTask(FreerunTask.detection())
@@ -79,21 +86,25 @@ class DocumentScanner(private val repository: ManifestRepository) : IDocumentSca
 
         try {
             docPage?.let {
-                analyzeWithMrz(docPage = docPage, onResult = onResult)
+                analyzeWithMrz(
+                    docPage = docPage,
+                    onResult = onResult,
+                    onFailure = onPassportScanningFail
+                )
             }
 
             scanTask.add(Light.All)
 
-            vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
-            vizDocPage?.let {
-                analyzeWithViz(vizDocPage)
-            }
-
+            // TODO: Remove if not needed
+//            vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
+//            vizDocPage?.let {
+//                analyzeWithViz(vizDocPage)
+//            }
         } finally {
-            //        scanner?.cleanUpLastPage()
-//            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
-//            docPage?.del(Light.All)
-            //    scanner?.cleanUpData()
+            scanner?.cleanUpLastPage()
+            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
+            docPage?.del(Light.All)
+            scanner?.cleanUpData()
             liveTask?.Stop()
             isDocumentPresent = false
         }
@@ -115,23 +126,8 @@ class DocumentScanner(private val repository: ManifestRepository) : IDocumentSca
         initialized = false
     }
 
-    fun scanId(image: BufferedImage, onResult: (PersonDocument) -> Unit) {
-        GlobalScope.launch {
-            val response = repository.ocrSpace(image.compressForOcr(), engine = "2")
-
-            response.parsedResults?.firstOrNull()?.parsedText?.let {
-                println("response: " + it.cleanOcrResult())
-                //   println("response: ${parseOcrToPerson(cleanOcrText(it))}")
-            }
-        }
-    }
-
     private fun analyzeWithViz(docPage: Page) {
         val vizDoc = engine?.analyze(docPage, vizReadingTask)
-
-        docPage.selectByIndex(0).toImage()?.let {
-            scanId(preprocessImage(it), onResult = { println("ID information: $it") })
-        }
 
         vizDoc?.let {
             println("viz: " + extractPersonDocument(it))
@@ -140,8 +136,19 @@ class DocumentScanner(private val repository: ManifestRepository) : IDocumentSca
         vizDoc?.toVariant()?.clear()
     }
 
-    private fun analyzeWithMrz(docPage: Page, onResult: (PersonDocument) -> Unit) {
+    private fun analyzeWithMrz(
+        docPage: Page,
+        onResult: (PersonDocument) -> Unit,
+        onFailure: (BufferedImage) -> Unit
+    ) {
         val mrzDoc = engine?.analyze(docPage, mrzReadingTask)
+
+        println("status: ${mrzDoc?.status}")
+
+        if (mrzDoc?.status != Status.Ok || mrzDoc.status != Status.Warning)
+            docPage.selectByIndex(0).toImage()?.let {
+                onFailure(it)
+            }
 
         mrzDoc?.let {
             printDocFields(it)
@@ -155,7 +162,7 @@ class DocumentScanner(private val repository: ManifestRepository) : IDocumentSca
         mrzDoc?.toVariant()?.clear()
     }
 
-    fun eventListener() {
+    private fun eventListener() {
         device?.addEventListener(
             object : DeviceUpdate {
                 override fun onDeviceUpdate(e: UpdateEventArgs) {
@@ -171,7 +178,7 @@ class DocumentScanner(private val repository: ManifestRepository) : IDocumentSca
     }
 
     @Throws(General::class)
-    fun addScanEvents() {
+    private fun addScanEvents() {
         var called = false
         device?.addEventListener(
             object : PresenceStateChanged {

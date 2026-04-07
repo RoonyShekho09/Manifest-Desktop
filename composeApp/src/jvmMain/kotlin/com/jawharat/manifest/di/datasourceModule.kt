@@ -13,10 +13,9 @@ val dataSourceModule = module {
     single<AppLocalDataSource> { AppLocalDataSourceImpl(database = get(), sqliteFactory = get()) }
     single<AppRemoteDataSource> {
         AppRemoteDataSourceImpl(
-            apiService = get(),
+            manifestApiService = get(),
             pdfHttpClient = get(named("pdfClient")),
             mistralHttpClient = get(named("mistralClient")),
-            ocrApiService = get(),
             mistralApiService = get(),
         )
     }

@@ -8,8 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.sarxos.webcam.Webcam
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
@@ -27,16 +25,19 @@ import kotlinx.coroutines.withContext
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.awt.image.RescaleOp
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
+@OptIn(ExperimentalAtomicApi::class)
 @Composable
 fun QrCodeScanner(
     onResult: (String) -> Unit,
-    onFrame: (ImageBitmap) -> Unit,
+    onCameraReady: () -> Unit,
 ) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
     var frameCount by remember { mutableStateOf(0) }
     val onResultRef by rememberUpdatedState(onResult)
-    var isRunning = true
+
+    var isRunning by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -45,7 +46,6 @@ fun QrCodeScanner(
                 return@withContext
             }
             try {
-                var snapshot: BufferedImage? = null
                 if (!cam.isOpen)
                     cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
                 cam.open()
@@ -55,35 +55,23 @@ fun QrCodeScanner(
                     webcam = cam
                 }
 
+                onCameraReady()
+
                 while (isActive && isRunning) {
                     val image = cam.image ?: run {
                         withContext(Dispatchers.Main) { println("⚠️ Got null frame") }
                         continue
                     }
 
-                    if (snapshot == null || snapshot.width != image.width || snapshot.height != image.height) {
-                        snapshot = BufferedImage(
-                            image.width,
-                            image.height,
-                            BufferedImage.TYPE_INT_ARGB
-                        )
-                    }
+                    val scaled = scaleImage(image)
+                    val contrasted = increaseContrast(scaled)
 
-                    val g = snapshot.createGraphics()
-                    g.drawImage(image, 0, 0, null)
-                    g.dispose()
-
-                    onFrame(snapshot.toComposeImageBitmap())
+                    val result = decodeQrCode(contrasted)
 
                     withContext(Dispatchers.Main) {
                         frameCount++
                         println("📷 Frame #$frameCount | Size: ${image.width}x${image.height}")
                     }
-
-                    val scaled = scaleImage(snapshot)
-                    val contrasted = increaseContrast(scaled)
-
-                    val result = decodeQrCode(contrasted)
 
                     withContext(Dispatchers.Main) {
                         when (result) {

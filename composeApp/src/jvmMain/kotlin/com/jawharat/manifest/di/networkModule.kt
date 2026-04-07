@@ -1,12 +1,12 @@
 package com.jawharat.manifest.di
 
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
-import com.jawharat.manifest.data.remote.service.AppApiService
+import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.data.remote.service.AppPdfApiService
 import com.jawharat.manifest.data.remote.service.MistralApiService
 import com.jawharat.manifest.data.remote.service.OcrApiService
-import com.jawharat.manifest.data.remote.service.createAppApiService
 import com.jawharat.manifest.data.remote.service.createAppPdfApiService
+import com.jawharat.manifest.data.remote.service.createManifestApiService
 import com.jawharat.manifest.data.remote.service.createMistralApiService
 import com.jawharat.manifest.data.remote.service.createOcrApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
@@ -50,7 +50,7 @@ val networkModule = module {
         }.createMistralApiService()
     }
 
-    single<AppApiService> {
+    single<ManifestApiService> {
         ktorfit {
             baseUrl(url = BASE_URL)
             httpClient(client = get(named("manifestClient")))
@@ -60,7 +60,7 @@ val networkModule = module {
                 CallConverterFactory(),
                 ResponseConverterFactory()
             )
-        }.createAppApiService()
+        }.createManifestApiService()
     }
 
     single<OcrApiService> {
