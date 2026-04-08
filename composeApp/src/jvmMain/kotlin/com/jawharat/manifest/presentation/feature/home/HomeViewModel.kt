@@ -96,7 +96,7 @@ class HomeViewModel(
                         TextFieldState(),
                     countryCode = TextFieldState(allCountries.firstOrNull {
                         it.code.equals(
-                            value.countryCode,
+                            other = value.countryCode?.lowercase(),
                             ignoreCase = true
                         )
                     }?.code.orEmpty())

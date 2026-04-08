@@ -47,40 +47,12 @@ fun parsePersonDocument(ocrText: String): PersonDocument {
     return PersonDocument(
         fullName = fullName,
         dateOfBirth = null,
-        countryCode = null,
+        countryCode = "IQ",
         documentId = nationalId,
         gender = gender,
         documentType = documentType
     )
 }
-
-fun parseOcrToPerson(text: String): PersonDocument {
-    fun extract(label: String): String? {
-        val regex = Regex("$label\\s*:?\\s*([^|]+)")
-        return regex.find(text)?.groupValues?.get(1)?.trim()
-    }
-
-    val name = extract("الأسم / ناو")
-    val father = extract("الأب / باوك")
-    val grandfather = extract("الجد / بابير")
-    val surname = extract("اللقب /")
-    val maternalGrandfather = extract("الجد / بابير")
-    val gender = extract("الجنس /")
-
-    val numbers = Regex("\\d+").findAll(text).map { it.value }.toList()
-
-    val nationalId = numbers.firstOrNull()
-
-    return PersonDocument(
-        fullName = "$name $father $grandfather $surname",
-        gender = gender,
-        documentId = nationalId,
-        countryCode = "iq",
-        dateOfBirth = "",
-        documentType = "ID",
-    )
-}
-
 
 data class PersonDocument(
     val fullName: String?,

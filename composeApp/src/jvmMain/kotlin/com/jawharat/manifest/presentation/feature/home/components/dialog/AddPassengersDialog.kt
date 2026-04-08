@@ -136,7 +136,7 @@ fun AddPassengersDialog(
                                 Column {
                                     Box {
                                         AppTextField(
-                                            state = passenger.name,
+                                            state = passenger.countryCode,
                                             //    placeholder = Res.string.country.string,
                                             modifier = Modifier.fillMaxWidth()
                                         )

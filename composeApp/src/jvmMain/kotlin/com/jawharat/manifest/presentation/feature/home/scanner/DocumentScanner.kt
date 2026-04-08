@@ -13,7 +13,6 @@ import Pr22.Imaging.PagePosition
 import Pr22.Processing.FieldId
 import Pr22.Processing.FieldSource
 import Pr22.Processing.Page
-import Pr22.Processing.Status
 import Pr22.Task.DocScannerTask
 import Pr22.Task.EngineTask
 import Pr22.Task.FreerunTask
@@ -55,6 +54,7 @@ class DocumentScanner : IDocumentScanner {
             .onFailure { isSoftwareInstalled = false }
             .getOrNull()
     }
+
     private suspend fun ensureInitialized() {
         if (initialized) return
         withContext(Dispatchers.IO) {
@@ -89,17 +89,9 @@ class DocumentScanner : IDocumentScanner {
                 analyzeWithMrz(
                     docPage = docPage,
                     onResult = onResult,
-                    onFailure = onPassportScanningFail
+                    onResultNotFound = onPassportScanningFail
                 )
             }
-
-            scanTask.add(Light.All)
-
-            // TODO: Remove if not needed
-//            vizDocPage = scanner?.scan(scanTask, PagePosition.Current)
-//            vizDocPage?.let {
-//                analyzeWithViz(vizDocPage)
-//            }
         } finally {
             scanner?.cleanUpLastPage()
             scanTask.del(Light.White).del(Light.Infra).del(Light.All)
@@ -139,16 +131,16 @@ class DocumentScanner : IDocumentScanner {
     private fun analyzeWithMrz(
         docPage: Page,
         onResult: (PersonDocument) -> Unit,
-        onFailure: (BufferedImage) -> Unit
+        onResultNotFound: (BufferedImage) -> Unit
     ) {
         val mrzDoc = engine?.analyze(docPage, mrzReadingTask)
 
-        println("status: ${mrzDoc?.status}")
-
-        if (mrzDoc?.status != Status.Ok || mrzDoc.status != Status.Warning)
+        if (mrzDoc?.fields?.isEmpty() == true) {
+            println("No fields found: ${mrzDoc.status}")
             docPage.selectByIndex(0).toImage()?.let {
-                onFailure(it)
+                onResultNotFound(it)
             }
+        }
 
         mrzDoc?.let {
             printDocFields(it)
