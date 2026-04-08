@@ -10,6 +10,7 @@ ktorfit = "2.7.2"
 ksp = "2.3.3"
 ktor = "3.4.1"
 sqldelight = "2.3.2"
+sentry = "0.25.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -53,6 +54,7 @@ kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+sentry = { id = "io.sentry.kotlin.multiplatform.gradle", version.ref = "sentry" }
 
 
 [bundles]
