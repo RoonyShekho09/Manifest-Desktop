@@ -7,11 +7,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class OcrResponse(
     @SerialName("IsErroredOnProcessing")
-    val isErroredOnProcessing: Boolean? = null,
+    val isErroredOnProcessing: Boolean? = false,
     @SerialName("OCRExitCode")
-    val oCRExitCode: Int? = null,
+    val oCRExitCode: Int? = 0,
     @SerialName("ParsedResults")
-    val parsedResults: List<ParsedResult?>? = null,
+    val parsedResults: List<ParsedResult>? = listOf(),
     @SerialName("ProcessingTimeInMilliseconds")
-    val processingTimeInMilliseconds: String? = null
+    val processingTimeInMilliseconds: String? = "",
+    @SerialName("SearchablePDFURL")
+    val searchablePDFURL: String? = ""
 )

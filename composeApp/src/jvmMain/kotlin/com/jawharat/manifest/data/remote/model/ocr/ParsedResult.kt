@@ -15,5 +15,7 @@ data class ParsedResult(
     @SerialName("ParsedText")
     val parsedText: String? = null,
     @SerialName("TextOrientation")
-    val textOrientation: String? = null
+    val textOrientation: String? = null,
+    @SerialName("TextOverlay")
+    val textOverlay: TextOverlay? = null
 )
