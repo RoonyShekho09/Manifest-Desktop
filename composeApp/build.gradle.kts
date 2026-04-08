@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.ktorfit)
     alias(libs.plugins.ksp)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.sentry)
 }
 
 kotlin {

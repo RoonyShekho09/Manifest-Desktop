@@ -20,6 +20,7 @@ import com.jawharat.manifest.presentation.navigation.Screen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
+import io.sentry.kotlin.multiplatform.Sentry
 
 @Composable
 @Preview
@@ -33,6 +34,13 @@ fun App() {
             databaseModule,
             utilModule
         )
+    }
+
+    Sentry.init { options ->
+        options.dsn =
+            "https://c540b9e616e448c84ff4d2e200429d5b@o4511178272997376.ingest.de.sentry.io/4511178413834320"
+        options.debug = true
+        options.sendDefaultPii = true
     }
 
     val repository = koinInject<AuthRepository>()
