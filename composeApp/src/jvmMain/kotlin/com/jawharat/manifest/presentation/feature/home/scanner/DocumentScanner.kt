@@ -20,7 +20,7 @@ import Pr22.Task.TaskControl
 import Pr22.Util.PresenceState
 import PrIns.Exceptions.General
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractPersonDocument
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromPassport
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.printDocFields
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,7 +39,6 @@ interface IDocumentScanner {
 class DocumentScanner : IDocumentScanner {
     override var isSoftwareInstalled: Boolean = true
     private var device: DocumentReaderDevice? = null
-    private val vizReadingTask = EngineTask().apply { add(FieldSource.Viz, FieldId.All) }
     private val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
     private val engine: Engine? by lazy { device?.engine }
     private var isDocumentPresent = false

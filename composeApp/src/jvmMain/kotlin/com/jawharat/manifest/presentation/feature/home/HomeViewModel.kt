@@ -206,12 +206,4 @@ class HomeViewModel(
         scanJob?.cancel()
         documentScanner.stop()
     }
-
-    fun onCancelScanning() = updateState { copy(startScanning = false) }
-
-    override fun onCleared() {
-        super.onCleared()
-        scanJob?.cancel()
-        documentScanner.stop()
-    }
 }

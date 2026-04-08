@@ -128,8 +128,6 @@ class ManifestRepositoryImpl(
     override suspend fun scanVehicleQrCode(id: String) =
         remoteDataSource.scanDispatchQrCode(id).toDomain()
 
-    override suspend fun ocr(image: String) = remoteDataSource.mistralOcr(image)
-
     override suspend fun ocrSpace(image: String, engine: String) = remoteDataSource.ocr(image, engine)
 
     override suspend fun getVehicleTypes(fetch: Boolean): List<VehicleType> =

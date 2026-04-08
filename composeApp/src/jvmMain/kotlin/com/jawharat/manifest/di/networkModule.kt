@@ -3,11 +3,9 @@ package com.jawharat.manifest.di
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
 import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.data.remote.service.AppPdfApiService
-import com.jawharat.manifest.data.remote.service.MistralApiService
 import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.data.remote.service.createAppPdfApiService
 import com.jawharat.manifest.data.remote.service.createManifestApiService
-import com.jawharat.manifest.data.remote.service.createMistralApiService
 import com.jawharat.manifest.data.remote.service.createOcrApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
 import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
@@ -31,24 +29,9 @@ import org.koin.dsl.module
 const val BASE_URL = "http://192.168.0.150/"
 const val OCR_BASE_URL = "https://ocr.space/"
 
-const val MISTRAL_BASE_URL = "https://api.mistral.ai/v1/"
-
 val networkModule = module {
 
     single { AuthInterceptor(get()) }
-
-    single<MistralApiService> {
-        ktorfit {
-            baseUrl(url = MISTRAL_BASE_URL)
-            httpClient(client = get(named("mistralClient")))
-
-            converterFactories(
-                FlowConverterFactory(),
-                CallConverterFactory(),
-                ResponseConverterFactory()
-            )
-        }.createMistralApiService()
-    }
 
     single<ManifestApiService> {
         ktorfit {
@@ -103,6 +86,7 @@ val networkModule = module {
                 ignoreUnknownKeys = true
                 coerceInputValues = true
                 explicitNulls = false
+                encodeDefaults = true // Add this line
             }
 
             install(ContentNegotiation) {
@@ -114,7 +98,7 @@ val networkModule = module {
             }
 
             install(Logging) {
-                level = LogLevel.ALL
+                level = LogLevel.BODY
                 logger = object : Logger {
                     override fun log(message: String) =
                         println("HttpClient $message")

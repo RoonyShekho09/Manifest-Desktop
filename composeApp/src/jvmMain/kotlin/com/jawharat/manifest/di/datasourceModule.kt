@@ -16,7 +16,6 @@ val dataSourceModule = module {
             manifestApiService = get(),
             pdfHttpClient = get(named("pdfClient")),
             mistralHttpClient = get(named("mistralClient")),
-            mistralApiService = get(),
         )
     }
 }
