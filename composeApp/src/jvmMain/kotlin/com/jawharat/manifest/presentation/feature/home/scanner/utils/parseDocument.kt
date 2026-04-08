@@ -1,72 +1,123 @@
 package com.jawharat.manifest.presentation.feature.home.scanner.utils
 
 import Pr22.Processing.Document
+import com.jawharat.manifest.data.remote.model.ocr.TextOverlay
+import com.jawharat.manifest.utils.containsAny
 
-fun parsePersonDocument(ocrText: String): PersonDocument {
-    val lines = ocrText.lines()
-        .map { it.trim() }
-        .filter { it.isNotEmpty() }
 
-    fun extractValue(line: String): String? {
-        val colonIndex = line.lastIndexOf(':').takeIf { it >= 0 }
-            ?: line.lastIndexOf('：').takeIf { it >= 0 }
-            ?: return null
-        return line.substring(colonIndex + 1).trim().takeIf { it.isNotEmpty() }
+fun extractFromId(overlay: TextOverlay?, fullNameMinimumLength: Int = 3): PersonDocument? {
+    if (overlay == null || overlay.lines == null)
+        return null
+
+    if (overlay.lines.any { it.lineText?.contains("Passport", ignoreCase = true) == true }) {
+        return null
     }
 
-    fun findValue(vararg keywords: String): String? {
-        return lines
-            .firstOrNull { line -> keywords.any { kw -> line.contains(kw) } }
-            ?.let { extractValue(it) }
+    var fullName: String? = null
+    var documentId: String? = null
+    var firstName = ""
+    var fatherName = ""
+    var grandfatherName = ""
+    var surname = ""
+
+    val unassociatedText = mutableListOf<String>()
+
+    val idRegex = Regex("""[A-Z]+\d+""")
+    val numericIdRegex = Regex("""\b\d{12}\b""")
+
+    val boilerplate = listOf(
+        "جمهورية", "عراق", "كوردستان", "الجنسية", "أربيل", "بلدة",
+        "الاسم", "اللقب", "الولادة", "الجنس", "الاضبارة", "اثبات", "أثبات",
+        "الشخصية", "كومارى", "نشينكهى", "ناوشار", "بطاقة", "وطنية",
+        "فصيلة", "الدم", "Male", "Female", "Republic", "Syrian", "Arab",
+        "وزارة", "الداخلية", "سه لماندنى", "كمسايه", "كه سايه", "ادايت", "وضبة"
+    )
+
+    for (line in overlay.lines) {
+        val text = line.lineText?.trim().orEmpty()
+
+        if (documentId == null) {
+            val alphaMatch = idRegex.find(text)
+            if (alphaMatch != null) {
+                documentId = alphaMatch.value
+            } else {
+                val numMatch = numericIdRegex.find(text)
+                if (numMatch != null) {
+                    documentId = numMatch.value
+                }
+            }
+        }
+
+        if (text.contains(":")) {
+            val parts = text.split(":", limit = 2)
+            val label = parts[0].trim()
+            val value = parts[1].trim()
+
+            if (value.isNotBlank()) {
+                when {
+                    label.contains("الاسم الكامل") || label.contains("Full Name", true) -> fullName = value
+                    label.containsAny("الاسم", "الأسم") && !label.contains("الام") -> firstName = value
+                    label.containsAny("الاب", "الأب") -> fatherName = value
+                    label.contains("الجد") -> grandfatherName = value
+                    label.contains("اللقب") || label.contains("التقب") -> surname = value
+                }
+            }
+        } else {
+            val isBoilerplate = boilerplate.any { text.contains(it, ignoreCase = true) }
+
+            val isOnlyArabicLetters = text.matches(Regex("""^[\p{IsArabic}\s]+$"""))
+
+            if (!isBoilerplate && isOnlyArabicLetters) {
+                unassociatedText.add(text)
+            }
+        }
     }
 
-    val name = findValue("الاسم")
-    val father = findValue("الأب", "الاب")
+    if (fullName == null) {
+        val combinedName = listOf(firstName, fatherName, grandfatherName, surname)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
 
-    val grandfather = lines
-        .firstOrNull { it.contains("الجد") && !it.contains("دايك") && !it.contains("الأم") }
-        ?.let { extractValue(it) }
-    val family = findValue("اللقب")
-
-    val fullName = listOfNotNull(name, father, grandfather, family)
-        .joinToString(" ")
-        .takeIf { it.isNotEmpty() }
-
-    val gender = findValue("الجنس")
-
-    val nationalId = lines.firstOrNull { it.matches(Regex("""\d{12}""")) }
-
-    val fullText = lines.joinToString(" ")
-    val documentType = when {
-        fullText.contains("باسيورت") || fullText.contains("جواز") -> "PASSPORT"
-        fullText.contains("البطاقة الوطنية") || fullText.contains("كارسي") -> "NATIONAL_ID"
-        else -> null
+        if (combinedName.isNotBlank()) {
+            fullName = combinedName
+        }
     }
 
+    if (fullName == null && unassociatedText.isNotEmpty()) {
+        val possibleNames = unassociatedText.filter {
+            val wordCount = it.split("\\s+".toRegex()).size
+            wordCount in 2..4
+        }
+
+        if (possibleNames.isNotEmpty()) {
+            fullName = possibleNames.maxByOrNull { it.split("\\s+".toRegex()).size }
+        }
+    }
+
+    if ((fullName?.split("\\s+".toRegex())?.size ?: 0) < fullNameMinimumLength) {
+        fullName = null
+    }
 
     return PersonDocument(
-        fullName = fullName,
-        dateOfBirth = null,
+        fullName = fullName.orEmpty(),
         countryCode = "IQ",
-        documentId = nationalId,
-        gender = gender,
-        documentType = documentType
+        documentId = documentId.orEmpty(),
+        gender = "",
+        documentType = ""
     )
 }
 
 data class PersonDocument(
-    val fullName: String?,
-    val dateOfBirth: String?,
-    val countryCode: String?,
-    val documentId: String?,
-    val gender: String?,
-    val documentType: String?
+    val fullName: String,
+    val countryCode: String,
+    val documentId: String,
+    val gender: String,
+    val documentType: String
 )
 
 
-fun extractPersonDocument(doc: Document): PersonDocument {
+fun extractFromPassport(doc: Document): PersonDocument {
     var fullName: String? = null
-    var dateOfBirth: String? = null
     var countryCode: String? = null
     var documentId: String? = null
     var sex: String? = null
@@ -78,13 +129,12 @@ fun extractPersonDocument(doc: Document): PersonDocument {
 
             val value = try {
                 field.formattedStringValue
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
 
             when (fieldRef.toString()) {
                 "MrzName" -> fullName = value
-                "MrzBirthDate" -> dateOfBirth = field.standardizedStringValue
                 "MrzIssueCountry", "MrzNationality" -> countryCode = value
                 "MrzDocumentNumber" -> documentId = value
                 "MrzSex" -> sex = value
@@ -97,11 +147,10 @@ fun extractPersonDocument(doc: Document): PersonDocument {
     }
 
     return PersonDocument(
-        fullName = fullName,
-        dateOfBirth = dateOfBirth,
-        countryCode = countryCode,
-        documentId = documentId,
-        gender = sex,
-        documentType = documentType
+        fullName = fullName.orEmpty(),
+        countryCode = countryCode.orEmpty(),
+        documentId = documentId.orEmpty(),
+        gender = sex.orEmpty(),
+        documentType = documentType.orEmpty()
     )
 }

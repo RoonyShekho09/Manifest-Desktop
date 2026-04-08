@@ -82,7 +82,6 @@ class DocumentScanner : IDocumentScanner {
         val scanTask = DocScannerTask()
         scanTask.add(Light.White).add(Light.Infra)
         val docPage = scanner?.scan(scanTask, PagePosition.First)
-        var vizDocPage: Page?
 
         try {
             docPage?.let {
@@ -118,16 +117,6 @@ class DocumentScanner : IDocumentScanner {
         initialized = false
     }
 
-    private fun analyzeWithViz(docPage: Page) {
-        val vizDoc = engine?.analyze(docPage, vizReadingTask)
-
-        vizDoc?.let {
-            println("viz: " + extractPersonDocument(it))
-        }
-
-        vizDoc?.toVariant()?.clear()
-    }
-
     private fun analyzeWithMrz(
         docPage: Page,
         onResult: (PersonDocument) -> Unit,
@@ -147,8 +136,7 @@ class DocumentScanner : IDocumentScanner {
         }
 
         mrzDoc?.let {
-            onResult(extractPersonDocument(it))
-            println("mrz: " + extractPersonDocument(it))
+            onResult(extractFromPassport(it))
         }
 
         mrzDoc?.toVariant()?.clear()
@@ -185,14 +173,6 @@ class DocumentScanner : IDocumentScanner {
                     } else {
                         called = false
                     }
-                }
-            }
-        )
-
-        device?.addEventListener(
-            object : DocFrameFound {
-                override fun onDocFrameFound(e: PageEventArgs) {
-                    println("Document frame found. Page: " + e.page)
                 }
             }
         )

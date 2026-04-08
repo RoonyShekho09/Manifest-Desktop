@@ -1,19 +1,19 @@
 package com.jawharat.manifest.presentation.feature.login
 
 import androidx.compose.foundation.text.input.TextFieldState
-import com.github.javakeyring.Keyring
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.login_failed
+import com.jawharat.manifest.utils.IKeyringProvider
 import org.jetbrains.compose.resources.getString
 
 
 class LoginViewModel(
     private val repository: AuthRepository,
     private val snackBar: AppSnackBarHostState,
-    private val keyring: Keyring
+    private val keyring: IKeyringProvider
 ) : BaseViewModel<LoginUiState, LoginUiEvent>(LoginUiState()) {
 
     init {
@@ -23,11 +23,12 @@ class LoginViewModel(
     private fun initializeSavedCredentials() {
         runCatching {
             keyring.use { keyring ->
-                val secret = keyring.getPassword("jawharat-erbil", repository.lastUsedEmail)
+                val secret =
+                    keyring.getKeyring()?.getPassword("jawharat-erbil", repository.lastUsedEmail)
                 updateState {
                     copy(
                         emailState = TextFieldState(initialText = repository.lastUsedEmail),
-                        passwordState = TextFieldState(initialText = secret)
+                        passwordState = TextFieldState(initialText = secret.orEmpty())
                     )
                 }
             }
@@ -43,8 +44,8 @@ class LoginViewModel(
             )
         },
         onSuccess = {
-            keyring.use { keyring ->
-                keyring.setPassword(
+            keyring.getKeyring().use { keyring ->
+                keyring?.setPassword(
                     "jawharat-erbil",
                     state.value.emailState.text.toString(),
                     state.value.passwordState.text.toString()

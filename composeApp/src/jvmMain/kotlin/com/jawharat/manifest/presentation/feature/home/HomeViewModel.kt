@@ -10,8 +10,7 @@ import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.fixMrzErrors
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.parsePersonDocument
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.utils.allCountries
 import kotlinx.coroutines.Dispatchers
@@ -62,30 +61,27 @@ class HomeViewModel(
         block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
         onSuccess = { result ->
             onIdCardOcrResult(result.parsedResults?.firstOrNull())
-            result.parsedResults?.firstOrNull()?.parsedText?.let {
-                println("response: " + parsePersonDocument(it.fixMrzErrors()))
-            }
         },
         onCompleted = { isAnalyzingId = false }
     )
 
     private fun onIdCardOcrResult(firstOrNull: ParsedResult?) {
+        extractFromId(overlay = firstOrNull?.textOverlay)
         if (firstOrNull?.parsedText == null) return
-        val personDocument = parsePersonDocument(firstOrNull.parsedText.fixMrzErrors())
+        val personDocument = extractFromId(firstOrNull.textOverlay)
         onDocumentScanResult(personDocument)
     }
 
-    private fun onDocumentScanResult(value: PersonDocument) {
-        if (value.documentId == null) return
-        println("documentId: ${value.documentId}")
-        println("result: $value")
+    private fun onDocumentScanResult(value: PersonDocument?) {
+        if (value == null) return
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
+        if (value.fullName.isEmpty() || value.documentId.isEmpty() || value.countryCode.isEmpty()) return
 
         updateState {
             copy(
                 passengers = passengers + PassengerFieldState(
                     id = TextFieldState(value.documentId),
-                    name = if (value.fullName != null)
+                    name = if (value.fullName.isNotEmpty())
                         TextFieldState(
                             initialText = value.fullName.split(" ")
                                 .joinToString(" ") { name ->
@@ -94,12 +90,14 @@ class HomeViewModel(
                         )
                     else
                         TextFieldState(),
-                    countryCode = TextFieldState(allCountries.firstOrNull {
-                        it.code.equals(
-                            other = value.countryCode?.lowercase(),
-                            ignoreCase = true
-                        )
-                    }?.code.orEmpty())
+                    countryCode = TextFieldState(
+                        allCountries.firstOrNull {
+                            it.code.equals(
+                                other = value.countryCode,
+                                ignoreCase = true
+                            )
+                        }?.code.orEmpty()
+                    )
                 )
             )
         }
