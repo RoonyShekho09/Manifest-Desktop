@@ -91,7 +91,7 @@ compose.desktop {
             }
 
             windows {
-                iconFile.set(project.file("src/jvmMain/composeResources/drawable/ic_jawharat.png"))
+                iconFile.set(project.file("src/jvmMain/composeResources/drawable/logo.ico"))
                 packageName = "Manifest"
                 menu = true
                 shortcut = true
