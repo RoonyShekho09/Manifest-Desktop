@@ -5,6 +5,51 @@ import com.jawharat.manifest.data.remote.model.ocr.TextOverlay
 import com.jawharat.manifest.utils.containsAny
 
 
+fun extractDocumentInfo(page: Page): DocumentInfo {
+    val markdown = page.markdown ?: return DocumentInfo(null, null)
+    val lines = markdown.lines().map { it.trim() }.filter { it.isNotEmpty() }
+
+    val documentId = extractDocumentId(lines)
+    val fullName = extractFullName(lines)
+
+    return DocumentInfo(
+        fullName = fullName,
+        documentId = documentId
+    )
+}
+
+private fun extractDocumentId(lines: List<String>): String? {
+    val documentIdRegex = Regex("""^[A-Z0-9]{8,}$""")
+    return lines.firstOrNull { documentIdRegex.matches(it) }
+}
+
+private fun extractFullName(lines: List<String>): String? {
+    val raw = lines
+        .windowed(2)
+        .firstOrNull { (current, _) ->
+            current.contains("الاسم") || current.contains("ناو")
+        }
+        ?.let { (current, next) ->
+            val inlineValue = current.substringAfterLast(":").trim()
+            inlineValue.ifEmpty { next }
+        } ?: return null
+
+    return cleanName(raw)
+}
+
+private fun cleanName(raw: String): String? {
+    val cleaned = raw
+        .replace(Regex("""[_\-*#!@$%^&()=+\[\]{}<>|\\/"']"""), " ")
+        .replace(Regex("""\d+"""), " ")
+        .replace(Regex("""[a-zA-Z]"""), " ")
+        .replace(Regex("""\s{2,}"""), " ")
+        .trim()
+
+    // Reject if result is too short or has no Arabic letters at all
+    val hasArabic = cleaned.any { it in '\u0600'..'\u06FF' }
+    return if (cleaned.length >= 2 && hasArabic) cleaned else null
+}
+
 fun extractFromId(overlay: TextOverlay?, fullNameMinimumLength: Int = 3): PersonDocument? {
     if (overlay == null || overlay.lines == null)
         return null
