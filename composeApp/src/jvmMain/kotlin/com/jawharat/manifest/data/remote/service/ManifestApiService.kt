@@ -22,7 +22,7 @@ import de.jensklingenberg.ktorfit.http.PUT
 import de.jensklingenberg.ktorfit.http.Path
 import io.ktor.client.statement.HttpResponse
 
-interface AppApiService {
+interface ManifestApiService {
 
     @POST("login")
     @Headers(NO_AUTH_HEADER)

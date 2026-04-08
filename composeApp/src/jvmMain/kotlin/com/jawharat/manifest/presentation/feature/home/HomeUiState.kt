@@ -5,6 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.jawharat.manifest.domain.entity.Manifest
 
+@Suppress("ArrayInDataClass")
 @Immutable
 data class HomeUiState(
     val isLoading: Boolean = false,
@@ -15,6 +16,7 @@ data class HomeUiState(
     val isAddPassengersDialogVisible: Boolean = false,
     val passengers: List<PassengerFieldState> = emptyList(),
     val pdfByteArray: ByteArray? = null,
+    val isDocumentScanningSoftwareInstalled: Boolean = true,
 ) {
     val isPassengersValid: Boolean get() = manifest.price != 10000 && passengers.isNotEmpty()
     val isSubmitEnabled: Boolean
@@ -24,11 +26,11 @@ data class HomeUiState(
 }
 
 @Stable
-class PassengerFieldState {
-    val id = TextFieldState("")
-    val name = TextFieldState("")
-    val country = TextFieldState("")
-}
+data class PassengerFieldState(
+    val id: TextFieldState = TextFieldState(""),
+    val name: TextFieldState = TextFieldState(""),
+    val countryCode: TextFieldState = TextFieldState("")
+)
 
 data class ScanState(
     val isVehicleScanned: Boolean = false,

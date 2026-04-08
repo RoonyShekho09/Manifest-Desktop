@@ -1,0 +1,179 @@
+package com.jawharat.manifest.presentation.feature.home.scanner
+
+import Pr22.DocumentReaderDevice
+import Pr22.Engine
+import Pr22.Events.DetectionEventArgs
+import Pr22.Events.DeviceUpdate
+import Pr22.Events.DocFrameFound
+import Pr22.Events.PageEventArgs
+import Pr22.Events.PresenceStateChanged
+import Pr22.Events.UpdateEventArgs
+import Pr22.Imaging.Light
+import Pr22.Imaging.PagePosition
+import Pr22.Processing.FieldId
+import Pr22.Processing.FieldSource
+import Pr22.Processing.Page
+import Pr22.Task.DocScannerTask
+import Pr22.Task.EngineTask
+import Pr22.Task.FreerunTask
+import Pr22.Task.TaskControl
+import Pr22.Util.PresenceState
+import PrIns.Exceptions.General
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromPassport
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.printDocFields
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.awt.image.BufferedImage
+
+interface IDocumentScanner {
+    val isSoftwareInstalled: Boolean
+    suspend fun scan(
+        onResult: (PersonDocument) -> Unit,
+        onPassportScanningFail: (BufferedImage) -> Unit
+    )
+
+    fun stop()
+}
+
+class DocumentScanner : IDocumentScanner {
+    override var isSoftwareInstalled: Boolean = true
+    private var device: DocumentReaderDevice? = null
+    private val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
+    private val engine: Engine? by lazy { device?.engine }
+    private var isDocumentPresent = false
+    private var isInitial = true
+    private var liveTask: TaskControl? = null
+    private var initialized = false
+    private var networkRequestInProgress: Boolean = false
+
+    init {
+        device = runCatching { DocumentReaderDevice() }
+            .onSuccess { isSoftwareInstalled = true }
+            .onFailure { isSoftwareInstalled = false }
+            .getOrNull()
+    }
+
+    private suspend fun ensureInitialized() {
+        if (initialized) return
+        withContext(Dispatchers.IO) {
+            device?.useDevice(0)
+            addScanEvents()
+            eventListener()
+            initialized = true
+        }
+    }
+
+    override suspend fun scan(
+        onResult: (PersonDocument) -> Unit,
+        onPassportScanningFail: (BufferedImage) -> Unit
+    ) {
+        ensureInitialized()
+
+        if (networkRequestInProgress) return
+
+        val scanner = device?.scanner
+
+        liveTask = scanner?.startTask(FreerunTask.detection())
+
+        if (!isDocumentPresent) return
+
+        val scanTask = DocScannerTask()
+        scanTask.add(Light.White).add(Light.Infra)
+        val docPage = scanner?.scan(scanTask, PagePosition.First)
+
+        try {
+            docPage?.let {
+                analyzeWithMrz(
+                    docPage = docPage,
+                    onResult = onResult,
+                    onResultNotFound = onPassportScanningFail
+                )
+            }
+        } finally {
+            scanner?.cleanUpLastPage()
+            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
+            docPage?.del(Light.All)
+            scanner?.cleanUpData()
+            liveTask?.Stop()
+            isDocumentPresent = false
+        }
+    }
+
+    override fun stop() {
+        runCatching {
+            device?.scanner?.let { scanner ->
+                scanner.cleanUpLastPage()
+                scanner.cleanUpData()
+            }
+            device?.close()
+        }.onFailure {
+            println("Stop failed: $it")
+        }
+        isDocumentPresent = false
+        liveTask?.Stop()
+        isInitial = true
+        initialized = false
+    }
+
+    private fun analyzeWithMrz(
+        docPage: Page,
+        onResult: (PersonDocument) -> Unit,
+        onResultNotFound: (BufferedImage) -> Unit
+    ) {
+        val mrzDoc = engine?.analyze(docPage, mrzReadingTask)
+
+        if (mrzDoc?.fields?.isEmpty() == true) {
+            println("No fields found: ${mrzDoc.status}")
+            docPage.selectByIndex(0).toImage()?.let {
+                onResultNotFound(it)
+            }
+        }
+
+        mrzDoc?.let {
+            printDocFields(it)
+        }
+
+        mrzDoc?.let {
+            onResult(extractFromPassport(it))
+        }
+
+        mrzDoc?.toVariant()?.clear()
+    }
+
+    private fun eventListener() {
+        device?.addEventListener(
+            object : DeviceUpdate {
+                override fun onDeviceUpdate(e: UpdateEventArgs) {
+                    when (e.part) {
+                        1 -> println("  Reading calibration file from device.")
+                        2 -> println("  Scanner firmware update.")
+                        4 -> println("  RFID reader firmware update.")
+                        5 -> println("  License update.")
+                    }
+                }
+            }
+        )
+    }
+
+    @Throws(General::class)
+    private fun addScanEvents() {
+        var called = false
+        device?.addEventListener(
+            object : PresenceStateChanged {
+                override fun onStateChanged(e: DetectionEventArgs) {
+                    if (e.state == PresenceState.NoMove) {
+                        if (!called) {
+                            println("Not moving")
+                            isDocumentPresent = true
+                            called = true
+                        }
+                        called = true
+                    } else {
+                        called = false
+                    }
+                }
+            }
+        )
+    }
+}

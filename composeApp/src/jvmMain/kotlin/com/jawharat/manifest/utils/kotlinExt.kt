@@ -37,3 +37,5 @@ fun String.normalizeArabicKurdish(): String = run {
     replace('ح', 'ح')
     replace('ه', 'ة')
 }
+
+fun String.containsAny(vararg other: String): Boolean = other.any { contains(it) }

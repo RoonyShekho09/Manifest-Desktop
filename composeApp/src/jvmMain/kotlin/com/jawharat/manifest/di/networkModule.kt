@@ -1,10 +1,12 @@
 package com.jawharat.manifest.di
 
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
-import com.jawharat.manifest.data.remote.service.AppApiService
+import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.data.remote.service.AppPdfApiService
-import com.jawharat.manifest.data.remote.service.createAppApiService
+import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.data.remote.service.createAppPdfApiService
+import com.jawharat.manifest.data.remote.service.createManifestApiService
+import com.jawharat.manifest.data.remote.service.createOcrApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
 import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
 import de.jensklingenberg.ktorfit.converter.ResponseConverterFactory
@@ -25,12 +27,13 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 const val BASE_URL = "http://192.168.0.150/"
+const val OCR_BASE_URL = "https://ocr.space/"
 
 val networkModule = module {
 
     single { AuthInterceptor(get()) }
 
-    single<AppApiService> {
+    single<ManifestApiService> {
         ktorfit {
             baseUrl(url = BASE_URL)
             httpClient(client = get(named("manifestClient")))
@@ -40,7 +43,20 @@ val networkModule = module {
                 CallConverterFactory(),
                 ResponseConverterFactory()
             )
-        }.createAppApiService()
+        }.createManifestApiService()
+    }
+
+    single<OcrApiService> {
+        ktorfit {
+            baseUrl(url = OCR_BASE_URL)
+            httpClient(client = get(named("manifestClient")))
+
+            converterFactories(
+                FlowConverterFactory(),
+                CallConverterFactory(),
+                ResponseConverterFactory()
+            )
+        }.createOcrApiService()
     }
 
     single<AppPdfApiService> {
@@ -54,6 +70,41 @@ val networkModule = module {
                 ResponseConverterFactory()
             )
         }.createAppPdfApiService()
+    }
+
+    single(named("mistralClient")) {
+        HttpClient {
+            expectSuccess = false
+            followRedirects = true
+
+            defaultRequest {
+                header("Content-Type", "application/json")
+            }
+
+            val json = Json {
+                isLenient = true
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+                explicitNulls = false
+                encodeDefaults = true // Add this line
+            }
+
+            install(ContentNegotiation) {
+                json(json, ContentType.Application.Json)
+            }
+
+            install(DefaultRequest) {
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+
+            install(Logging) {
+                level = LogLevel.BODY
+                logger = object : Logger {
+                    override fun log(message: String) =
+                        println("HttpClient $message")
+                }
+            }
+        }
     }
 
     single(named("pdfClient")) {

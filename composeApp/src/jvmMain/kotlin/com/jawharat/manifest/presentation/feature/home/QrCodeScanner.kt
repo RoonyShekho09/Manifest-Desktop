@@ -8,8 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.github.sarxos.webcam.Webcam
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
@@ -22,62 +20,58 @@ import com.google.zxing.common.GlobalHistogramBinarizer
 import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.awt.image.RescaleOp
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
+@OptIn(ExperimentalAtomicApi::class)
 @Composable
 fun QrCodeScanner(
     onResult: (String) -> Unit,
-    onFrame: (ImageBitmap) -> Unit,
+    onCameraReady: () -> Unit,
 ) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
     var frameCount by remember { mutableStateOf(0) }
     val onResultRef by rememberUpdatedState(onResult)
 
+    var isRunning by remember { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
+            val cam = Webcam.getDefault() ?: run {
+                withContext(Dispatchers.Main) { println("❌ No camera found") }
+                return@withContext
+            }
             try {
-                val cam = Webcam.getDefault() ?: run {
-                    withContext(Dispatchers.Main) { println("❌ No camera found") }
-                    return@withContext
-                }
-                cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
+                if (!cam.isOpen)
+                    cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
                 cam.open()
                 delay(1000)
 
                 withContext(Dispatchers.Main) {
                     webcam = cam
-                    isLoading = false
                 }
 
-                while (true) {
+                onCameraReady()
+
+                while (isActive && isRunning) {
                     val image = cam.image ?: run {
                         withContext(Dispatchers.Main) { println("⚠️ Got null frame") }
                         continue
                     }
 
-                    val snapshot =
-                        BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB).also {
-                            it.createGraphics().apply {
-                                drawImage(image, 0, 0, null)
-                                dispose()
-                            }
-                        }
+                    val scaled = scaleImage(image)
+                    val contrasted = increaseContrast(scaled)
 
-                    onFrame(snapshot.toComposeImageBitmap())
+                    val result = decodeQrCode(contrasted)
 
                     withContext(Dispatchers.Main) {
                         frameCount++
                         println("📷 Frame #$frameCount | Size: ${image.width}x${image.height}")
                     }
-
-                    val scaled = scaleImage(snapshot)
-                    val contrasted = increaseContrast(scaled)
-
-                    val result = decodeQrCode(contrasted)
 
                     withContext(Dispatchers.Main) {
                         when (result) {
@@ -95,10 +89,9 @@ fun QrCodeScanner(
                             }
                         }
                     }
-                    delay(200)
+                    delay(1200)
                 }
             } catch (e: Exception) {
-                isLoading = false
                 withContext(Dispatchers.Main) {
                     println("💥 Exception: ${e.message}")
                 }
@@ -107,13 +100,12 @@ fun QrCodeScanner(
     }
 
     DisposableEffect(Unit) {
-        onDispose { webcam?.let { if (it.isOpen) it.close() } }
+        onDispose {
+            isRunning = false
+            println("close webcam")
+            webcam?.let { if (it.isOpen) it.close() }
+        }
     }
-
-//    Box(modifier = Modifier.fillMaxSize()) {
-//        if (isLoading)
-//            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-//    }
 }
 
 sealed class QRResult {

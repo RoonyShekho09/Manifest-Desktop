@@ -136,7 +136,7 @@ fun AddPassengersDialog(
                                 Column {
                                     Box {
                                         AppTextField(
-                                            state = passenger.country,
+                                            state = passenger.countryCode,
                                             //    placeholder = Res.string.country.string,
                                             modifier = Modifier.fillMaxWidth()
                                         )
@@ -155,8 +155,8 @@ fun AddPassengersDialog(
                                         onDismissRequest = { isDropDownExpanded = false },
                                         onSelect = {
                                             isDropDownExpanded = false
-                                            passenger.country.clearText()
-                                            passenger.country.edit { append(it.name) }
+                                            passenger.countryCode.clearText()
+                                            passenger.countryCode.edit { append(it.name) }
                                         },
                                         expanded = isDropDownExpanded
                                     )

@@ -7,12 +7,16 @@ import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
 import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
+import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
-import com.jawharat.manifest.data.remote.service.AppApiService
+import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.di.BASE_URL
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -25,12 +29,13 @@ import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
 
 class AppRemoteDataSourceImpl(
-    private val apiService: AppApiService,
-    private val httpClient: HttpClient,
+    private val manifestApiService: ManifestApiService,
+    private val pdfHttpClient: HttpClient,
+    private val mistralHttpClient: HttpClient,
 ) : AppRemoteDataSource {
 
     override suspend fun logout(): Boolean {
-        val response = apiService.logout()
+        val response = manifestApiService.logout()
         return response.isSuccessful
     }
 
@@ -38,7 +43,8 @@ class AppRemoteDataSourceImpl(
         email: String,
         password: String
     ): LoginResponse =
-        apiService.login(body = LoginRequestBody(username = email, password = password)).body()
+        manifestApiService.login(body = LoginRequestBody(username = email, password = password))
+            .body()
             ?: throw Exception()
 
     override suspend fun submitManifest(
@@ -51,7 +57,7 @@ class AppRemoteDataSourceImpl(
         passengers: List<Passenger>,
         driverId: String,
     ): ByteArray {
-        val response = httpClient.post(BASE_URL + "manifests") {
+        val response = pdfHttpClient.post(BASE_URL + "manifests") {
             header(HttpHeaders.Accept, "application/pdf")
             contentType(ContentType.Application.Json)
             setBody(
@@ -80,7 +86,7 @@ class AppRemoteDataSourceImpl(
         name: String?,
         phoneNumber: String?,
         destination: String?
-    ) = apiService.addDriver(
+    ) = manifestApiService.addDriver(
         body = AddDriverRequestBody(
             driverId = driverId,
             name = name,
@@ -96,7 +102,7 @@ class AppRemoteDataSourceImpl(
         price: Int?,
         driverId: String?,
         line: String?
-    ) = apiService.addVehicle(
+    ) = manifestApiService.addVehicle(
         body = AddVehicleRequestBody(
             vehicleNumber = vehicleNumber,
             type = type,
@@ -114,7 +120,7 @@ class AppRemoteDataSourceImpl(
         destination: String?,
         id: String
     ) {
-        val result = apiService.editDriver(
+        val result = manifestApiService.editDriver(
             body = AddDriverRequestBody(
                 driverId = driverId,
                 name = name,
@@ -135,7 +141,7 @@ class AppRemoteDataSourceImpl(
         driverId: String?,
         line: String?,
         id: String
-    ) = apiService.editVehicle(
+    ) = manifestApiService.editVehicle(
         body = AddVehicleRequestBody(
             vehicleNumber = vehicleNumber,
             type = type,
@@ -148,23 +154,41 @@ class AppRemoteDataSourceImpl(
     ).body() ?: throw Exception()
 
     override suspend fun getLines(): List<LineResponse> =
-        apiService.getLines().body() ?: throw Exception()
+        manifestApiService.getLines().body() ?: throw Exception()
 
     override suspend fun getDispatches(): List<DispatchResponse> =
-        apiService.getVehicles().body() ?: throw Exception()
+        manifestApiService.getVehicles().body() ?: throw Exception()
 
     override suspend fun scanManifestQrCode(id: String) =
-        apiService.scanManifestQrCode(id).body() ?: throw Exception()
+        manifestApiService.scanManifestQrCode(id).body() ?: throw Exception()
 
     override suspend fun scanDriverQrCode(id: String) =
-        apiService.scanDriverQrCode(id).body() ?: throw Exception()
+        manifestApiService.scanDriverQrCode(id).body() ?: throw Exception()
 
     override suspend fun scanDispatchQrCode(id: String) =
-        apiService.scanVehicleQrCode(id).body() ?: throw Exception()
+        manifestApiService.scanVehicleQrCode(id).body() ?: throw Exception()
 
     override suspend fun getDrivers(): List<DriverResponse> =
-        apiService.getDrivers().body() ?: throw Exception()
+        manifestApiService.getDrivers().body() ?: throw Exception()
 
     override suspend fun getVehicleTypes(): List<VehicleRemote> =
-        apiService.getVehicleTypes().body() ?: throw Exception()
+        manifestApiService.getVehicleTypes().body() ?: throw Exception()
+
+    override suspend fun ocr(image: String, engine: String): OcrResponse {
+        val multipart = MultiPartFormDataContent(
+            formData {
+                append("apikey", "0cd0e66ab388957")
+                append("language", "auto")
+                append("OCREngine", 2)
+                append("base64Image", image)
+                append("isOverlayRequired", true)
+                append("scale", true)
+                append("detectOrientation", true)
+            }
+        )
+
+        return mistralHttpClient.post("https://api.ocr.space/parse/image") {
+            setBody(multipart)
+        }.body<OcrResponse>()
+    }
 }
