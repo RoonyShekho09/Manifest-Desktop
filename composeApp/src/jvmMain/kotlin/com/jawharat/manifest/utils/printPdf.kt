@@ -7,11 +7,15 @@ import java.awt.print.PageFormat
 import java.awt.print.Pageable
 import java.awt.print.Printable
 import java.awt.print.PrinterJob
+import javax.print.PrintService
 import javax.print.attribute.HashPrintRequestAttributeSet
 import javax.print.attribute.standard.JobName
 import javax.print.attribute.standard.MediaSizeName
 import javax.print.attribute.standard.PageRanges
 import javax.print.attribute.standard.PrintQuality
+import javax.print.attribute.standard.PrinterState
+import javax.print.attribute.standard.PrinterStateReasons
+import javax.print.attribute.standard.Severity
 import javax.print.attribute.standard.Sides
 
 fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
@@ -49,7 +53,16 @@ fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
 
             if (printerJob.printDialog(attributes)) {
                 onStatusChange("Printing started...")
+
+                val pollJob = Thread {
+                    repeat(20) {
+                        Thread.sleep(2000)
+                        printerJob.printService?.let { pollPrinterStatus(it, onStatusChange) }
+                    }
+                }.also { it.isDaemon = true; it.start() }
+
                 printerJob.print(attributes)
+                pollJob.interrupt()
                 onStatusChange("Success: Sent to spooler.")
             } else {
                 onStatusChange("User cancelled the print dialog.")
@@ -60,3 +73,25 @@ fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
         e.printStackTrace()
     }
 }
+
+fun pollPrinterStatus(printService: PrintService, onStatusChange: (String) -> Unit) {
+    val attrs = printService.attributes
+
+    val state = attrs.get(PrinterState::class.java) as? PrinterState
+    val reasons = attrs.get(PrinterStateReasons::class.java) as? PrinterStateReasons
+
+    when (state) {
+        PrinterState.IDLE -> onStatusChange("Printer is idle.")
+        PrinterState.PROCESSING -> onStatusChange("Printer is processing.")
+        PrinterState.STOPPED -> {
+            val detail = reasons?.entries
+                ?.filter { it.value == Severity.REPORT || it.value == Severity.WARNING || it.value == Severity.ERROR }
+                ?.joinToString { "${it.key} (${it.value})" }
+                ?: "Unknown reason"
+            onStatusChange("Printer stopped: $detail")
+        }
+
+        else -> onStatusChange("Printer state unknown.")
+    }
+}
+

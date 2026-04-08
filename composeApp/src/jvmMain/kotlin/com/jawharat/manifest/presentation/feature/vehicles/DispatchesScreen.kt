@@ -123,7 +123,8 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                         AppTextField(
-                            state = query,
+                            value  = query,
+                            onValueChange = viewModel::onDispatchSearchStateChange,
                             placeholder = Res.string.search_driver_placeholder.string,
                             modifier = Modifier.width(400.dp)
                         )
@@ -166,15 +167,16 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
 
     if (state.isDialogVisible)
         AddEditDispatchDialog(
-            drivers = state.filteredDrivers,
-            isAddEditEnabled = state.dispatchToAdd?.isAddEditEnabled == true || state.dispatchToEdit?.isAddEditEnabled == true,
+            drivers = state.driverSearchState.searchResults,
             driverSearchQuery = state.driverSearchState.query,
             vehicleTypeSearchQuery = state.vehicleTypeSearchState.query,
             vehicleToEdit = state.dispatchToEdit,
-            vehiclesTypes = state.filteredVehicleTypes,
+            vehiclesTypes = state.vehicleTypeSearchState.searchResults,
             lines = state.lines,
             onDismiss = viewModel::onDismissDialog,
-            onConfirm = viewModel::onConfirmAddEditVehicle,
+            onConfirm = viewModel::onConfirmAddEditDispatch,
+            onVehicleTypeSearchQueryChange = viewModel::onVehicleTypeSearchQueryChange,
+            onDriverSearchQueryChange = viewModel::onDriverSearchQueryChange,
         )
 }
 

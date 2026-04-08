@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Card
@@ -30,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,18 +68,24 @@ fun AddEditDispatchDialog(
     lines: List<Line>,
     vehiclesTypes: List<VehicleType>,
     drivers: List<Driver>,
-    vehicleTypeSearchQuery: TextFieldState,
-    driverSearchQuery: TextFieldState,
-    isAddEditEnabled: Boolean = true,
+    vehicleTypeSearchQuery: String,
+    driverSearchQuery: String,
     onDismiss: () -> Unit,
     onConfirm: (DispatchUiState?) -> Unit,
+    onVehicleTypeSearchQueryChange: (String) -> Unit,
+    onDriverSearchQueryChange: (String) -> Unit,
 ) {
-    val driverName = rememberTextFieldState(initialText = vehicleToEdit?.driverName.orEmpty())
+    val driverName by remember { mutableStateOf(vehicleToEdit?.driverName.orEmpty()) }
     val price = rememberTextFieldState(initialText = vehicleToEdit?.price.orEmpty())
     val plateNumber = rememberTextFieldState(initialText = vehicleToEdit?.plateNumber.orEmpty())
     var vehicleType by remember { mutableStateOf(vehicleToEdit?.vehicleType.orEmpty()) }
     val type = rememberTextFieldState(initialText = vehicleToEdit?.type.orEmpty())
     var line by remember { mutableStateOf(vehicleToEdit?.line ?: Line("", "")) }
+    val isConfirmEnabled by rememberUpdatedState(
+        driverName.isNotBlank() && price.text.isNotBlank()
+                && plateNumber.text.isNotBlank() && vehicleType.isNotBlank()
+                && type.text.isNotBlank()
+    )
 
     val isEdit = vehicleToEdit != null
 
@@ -106,8 +111,9 @@ fun AddEditDispatchDialog(
                     DropDownTextField(
                         query = driverSearchQuery,
                         data = drivers.map { it.name },
-                        selection = driverName.text.toString(),
                         placeholder = Res.string.driver.string,
+                        initialValue = driverName,
+                        onQueryChange = onDriverSearchQueryChange,
                     )
 
                     AppTextField(
@@ -122,7 +128,8 @@ fun AddEditDispatchDialog(
                         query = vehicleTypeSearchQuery,
                         data = vehiclesTypes.map { it.name },
                         placeholder = Res.string.vehicle_type.string,
-                        selection = vehicleType
+                        initialValue = vehicleType,
+                        onQueryChange = onVehicleTypeSearchQueryChange
                     )
 
                     AppTextField(
@@ -137,7 +144,7 @@ fun AddEditDispatchDialog(
                         data = lines.map { it.name },
                         readOnly = true,
                         placeholder = Res.string.line_label.string,
-                        selection = line.name
+                        initialValue = line.name
                     )
                 }
 
@@ -176,7 +183,8 @@ fun AddEditDispatchDialog(
                                         vehicleType = vehicleType,
                                         type = type.text.toString(),
                                         line = line,
-                                        price = vehicleToEdit.price
+                                        price = vehicleToEdit.price,
+                                        driverName = driverName
                                     )
                                 )
                             else
@@ -191,7 +199,7 @@ fun AddEditDispatchDialog(
                                     )
                                 )
                         },
-                        enabled = isAddEditEnabled,
+                        enabled = isConfirmEnabled,
                         modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Text(text = if (isEdit) Res.string.save_changes.string else Res.string.confirm.string)
@@ -204,10 +212,11 @@ fun AddEditDispatchDialog(
 
 @Composable
 private fun DropDownTextField(
-    query: TextFieldState = rememberTextFieldState(),
+    query: String = "",
+    onQueryChange: (String) -> Unit = {},
     data: List<String>,
     placeholder: String,
-    selection: String,
+    initialValue: String,
     readOnly: Boolean = false,
 ) {
     var isVehicleTypeDropDownVisible by remember { mutableStateOf(false) }
@@ -223,27 +232,28 @@ private fun DropDownTextField(
         isVehicleTypeDropDownVisible = false
     }
 
-    LaunchedEffect(query.text) {
+    LaunchedEffect(query) {
         if (justSelected) {
             justSelected = false
             return@LaunchedEffect
         }
-        if (query.text.length >= 3 && query.text != selection)
+
+        if (query.length >= 3 && query != initialValue)
             showDropDown()
         else
             hideDropDown()
     }
 
-    LaunchedEffect(selection) {
-        query.clearText()
-        query.edit { append(selection) }
+    LaunchedEffect(initialValue) {
+        onQueryChange(initialValue)
         hideDropDown()
         focusRequester.freeFocus()
     }
 
     Column {
         AppTextField(
-            state = query,
+            value = query,
+            onValueChange = onQueryChange,
             placeholder = placeholder,
             readOnly = readOnly,
             modifier = Modifier
@@ -269,8 +279,7 @@ private fun DropDownTextField(
                     text = { Text(text = item) },
                     onClick = {
                         justSelected = true
-                        query.clearText()
-                        query.edit { append(item) }
+                        onQueryChange(item)
                         hideDropDown()
                     }
                 )

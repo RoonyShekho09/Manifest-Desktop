@@ -1,6 +1,5 @@
 package com.jawharat.manifest.presentation.feature.drivers
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.entity.Driver
@@ -18,7 +17,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlin.collections.filter
 import kotlin.uuid.ExperimentalUuidApi
 
-class DriversViewModel(private val repository: ManifestRepository) :
+class DriversViewModel(
+    private val repository: ManifestRepository,
+    private val snackBarHostState: AppSnackBarHostState
+) :
     BaseViewModel<DriverUiState, Unit>(DriverUiState()) {
 
     init {
@@ -29,6 +31,9 @@ class DriversViewModel(private val repository: ManifestRepository) :
             onEmptyStateUpdater = { copy(searchState = searchState.copy(searchResults = drivers)) }
         )
     }
+
+    fun onDriverQueryChange(value: String) =
+        updateState { copy(searchState = searchState.copy(query = value)) }
 
     fun onConfirmAddEditDriver(value: Driver?) {
         if (value != null)
@@ -62,7 +67,9 @@ class DriversViewModel(private val repository: ManifestRepository) :
             initializeDrivers(fetch = true)
             updateState { copy(searchState = SearchState()) }
         },
-        onError = { }
+        onError = {
+            //    snackBarHostState.showFailure(Res.string.failed_to_add_driver)
+        }
     )
 
     fun editDriver(value: Driver?) = tryToExecute(
@@ -136,12 +143,12 @@ class DriversViewModel(private val repository: ManifestRepository) :
     fun onDismissDialog() = updateState { copy(isDialogVisible = false) }
 
     @OptIn(FlowPreview::class)
-    fun TextFieldState.initializeSearch(
+    fun String.initializeSearch(
         onSearch: (query: String) -> Unit,
         minQueryLength: Int = 3,
         debounceIntervalMs: Long = 300,
         onEmptyStateUpdater: DriverUiState.() -> DriverUiState,
-    ) = snapshotFlow { this.text.toString() }
+    ) = snapshotFlow { this }
         .onEach { if (it.isEmpty()) updateState(updater = onEmptyStateUpdater) }
         .debounce(timeoutMillis = debounceIntervalMs)
         .map(String::trim)

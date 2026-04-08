@@ -1,8 +1,6 @@
 package com.jawharat.manifest.utils
 
-import androidx.compose.ui.text.font.FontVariation
 import com.jawharat.manifest.data.local.datasource.AppSettings
-import com.jawharat.manifest.data.local.datasource.AppSettings.getString
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 

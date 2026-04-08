@@ -10,7 +10,7 @@ import com.jawharat.manifest.db.VehicleRecord
 
 interface AppLocalDataSource {
     val token: String?
-    val hasTokenExpired: Boolean
+    val hasSessionExpired: Boolean
     val lastUsedEmail: String?
     fun storeLoginSession(value: LoginSessionLocal)
     fun storeLastUsedEmail(value: String)

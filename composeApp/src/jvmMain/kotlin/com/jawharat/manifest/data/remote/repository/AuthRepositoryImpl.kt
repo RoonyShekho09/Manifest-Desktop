@@ -17,6 +17,9 @@ class AuthRepositoryImpl(
     override val isUserLoggedIn: Boolean
         get() = !localDataSource.token.isNullOrEmpty()
 
+    override val hasSessionExpired: Boolean
+        get() = localDataSource.hasSessionExpired
+
     override val lastUsedEmail: String
         get() = localDataSource.lastUsedEmail.orEmpty()
 

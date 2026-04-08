@@ -22,7 +22,7 @@ class AppLocalDataSourceImpl(
     override val token: String?
         get() = settings.getObject<LoginSessionLocal>(LOGIN_SESSION_KEY)?.token
 
-    override val hasTokenExpired: Boolean
+    override val hasSessionExpired: Boolean
         get() = settings.getObject<LoginSessionLocal>(LOGIN_SESSION_KEY)?.isExpired == true
 
     override val lastUsedEmail: String?

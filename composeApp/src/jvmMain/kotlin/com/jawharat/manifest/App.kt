@@ -41,7 +41,7 @@ fun App() {
         CompositionLocalProvider(
             LocalLayoutDirection provides LayoutDirection.Rtl
         ) {
-            AppNavigation(startDestination = if (repository.isUserLoggedIn) Screen.Home else Screen.Login)
+            AppNavigation(startDestination = if (repository.isUserLoggedIn && !repository.hasSessionExpired) Screen.Home else Screen.Home)
         }
     }
 }

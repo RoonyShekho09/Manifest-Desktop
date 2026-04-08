@@ -113,6 +113,15 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         onSuccess = { updateState { copy(vehicleTypes = it) } }
     )
 
+    fun onDriverSearchQueryChange(value: String) =
+        updateState { copy(driverSearchState = driverSearchState.copy(query = value)) }
+
+    fun onVehicleTypeSearchQueryChange(value: String) =
+        updateState { copy(vehicleTypeSearchState = vehicleTypeSearchState.copy(query = value)) }
+
+    fun onDispatchSearchStateChange(value: String) =
+        updateState { copy(dispatchSearchState = dispatchSearchState.copy(query = value)) }
+
     fun onConfirmAddEditDispatch(value: DispatchUiState?) {
         if (state.value.dispatchToEdit != null)
             editDispatch(value)
@@ -232,12 +241,12 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
     fun onDismissDialog() = updateState { copy(isDialogVisible = false) }
 
     @OptIn(FlowPreview::class)
-    fun TextFieldState.initializeSearch(
+    fun String.initializeSearch(
         onSearch: (query: String) -> Unit,
         minQueryLength: Int = 3,
         debounceIntervalMs: Long = 300,
         onEmptyStateUpdater: DispatchesUiState.() -> DispatchesUiState,
-    ) = snapshotFlow { this.text.toString() }
+    ) = snapshotFlow { this }
         .onEach { if (it.isEmpty()) updateState(updater = onEmptyStateUpdater) }
         .debounce(timeoutMillis = debounceIntervalMs)
         .map(String::trim)

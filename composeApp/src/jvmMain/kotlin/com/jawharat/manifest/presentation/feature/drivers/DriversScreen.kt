@@ -125,7 +125,8 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                         AppTextField(
-                            state = query,
+                            value = query,
+                            onValueChange = viewModel::onDriverQueryChange,
                             placeholder = Res.string.search_placeholder.string,
                             modifier = Modifier.width(400.dp)
                         )
