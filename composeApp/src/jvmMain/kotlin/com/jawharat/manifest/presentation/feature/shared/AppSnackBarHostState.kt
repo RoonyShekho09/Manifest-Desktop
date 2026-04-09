@@ -8,6 +8,8 @@ import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.ic_check
 import com.jawharat.manifest.resources.ic_warning
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 
 class AppSnackBarHostState(val nativeHostState: SnackbarHostState) {
 
@@ -17,9 +19,13 @@ class AppSnackBarHostState(val nativeHostState: SnackbarHostState) {
         nativeHostState.showSnackbar(visuals)
     }
 
-    suspend fun showFailure(message: String) {
+    suspend fun showFailure(message: StringResource) {
         val visuals =
-            AppSnackBarVisuals(message = message, icon = Res.drawable.ic_warning, isError = true)
+            AppSnackBarVisuals(
+                message = getString(message),
+                icon = Res.drawable.ic_warning,
+                isError = true
+            )
         nativeHostState.showSnackbar(visuals)
     }
 }

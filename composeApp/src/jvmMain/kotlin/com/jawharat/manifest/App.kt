@@ -39,7 +39,7 @@ fun App() {
     Sentry.init { options ->
         options.dsn =
             "https://c540b9e616e448c84ff4d2e200429d5b@o4511178272997376.ingest.de.sentry.io/4511178413834320"
-        options.debug = true
+        options.debug = false
         options.sendDefaultPii = true
     }
 
@@ -49,7 +49,7 @@ fun App() {
         CompositionLocalProvider(
             LocalLayoutDirection provides LayoutDirection.Rtl
         ) {
-            AppNavigation(startDestination = if (repository.isUserLoggedIn && !repository.hasSessionExpired) Screen.Home else Screen.Home)
+            AppNavigation(startDestination = if (repository.isUserLoggedIn && !repository.hasSessionExpired) Screen.Home else Screen.Login)
         }
     }
 }

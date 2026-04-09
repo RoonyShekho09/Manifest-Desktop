@@ -1,6 +1,7 @@
 package com.jawharat.manifest.presentation.feature.home.scanner
 
 import Pr22.DocumentReaderDevice
+import Pr22.DocumentReaderDevice.getDeviceList
 import Pr22.Engine
 import Pr22.Events.DetectionEventArgs
 import Pr22.Events.DeviceUpdate
@@ -20,8 +21,13 @@ import PrIns.Exceptions.General
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromPassport
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.printDocFields
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
@@ -30,7 +36,7 @@ interface IDocumentScanner {
     val isSoftwareInstalled: Boolean
     suspend fun scan(
         onResult: (PersonDocument) -> Unit,
-        onPassportScanningFail: (BufferedImage) -> Unit
+        onScan: (BufferedImage) -> Unit
     )
 
     fun stop()
@@ -42,10 +48,12 @@ class DocumentScanner : IDocumentScanner {
     private val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
     private val engine: Engine? by lazy { device?.engine }
     private var isDocumentPresent = false
-    private var isInitial = true
     private var liveTask: TaskControl? = null
     private var initialized = false
     private var networkRequestInProgress: Boolean = false
+    private var isRunning: Boolean = false
+    private val initMutex = Mutex()
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     init {
         device = runCatching { DocumentReaderDevice() }
@@ -55,13 +63,21 @@ class DocumentScanner : IDocumentScanner {
     }
 
     private suspend fun ensureInitialized() {
-        if (initialized) return
-        withContext(Dispatchers.IO) {
-            waitForDevice()
-            device?.useDevice(0)
-            addScanEvents()
-            eventListener()
-            initialized = true
+        initMutex.withLock {
+            if (initialized) return@withLock
+
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    waitForDevice()
+                    device?.useDevice(0)
+                    isRunning = true
+                    addScanEvents()
+                    eventListener()
+                    initialized = true
+                }.onFailure { e ->
+                    println("Initialization failed: ${e.message}")
+                }
+            }
         }
     }
 
@@ -75,10 +91,9 @@ class DocumentScanner : IDocumentScanner {
 
     override suspend fun scan(
         onResult: (PersonDocument) -> Unit,
-        onPassportScanningFail: (BufferedImage) -> Unit
+        onScan: (BufferedImage) -> Unit
     ) {
         ensureInitialized()
-
         if (networkRequestInProgress) return
 
         val scanner = device?.scanner
@@ -91,12 +106,14 @@ class DocumentScanner : IDocumentScanner {
         scanTask.add(Light.White).add(Light.Infra)
         val docPage = scanner?.scan(scanTask, PagePosition.First)
 
+        docPage?.selectByIndex(0)?.toImage()?.let { onScan(it) }
+
         try {
             docPage?.let {
                 analyzeWithMrz(
                     docPage = docPage,
                     onResult = onResult,
-                    onResultNotFound = onPassportScanningFail
+                    onResultNotFound = { }
                 )
             }
         } finally {
@@ -109,20 +126,25 @@ class DocumentScanner : IDocumentScanner {
         }
     }
 
+    private val stopMutex = Mutex()
+
     override fun stop() {
-        runCatching {
-            device?.scanner?.let { scanner ->
-                scanner.cleanUpLastPage()
-                scanner.cleanUpData()
+        scope.launch {
+            stopMutex.withLock {
+                runCatching {
+                    device?.scanner?.let { scanner ->
+                        scanner.cleanUpLastPage()
+                        scanner.cleanUpData()
+                    }
+                    device?.close()
+                }.onFailure {
+                    println("Stop failed: $it")
+                }
+                isDocumentPresent = false
+                liveTask?.Stop()
+                initialized = false
             }
-            device?.close()
-        }.onFailure {
-            println("Stop failed: $it")
         }
-        isDocumentPresent = false
-        liveTask?.Stop()
-        isInitial = true
-        initialized = false
     }
 
     private fun analyzeWithMrz(
@@ -133,7 +155,6 @@ class DocumentScanner : IDocumentScanner {
         val mrzDoc = engine?.analyze(docPage, mrzReadingTask)
 
         if (mrzDoc?.fields?.isEmpty() == true) {
-            println("No fields found: ${mrzDoc.status}")
             docPage.selectByIndex(0).toImage()?.let {
                 onResultNotFound(it)
             }

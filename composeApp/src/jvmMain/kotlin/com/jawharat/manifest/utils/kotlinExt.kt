@@ -13,7 +13,6 @@ inline fun <reified T> AppSettings.getObject(key: String): T? {
 }
 
 inline fun <reified T> String?.fromJson(): T? = runCatching {
-    println("this: $this")
     Json.decodeFromString<T>(this ?: "")
 }.onFailure {
     println("Failed to convert JsonString to ${T::class.simpleName}")

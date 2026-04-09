@@ -57,7 +57,7 @@ class LoginViewModel(
             emitEvent(LoginUiEvent.OnNavigateToHome)
         },
         onError = {
-            snackBar.showFailure(message = getString(Res.string.login_failed))
+            snackBar.showFailure(message = Res.string.login_failed)
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )

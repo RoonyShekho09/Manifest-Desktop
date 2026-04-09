@@ -45,7 +45,7 @@ class HomeViewModel(
                 if (!isAnalyzingId) {
                     documentScanner.scan(
                         onResult = ::onDocumentScanResult,
-                        onPassportScanningFail = {
+                        onScan = {
                             val processedImage = preprocessImage(it)
                             performIdOcr(processedImage)
                         }
@@ -66,7 +66,6 @@ class HomeViewModel(
     )
 
     private fun onIdCardOcrResult(firstOrNull: ParsedResult?) {
-        extractFromId(overlay = firstOrNull?.textOverlay)
         if (firstOrNull?.parsedText == null) return
         val personDocument = extractFromId(firstOrNull.textOverlay)
         onDocumentScanResult(personDocument)
