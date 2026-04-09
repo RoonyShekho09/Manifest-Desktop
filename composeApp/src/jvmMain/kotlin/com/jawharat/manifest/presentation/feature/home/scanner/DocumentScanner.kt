@@ -4,8 +4,6 @@ import Pr22.DocumentReaderDevice
 import Pr22.Engine
 import Pr22.Events.DetectionEventArgs
 import Pr22.Events.DeviceUpdate
-import Pr22.Events.DocFrameFound
-import Pr22.Events.PageEventArgs
 import Pr22.Events.PresenceStateChanged
 import Pr22.Events.UpdateEventArgs
 import Pr22.Imaging.Light
@@ -23,7 +21,9 @@ import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocum
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromPassport
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.printDocFields
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
 
 interface IDocumentScanner {
@@ -57,12 +57,21 @@ class DocumentScanner : IDocumentScanner {
     private suspend fun ensureInitialized() {
         if (initialized) return
         withContext(Dispatchers.IO) {
+            waitForDevice()
             device?.useDevice(0)
             addScanEvents()
             eventListener()
             initialized = true
         }
     }
+
+    private suspend fun waitForDevice(timeout: Long = 120_000) =
+        withTimeout(timeout) {
+            while (true) {
+                if (getDeviceList().isNotEmpty()) break
+                delay(1000)
+            }
+        }
 
     override suspend fun scan(
         onResult: (PersonDocument) -> Unit,
