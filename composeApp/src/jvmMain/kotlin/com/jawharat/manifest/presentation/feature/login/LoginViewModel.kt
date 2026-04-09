@@ -20,6 +20,7 @@ class LoginViewModel(
         initializeSavedCredentials()
     }
 
+    fun onSaveCredentialsChange(value: Boolean) = updateState { copy(saveCredentials = value) }
     private fun initializeSavedCredentials() {
         runCatching {
             keyring.use { keyring ->
@@ -44,13 +45,15 @@ class LoginViewModel(
             )
         },
         onSuccess = {
-            keyring.getKeyring().use { keyring ->
-                keyring?.setPassword(
-                    "jawharat-erbil",
-                    state.value.emailState.text.toString(),
-                    state.value.passwordState.text.toString()
-                )
-            }
+            if (state.value.saveCredentials)
+                keyring.getKeyring().use { keyring ->
+                    keyring?.setPassword(
+                        "jawharat-erbil",
+                        state.value.emailState.text.toString(),
+                        state.value.passwordState.text.toString()
+                    )
+                }
+
             emitEvent(LoginUiEvent.OnNavigateToHome)
         },
         onError = {

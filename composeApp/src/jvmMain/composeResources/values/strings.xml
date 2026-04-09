@@ -103,4 +103,5 @@
     <string name="submit_manifest">پێشکەشکردنی لیستی بار</string>
     <string name="scanner_required">بەرنامەی سکانکردنی دۆکیۆمێنت پێویستە.</string>
     <string name="install_now">ئێستا دایبەزێنە</string>
+    <string name="save_credentials">پاشەکەوتکردنی زانیارییەکان</string>
 </resources>
