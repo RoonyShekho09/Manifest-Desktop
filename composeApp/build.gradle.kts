@@ -69,14 +69,14 @@ tasks.withType<Jar> {
 
 compose.desktop {
     application {
-        mainClass = "com.example.myapplication.MainKt"
+        mainClass = "com.jawharat.manifest.MainKt"
         jvmArgs("-Xss2m")
 
         nativeDistributions {
-            modules("java.instrument", "java.management", "jdk.unsupported")
+            modules("java.instrument", "java.management", "jdk.unsupported", "java.sql")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 
-            packageName = "com.example.myapplication"
+            packageName = "com.jawharat.manifest"
             packageVersion = "1.0.0"
 
             macOS {

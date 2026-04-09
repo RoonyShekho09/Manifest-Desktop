@@ -145,7 +145,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             SnackbarHost(LocalSnackBarState.current.nativeHostState) { data ->
                 val visuals = data.visuals as? AppSnackBarVisuals
                 Card(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(bottom = 80.dp),
                     colors = CardDefaults.cardColors(
                         containerColor =
                             if (visuals?.isError == true)

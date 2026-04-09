@@ -12,6 +12,7 @@ import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
 import de.jensklingenberg.ktorfit.converter.ResponseConverterFactory
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -73,7 +74,7 @@ val networkModule = module {
     }
 
     single(named("mistralClient")) {
-        HttpClient {
+        HttpClient(CIO) {
             expectSuccess = false
             followRedirects = true
 
@@ -108,7 +109,7 @@ val networkModule = module {
     }
 
     single(named("pdfClient")) {
-        HttpClient {
+        HttpClient(CIO) {
             expectSuccess = false
             followRedirects = true
 
@@ -137,7 +138,7 @@ val networkModule = module {
             explicitNulls = false
         }
 
-        HttpClient {
+        HttpClient(CIO) {
             expectSuccess = false
             followRedirects = true
 

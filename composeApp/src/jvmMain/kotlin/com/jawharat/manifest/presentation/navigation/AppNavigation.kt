@@ -47,7 +47,9 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.
                         modifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
                         selected = currentRoute == destination::class.qualifiedName,
                         onClick = {
-                            navController.navigate(route = destination)
+                            val isCurrentDestination = destination::class.qualifiedName == currentRoute
+                            if (!isCurrentDestination)
+                                navController.navigate(route = destination)
                         },
                         icon = {
                             Icon(
