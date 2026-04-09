@@ -20,7 +20,6 @@ import Pr22.Util.PresenceState
 import PrIns.Exceptions.General
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromPassport
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.printDocFields
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,8 +37,6 @@ interface IDocumentScanner {
         onResult: (PersonDocument) -> Unit,
         onScan: (BufferedImage) -> Unit
     )
-
-    fun stop()
 }
 
 class DocumentScanner : IDocumentScanner {
@@ -51,11 +48,17 @@ class DocumentScanner : IDocumentScanner {
     private var liveTask: TaskControl? = null
     private var initialized = false
     private var networkRequestInProgress: Boolean = false
-    private var isRunning: Boolean = false
     private val initMutex = Mutex()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     init {
+        Runtime.getRuntime().addShutdownHook(
+            Thread {
+                println("Stopping the process")
+                stop()
+            }
+        )
+
         device = runCatching { DocumentReaderDevice() }
             .onSuccess { isSoftwareInstalled = true }
             .onFailure { isSoftwareInstalled = false }
@@ -70,7 +73,6 @@ class DocumentScanner : IDocumentScanner {
                 runCatching {
                     waitForDevice()
                     device?.useDevice(0)
-                    isRunning = true
                     addScanEvents()
                     eventListener()
                     initialized = true
@@ -93,14 +95,18 @@ class DocumentScanner : IDocumentScanner {
         onResult: (PersonDocument) -> Unit,
         onScan: (BufferedImage) -> Unit
     ) {
-        ensureInitialized()
         if (networkRequestInProgress) return
+
+        ensureInitialized()
 
         val scanner = device?.scanner
 
         liveTask = scanner?.startTask(FreerunTask.detection())
 
-        if (!isDocumentPresent) return
+        if (!isDocumentPresent) {
+            liveTask?.Stop()
+            return
+        }
 
         val scanTask = DocScannerTask()
         scanTask.add(Light.White).add(Light.Infra)
@@ -128,7 +134,7 @@ class DocumentScanner : IDocumentScanner {
 
     private val stopMutex = Mutex()
 
-    override fun stop() {
+    private fun stop() {
         scope.launch {
             stopMutex.withLock {
                 runCatching {
@@ -158,10 +164,6 @@ class DocumentScanner : IDocumentScanner {
             docPage.selectByIndex(0).toImage()?.let {
                 onResultNotFound(it)
             }
-        }
-
-        mrzDoc?.let {
-            printDocFields(it)
         }
 
         mrzDoc?.let {

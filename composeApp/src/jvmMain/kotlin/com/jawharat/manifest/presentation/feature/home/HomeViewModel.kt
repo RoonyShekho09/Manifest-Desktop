@@ -203,6 +203,5 @@ class HomeViewModel(
 
     fun onScreenDisposed() {
         scanJob?.cancel()
-        documentScanner.stop()
     }
 }
