@@ -17,18 +17,25 @@ import androidx.compose.material.TextButton
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.presentation.feature.shared.SearchState
+import com.jawharat.manifest.presentation.feature.vehicles.DispatchData
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.add_new_driver
 import com.jawharat.manifest.resources.cancel
 import com.jawharat.manifest.resources.confirm
 import com.jawharat.manifest.resources.destination
+import com.jawharat.manifest.resources.driver
 import com.jawharat.manifest.resources.driver_id_number
-import com.jawharat.manifest.resources.driver_name
 import com.jawharat.manifest.resources.driver_phone_number
 import com.jawharat.manifest.resources.edit_driver_details
 import com.jawharat.manifest.resources.save_changes
@@ -38,16 +45,31 @@ import com.jawharat.manifest.utils.string
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditDriverDialog(
-    driver: Driver?,
+    driverToEdit: Driver?,
+    searchState: SearchState<Driver>,
     isEdit: Boolean = false,
-    isAddEditEnabled: Boolean = false,
     onDismiss: () -> Unit,
     onConfirm: (Driver?) -> Unit
 ) {
-    val driverName = rememberTextFieldState(initialText = driver?.name.orEmpty())
-    val phoneNumber = rememberTextFieldState(initialText = driver?.phone.orEmpty())
-    val destination = rememberTextFieldState(initialText = driver?.destination.orEmpty())
-    val driverId = rememberTextFieldState(initialText = driver?.driverId.orEmpty())
+    var driver by remember {
+        mutableStateOf(
+            DispatchData(
+                id = driverToEdit?.id.orEmpty(),
+                name = driverToEdit?.name.orEmpty()
+            )
+        )
+    }
+    val phoneNumber = rememberTextFieldState(initialText = driverToEdit?.phone.orEmpty())
+    val destination = rememberTextFieldState(initialText = driverToEdit?.destination.orEmpty())
+    val driverId = rememberTextFieldState(initialText = driverToEdit?.driverId.orEmpty())
+
+    val isConfirmEnabled by rememberUpdatedState(
+        searchState.query.text.isNotBlank() &&
+                phoneNumber.text.isNotBlank() &&
+                destination.text.isNotBlank() &&
+                driverId.text.isNotBlank() &&
+                (!isEdit || searchState.searchResults.any { it.name == searchState.query.text.trimEnd() })
+    )
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
@@ -68,15 +90,24 @@ fun AddEditDriverDialog(
                 )
 
                 AppTextField(
-                    state = driverName,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = Res.string.driver_name.string
-                )
-
-                AppTextField(
                     state = driverId,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = Res.string.driver_id_number.string
+                )
+
+                DropDownTextField(
+                    value = driver,
+                    query = searchState.query,
+                    data = if (isEdit) searchState.searchResults.map {
+                        DispatchData(
+                            id = it.id,
+                            name = it.name
+                        )
+                    } else
+                        emptyList(),
+                    placeholder = Res.string.driver.string,
+                    initialValue = driverToEdit?.name.orEmpty(),
+                    onSelect = { driver = it }
                 )
 
                 AppTextField(
@@ -106,8 +137,8 @@ fun AddEditDriverDialog(
                         onClick = {
                             if (isEdit)
                                 onConfirm(
-                                    driver?.copy(
-                                        name = driverName.text.toString(),
+                                    driverToEdit?.copy(
+                                        name = driver.name,
                                         phone = phoneNumber.text.toString(),
                                         destination = destination.text.toString(),
                                     )
@@ -116,14 +147,14 @@ fun AddEditDriverDialog(
                                 onConfirm(
                                     Driver(
                                         id = "",
-                                        name = driverName.text.toString(),
+                                        name = driver.name,
                                         phone = phoneNumber.text.toString(),
                                         destination = destination.text.toString(),
-                                        driverId = driver?.driverId.orEmpty()
+                                        driverId = driverToEdit?.driverId.orEmpty()
                                     )
                                 )
                         },
-                        enabled = isAddEditEnabled,
+                        enabled = isConfirmEnabled,
                         modifier = Modifier.handPointerHover()
                     ) {
                         Text(text = if (isEdit) Res.string.save_changes.string else Res.string.confirm.string)

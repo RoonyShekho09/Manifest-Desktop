@@ -7,7 +7,6 @@ import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.data.remote.model.PriceMatrix
 import com.jawharat.manifest.data.remote.model.PriceResponse
 import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
@@ -57,7 +56,7 @@ interface AppRemoteDataSource {
 
     suspend fun editVehicle(
         vehicleNumber: String? = null,
-        type: String? = null,
+        vehicleName: String? = null,
         carType: String? = null,
         price: Int? = null,
         driverId: String? = null,

@@ -1,5 +1,6 @@
 package com.jawharat.manifest.presentation.feature.drivers
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.entity.Driver
@@ -7,6 +8,9 @@ import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.presentation.feature.shared.SearchState
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.failed_to_add_driver
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -26,14 +30,16 @@ class DriversViewModel(
     init {
         initializeDrivers()
         getLines()
-        state.value.searchState.query.initializeSearch(
-            onSearch = ::onSearch,
-            onEmptyStateUpdater = { copy(searchState = searchState.copy(searchResults = drivers)) }
+        state.value.mainSearchState.query.initializeSearch(
+            onSearch = ::onMainScreenSearch,
+            onEmptyStateUpdater = { copy(mainSearchState = mainSearchState.copy(searchResults = drivers)) }
+        )
+
+        state.value.dialogSearchState.query.initializeSearch(
+            onSearch = ::onDialogSearch,
+            onEmptyStateUpdater = { copy(dialogSearchState = dialogSearchState.copy(searchResults = drivers)) }
         )
     }
-
-    fun onDriverQueryChange(value: String) =
-        updateState { copy(searchState = searchState.copy(query = value)) }
 
     fun onConfirmAddEditDriver(value: Driver?) {
         if (value != null)
@@ -56,19 +62,19 @@ class DriversViewModel(
                 this?.id?.let {
                     repository.addDriver(
                         driverId = driverId,
-                        name = name,
-                        phoneNumber = phone,
-                        destination = destination,
+                        name = name.trimEnd(),
+                        phoneNumber = phone.trimEnd(),
+                        destination = destination.trimEnd(),
                     )
                 }
             }
         },
         onSuccess = {
             initializeDrivers(fetch = true)
-            updateState { copy(searchState = SearchState()) }
+            updateState { copy(mainSearchState = SearchState()) }
         },
         onError = {
-            //    snackBarHostState.showFailure(Res.string.failed_to_add_driver)
+            snackBarHostState.showFailure(Res.string.failed_to_add_driver)
         }
     )
 
@@ -79,9 +85,9 @@ class DriversViewModel(
                 this?.id?.let {
                     repository.editDriver(
                         driverId = driverId,
-                        name = name,
-                        phoneNumber = phone,
-                        destination = destination,
+                        name = name.trimEnd(),
+                        phoneNumber = phone.trimEnd(),
+                        destination = destination.trimEnd(),
                         id = id,
                     )
                 }
@@ -91,31 +97,56 @@ class DriversViewModel(
         onCompleted = { updateState { copy(isLoading = false, isDialogVisible = false) } },
     )
 
-    private fun onSearch(query: String) {
+    private fun onDialogSearch(query: String) =
         updateState {
             copy(
-                searchState = searchState.copy(searchResults = state.value.drivers.filter {
-                    it.name.contains(query, ignoreCase = true) || it.destination.contains(
-                        query,
-                        ignoreCase = true
-                    ) || it.phone.contains(
-                        query,
-                        ignoreCase = true
-                    )
-                }
-                    .sortedBy {
-                        it.name
+                dialogSearchState = dialogSearchState.copy(
+                    searchResults = state.value.drivers.filter {
+                        it.name.contains(query, ignoreCase = true) || it.destination.contains(
+                            query,
+                            ignoreCase = true
+                        ) || it.phone.contains(
+                            query,
+                            ignoreCase = true
+                        )
                     }
-                    .sortedBy {
-                        !it.name.startsWith(query, ignoreCase = true)
-                    }
+                        .sortedBy {
+                            it.name
+                        }
+                        .sortedBy {
+                            !it.name.startsWith(query, ignoreCase = true)
+                        }
+                        .toImmutableList()
                 )
             )
         }
-    }
+
+    private fun onMainScreenSearch(query: String) =
+        updateState {
+            copy(
+                mainSearchState = mainSearchState.copy(
+                    searchResults = state.value.drivers.filter {
+                        it.name.contains(query, ignoreCase = true) || it.destination.contains(
+                            query,
+                            ignoreCase = true
+                        ) || it.phone.contains(
+                            query,
+                            ignoreCase = true
+                        )
+                    }
+                        .sortedBy {
+                            it.name
+                        }
+                        .sortedBy {
+                            !it.name.startsWith(query, ignoreCase = true)
+                        }
+                        .toImmutableList()
+                )
+            )
+        }
 
     fun onRefresh() {
-        updateState { copy(searchState = SearchState()) }
+        updateState { copy(mainSearchState = SearchState()) }
         initializeDrivers(fetch = true)
     }
 
@@ -125,8 +156,9 @@ class DriversViewModel(
         onSuccess = {
             updateState {
                 copy(
-                    drivers = it,
-                    searchState = searchState.copy(searchResults = it)
+                    drivers = it.toImmutableList(),
+                    mainSearchState = mainSearchState.copy(searchResults = it.toImmutableList()),
+                    dialogSearchState = dialogSearchState.copy(searchResults = it.toImmutableList())
                 )
             }
         },
@@ -136,19 +168,19 @@ class DriversViewModel(
     fun onEditClick(id: String? = null) = updateState {
         copy(
             isDialogVisible = true,
-            driverToEdit = searchState.searchResults.firstOrNull { it.id == id }
+            driverToEdit = mainSearchState.searchResults.firstOrNull { it.id == id }
         )
     }
 
     fun onDismissDialog() = updateState { copy(isDialogVisible = false) }
 
     @OptIn(FlowPreview::class)
-    fun String.initializeSearch(
+    fun TextFieldState.initializeSearch(
         onSearch: (query: String) -> Unit,
         minQueryLength: Int = 3,
         debounceIntervalMs: Long = 300,
         onEmptyStateUpdater: DriverUiState.() -> DriverUiState,
-    ) = snapshotFlow { this }
+    ) = snapshotFlow { this.text.toString() }
         .onEach { if (it.isEmpty()) updateState(updater = onEmptyStateUpdater) }
         .debounce(timeoutMillis = debounceIntervalMs)
         .map(String::trim)

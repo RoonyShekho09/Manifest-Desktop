@@ -22,7 +22,7 @@ data class DispatchResponse(
     @SerialName("price")
     val price: Int? = null,
     @SerialName("type")
-    val type: String? = null,
+    val vehicleName: String? = null,
     @SerialName("vehicleNumber")
     val vehicleNumber: String? = null
 )

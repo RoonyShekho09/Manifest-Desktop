@@ -65,16 +65,16 @@ class ManifestRepositoryImpl(
     )
 
     override suspend fun addVehicle(
-        vehicleNumber: String?,
-        type: String?,
-        carType: String?,
+        plateNumber: String?,
+        vehicleName: String?,
+        vehicleType: String?,
         price: Int?,
         driverId: String?,
         line: String?
     ) = remoteDataSource.addVehicle(
-        vehicleNumber = vehicleNumber,
-        type = type,
-        carType = carType,
+        vehicleNumber = plateNumber,
+        type = vehicleName,
+        carType = vehicleType,
         price = price,
         driverId = driverId,
         line = line
@@ -96,7 +96,7 @@ class ManifestRepositoryImpl(
 
     override suspend fun editVehicle(
         vehicleNumber: String?,
-        type: String?,
+        vehicleName: String?,
         vehicleType: String?,
         price: Int?,
         driverId: String?,
@@ -104,7 +104,7 @@ class ManifestRepositoryImpl(
         id: String
     ) = remoteDataSource.editVehicle(
         vehicleNumber = vehicleNumber,
-        type = type,
+        vehicleName = vehicleName,
         carType = vehicleType,
         price = price,
         driverId = driverId,
@@ -131,7 +131,8 @@ class ManifestRepositoryImpl(
     override suspend fun ocrSpace(image: String, engine: String) =
         remoteDataSource.ocr(image, engine)
 
-    override suspend fun getPrice(locationId: String) = remoteDataSource.getPrice(locationId)
+    override suspend fun getPrice(locationId: String) =
+        remoteDataSource.getPrice(locationId).priceMatrix?.toDomain()
 
     override suspend fun getVehicleTypes(fetch: Boolean): List<VehicleType> =
         if (localDataSource.vehicleTypes.hasRecords && !fetch)

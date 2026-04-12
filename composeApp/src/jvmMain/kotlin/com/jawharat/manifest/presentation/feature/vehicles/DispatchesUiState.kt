@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import com.jawharat.manifest.domain.entity.Line
 import com.jawharat.manifest.domain.entity.Dispatch
 import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.presentation.feature.shared.SearchState
 
@@ -17,26 +18,29 @@ data class DispatchesUiState(
     val isLoading: Boolean = false,
     val dispatchSearchState: SearchState<DispatchUiState> = SearchState(),
     val lines: List<Line> = emptyList(),
-    val vehicleTypes: List<VehicleType> = emptyList(),
+    val carTypes: List<VehicleType> = emptyList(),
     val vehicleTypeSearchState: SearchState<VehicleType> = SearchState(),
     val driverSearchState: SearchState<Driver> = SearchState(),
     val drivers: List<Driver> = emptyList(),
+    val price: List<Route>? = null
 )
 
 @Stable
 data class DispatchUiState(
     val id: String = "",
-    val driverId: String = "",
-    val driverName: String = "",
+    val driver: DispatchData = DispatchData(),
     val plateNumber: String = "",
+    val vehicleName: String = "",
     val vehicleType: String = "",
-    val type: String = "",
     val price: String = "",
-    val line: Line = Line("", ""),
+    val line: DispatchData = DispatchData(),
     val status: DriverStatus = DriverStatus.INSIDE,
-) {
-    val isAddEditEnabled: Boolean get() = driverName.length >= 3 && plateNumber.length >= 4 && vehicleType.length >= 3 && type.length >= 3 && price.length >= 3
-}
+)
+
+data class DispatchData(
+    val id: String = "",
+    val name: String = ""
+)
 
 enum class DriverStatus {
     INSIDE, OUTSIDE
@@ -44,14 +48,19 @@ enum class DriverStatus {
 
 fun List<Dispatch>.toUiState() = map { it.toUiState() }
 
-fun Dispatch.toUiState() = DispatchUiState(
-    id = id,
-    driverId = driverInformation._id,
-    driverName = driverInformation.name,
-    plateNumber = vehicleNumber,
-    vehicleType = vehicleType,
-    type = type,
-    price = price.toString(),
-    line = line,
-    status = if (isInside) DriverStatus.INSIDE else DriverStatus.OUTSIDE
-)
+fun Dispatch.toUiState(): DispatchUiState {
+    println("id: ${driverInformation._id}")
+    return DispatchUiState(
+        id = id,
+        driver = DispatchData(
+            id = driverInformation.id,
+            name = driverInformation.name,
+        ),
+        plateNumber = vehicleNumber,
+        vehicleName = vehicleName,
+        vehicleType = vehicleType,
+        price = price.toString(),
+        line = DispatchData(id = line.id, name = line.name),
+        status = if (isInside) DriverStatus.INSIDE else DriverStatus.OUTSIDE
+    )
+}

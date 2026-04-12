@@ -2,7 +2,6 @@ package com.jawharat.manifest.data.remote.datasource
 
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.data.remote.model.PriceMatrix
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
@@ -105,7 +104,7 @@ class AppRemoteDataSourceImpl(
     ) = manifestApiService.addVehicle(
         body = AddVehicleRequestBody(
             vehicleNumber = vehicleNumber,
-            type = type,
+            vehicleName = type,
             carType = carType,
             price = price,
             driverId = driverId,
@@ -135,7 +134,7 @@ class AppRemoteDataSourceImpl(
 
     override suspend fun editVehicle(
         vehicleNumber: String?,
-        type: String?,
+        vehicleName: String?,
         carType: String?,
         price: Int?,
         driverId: String?,
@@ -144,7 +143,7 @@ class AppRemoteDataSourceImpl(
     ) = manifestApiService.editVehicle(
         body = AddVehicleRequestBody(
             vehicleNumber = vehicleNumber,
-            type = type,
+            vehicleName = vehicleName,
             carType = carType,
             price = price,
             driverId = driverId,

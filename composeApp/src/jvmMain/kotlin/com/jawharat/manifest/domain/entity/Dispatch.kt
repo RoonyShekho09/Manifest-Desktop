@@ -1,14 +1,14 @@
 package com.jawharat.manifest.domain.entity
 
 data class Dispatch(
-    val vehicleType: String,
+    val vehicleName: String,
     val driverInformation: DriverInformation,
     val id: String,
     val isInside: Boolean,
     val line: Line,
     val office: Office,
     val price: Int,
-    val type: String,
+    val vehicleType: String,
     val vehicleNumber: String
 )
 

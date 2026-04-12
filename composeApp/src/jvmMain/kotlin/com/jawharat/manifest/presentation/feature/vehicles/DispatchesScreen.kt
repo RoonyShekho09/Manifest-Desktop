@@ -123,8 +123,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                         AppTextField(
-                            value  = query,
-                            onValueChange = viewModel::onDispatchSearchStateChange,
+                            state = query,
                             placeholder = Res.string.search_driver_placeholder.string,
                             modifier = Modifier.width(400.dp)
                         )
@@ -134,7 +133,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                 }
                 items(filteredVehicles, key = { it.id }) { car ->
                     CarRow(
-                        driver = car,
+                        dispatch = car,
                         onEditClick = viewModel::onEditClick,
                     )
                 }
@@ -167,22 +166,19 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
 
     if (state.isDialogVisible)
         AddEditDispatchDialog(
-            drivers = state.driverSearchState.searchResults,
-            driverSearchQuery = state.driverSearchState.query,
-            vehicleTypeSearchQuery = state.vehicleTypeSearchState.query,
-            vehicleToEdit = state.dispatchToEdit,
-            vehiclesTypes = state.vehicleTypeSearchState.searchResults,
+            driverSearchState = state.driverSearchState,
+            routes = state.price,
+            carTypes = state.carTypes,
+            dispatchToEdit = state.dispatchToEdit,
             lines = state.lines,
             onDismiss = viewModel::onDismissDialog,
             onConfirm = viewModel::onConfirmAddEditDispatch,
-            onVehicleTypeSearchQueryChange = viewModel::onVehicleTypeSearchQueryChange,
-            onDriverSearchQueryChange = viewModel::onDriverSearchQueryChange,
         )
 }
 
 @Composable
 private fun CarRow(
-    driver: DispatchUiState,
+    dispatch: DispatchUiState,
     onEditClick: (String) -> Unit,
 ) {
     Card(
@@ -199,27 +195,27 @@ private fun CarRow(
         ) {
             Column(modifier = Modifier.weight(2f)) {
                 Text(
-                    text = driver.driverName,
+                    text = dispatch.driver.name,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = Res.string.line_with_value.string(driver.line.name),
+                    text = Res.string.line_with_value.string(dispatch.line.name),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = Res.string.vehicle_info.string(
-                        driver.vehicleType,
-                        driver.type,
-                        driver.plateNumber
+                        dispatch.vehicleName,
+                        dispatch.vehicleType,
+                        dispatch.plateNumber
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
 
-                val price = driver.price
+                val price = dispatch.price
                 val formattedPrice = if (price.length == 5) {
                     "${price.take(2)},${price.drop(2)}"
                 } else {
@@ -238,7 +234,7 @@ private fun CarRow(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val statusColor =
-                    if (driver.status == DriverStatus.INSIDE) Color(0xFF4CAF50) else Color(
+                    if (dispatch.status == DriverStatus.INSIDE) Color(0xFF4CAF50) else Color(
                         0xFFF44336
                     )
                 Surface(
@@ -246,7 +242,7 @@ private fun CarRow(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
-                        text = if (driver.status == DriverStatus.INSIDE) Res.string.inside.string else Res.string.outside.string,
+                        text = if (dispatch.status == DriverStatus.INSIDE) Res.string.inside.string else Res.string.outside.string,
                         color = statusColor,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                         fontWeight = FontWeight.Bold,
@@ -260,7 +256,7 @@ private fun CarRow(
                 horizontalArrangement = Arrangement.End
             ) {
                 OutlinedButton(
-                    onClick = { onEditClick(driver.id) },
+                    onClick = { onEditClick(dispatch.id) },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Icon(

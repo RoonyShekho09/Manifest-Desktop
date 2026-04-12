@@ -194,7 +194,7 @@ class HomeViewModel(
                     manifest = state.value.manifest.copy(
                         vehicleNumber = it.vehicleNumber,
                         price = it.price,
-                        vehicleType = it.vehicleType,
+                        vehicleType = it.vehicleName,
                         from = it.line.name
                     ),
                     scanState = scanState.copy(isVehicleScanned = true)

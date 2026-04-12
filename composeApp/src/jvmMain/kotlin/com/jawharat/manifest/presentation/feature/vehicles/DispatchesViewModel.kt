@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.utils.normalizeArabicKurdish
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -22,12 +23,13 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         initializeLines()
         initializeVehicleTypes()
         initializeDrivers()
+        initializePrice()
         state.value.dispatchSearchState.query.initializeSearch(
             onSearch = ::onSearch,
             onEmptyStateUpdater = {
                 copy(
                     dispatchSearchState = dispatchSearchState.copy(
-                        searchResults = dispatches
+                        searchResults = dispatches.toImmutableList()
                     )
                 )
             }
@@ -37,16 +39,21 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
             onEmptyStateUpdater = {
                 copy(
                     vehicleTypeSearchState = vehicleTypeSearchState.copy(
-                        searchResults = vehicleTypes
+                        searchResults = carTypes.toImmutableList()
                     )
                 )
             }
         )
         state.value.driverSearchState.query.initializeSearch(
             onSearch = ::onDriverSearch,
-            onEmptyStateUpdater = { copy(driverSearchState = driverSearchState.copy(searchResults = drivers)) }
+            onEmptyStateUpdater = { copy(driverSearchState = driverSearchState.copy(searchResults = drivers.toImmutableList())) }
         )
     }
+
+    private fun initializePrice() = tryToExecute(
+        block = { repository.getPrice("693d62bb417d7b42b11e7987") },
+        onSuccess = { updateState { copy(price = it) } }
+    )
 
     private fun initializeDrivers(fetch: Boolean = false) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
@@ -55,7 +62,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
             updateState {
                 copy(
                     drivers = it,
-                    driverSearchState = driverSearchState.copy(searchResults = it)
+                    driverSearchState = driverSearchState.copy(searchResults = it.toImmutableList())
                 )
             }
         },
@@ -88,7 +95,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                                 .startsWith(normalizedQuery, ignoreCase = true)
                         }
                     )
-                )
+                ).toImmutableList()
             )
         )
     }
@@ -98,29 +105,21 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
 
         copy(
             vehicleTypeSearchState = vehicleTypeSearchState.copy(
-                searchResults = state.value.vehicleTypes.filter {
+                searchResults = state.value.carTypes.filter {
                     it.name.normalizeArabicKurdish().contains(
                         normalizedQuery,
                         ignoreCase = true
                     )
                 }.sortedBy { it.name }
+                    .toImmutableList()
             )
         )
     }
 
     private fun initializeVehicleTypes(fetch: Boolean = false) = tryToExecute(
         block = { repository.getVehicleTypes(fetch = fetch) },
-        onSuccess = { updateState { copy(vehicleTypes = it) } }
+        onSuccess = { updateState { copy(carTypes = it) } }
     )
-
-    fun onDriverSearchQueryChange(value: String) =
-        updateState { copy(driverSearchState = driverSearchState.copy(query = value)) }
-
-    fun onVehicleTypeSearchQueryChange(value: String) =
-        updateState { copy(vehicleTypeSearchState = vehicleTypeSearchState.copy(query = value)) }
-
-    fun onDispatchSearchStateChange(value: String) =
-        updateState { copy(dispatchSearchState = dispatchSearchState.copy(query = value)) }
 
     fun onConfirmAddEditDispatch(value: DispatchUiState?) {
         if (state.value.dispatchToEdit != null)
@@ -133,7 +132,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         copy(
             dispatchSearchState = dispatchSearchState.copy(
                 searchResults = state.value.dispatches.filter {
-                    it.driverName.contains(
+                    it.driver.name.contains(
                         query,
                         ignoreCase = true
                     ) || it.price.contains(
@@ -145,11 +144,12 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
                     )
                 }
                     .sortedBy {
-                        it.driverName
+                        it.driver.name
                     }
                     .sortedBy {
-                        !it.driverName.startsWith(query, ignoreCase = true)
+                        !it.driver.name.startsWith(query, ignoreCase = true)
                     }
+                    .toImmutableList()
             )
         )
     }
@@ -163,40 +163,35 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         block = {
             value?.id?.let {
                 repository.editVehicle(
-                    vehicleNumber = value.plateNumber,
-                    type = value.type,
-                    vehicleType = value.vehicleType,
+                    vehicleNumber = value.plateNumber.trimEnd(),
+                    vehicleName = value.vehicleName.trimEnd(),
+                    vehicleType = value.vehicleType.trimEnd(),
                     price = value.price.toIntOrNull(),
-                    driverId = value.driverId,
+                    driverId = value.driver.id,
                     line = value.line.id,
                     id = value.id,
                 )
             }
         },
-        onCompleted = {
-            initializeDispatches(fetch = true)
-            updateState { copy(isDialogVisible = false) }
-        }
+        onSuccess = { initializeDispatches(fetch = true) },
+        onCompleted = { updateState { copy(isDialogVisible = false) } }
     )
 
     fun addDispatch(value: DispatchUiState?) = tryToExecute(
         block = {
             value?.id?.let {
-                repository.editVehicle(
-                    vehicleNumber = value.plateNumber,
-                    type = value.type,
-                    vehicleType = value.vehicleType,
+                repository.addVehicle(
+                    plateNumber = value.plateNumber.trimEnd(),
+                    vehicleName = value.vehicleName.trimEnd(),
                     price = value.price.toIntOrNull(),
-                    driverId = value.id,
+                    driverId = value.driver.id,
                     line = value.line.id,
-                    id = value.id,
+                    vehicleType = value.vehicleType.trimEnd()
                 )
             }
         },
-        onCompleted = {
-            initializeDispatches(fetch = true)
-            updateState { copy(isDialogVisible = false) }
-        }
+        onSuccess = { initializeDispatches(fetch = true) },
+        onCompleted = { updateState { copy(isDialogVisible = false) } }
     )
 
     fun onRefresh() {
@@ -213,7 +208,9 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
             updateState {
                 copy(
                     dispatches = it.toUiState(),
-                    dispatchSearchState = dispatchSearchState.copy(searchResults = it.toUiState())
+                    dispatchSearchState = dispatchSearchState.copy(
+                        searchResults = it.toUiState().toImmutableList()
+                    )
                 )
             }
         },
@@ -238,15 +235,15 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 
-    fun onDismissDialog() = updateState { copy(isDialogVisible = false) }
+    fun onDismissDialog() = updateState { copy(isDialogVisible = false, dispatchToEdit = null) }
 
     @OptIn(FlowPreview::class)
-    fun String.initializeSearch(
+    fun TextFieldState.initializeSearch(
         onSearch: (query: String) -> Unit,
         minQueryLength: Int = 3,
         debounceIntervalMs: Long = 300,
         onEmptyStateUpdater: DispatchesUiState.() -> DispatchesUiState,
-    ) = snapshotFlow { this }
+    ) = snapshotFlow { this.text.toString() }
         .onEach { if (it.isEmpty()) updateState(updater = onEmptyStateUpdater) }
         .debounce(timeoutMillis = debounceIntervalMs)
         .map(String::trim)

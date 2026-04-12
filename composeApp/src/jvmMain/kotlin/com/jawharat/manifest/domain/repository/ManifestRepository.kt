@@ -1,11 +1,11 @@
 package com.jawharat.manifest.domain.repository
 
 import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.data.remote.model.PriceResponse
 import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.Line
 import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.VehicleType
 
 interface ManifestRepository {
@@ -33,9 +33,9 @@ interface ManifestRepository {
     )
 
     suspend fun addVehicle(
-        vehicleNumber: String? = null,
-        type: String? = null,
-        carType: String? = null,
+        plateNumber: String? = null,
+        vehicleName: String? = null,
+        vehicleType: String? = null,
         price: Int? = null,
         driverId: String? = null,
         line: String? = null,
@@ -51,7 +51,7 @@ interface ManifestRepository {
 
     suspend fun editVehicle(
         vehicleNumber: String? = null,
-        type: String? = null,
+        vehicleName: String? = null,
         vehicleType: String? = null,
         price: Int? = null,
         driverId: String? = null,
@@ -62,5 +62,5 @@ interface ManifestRepository {
     suspend fun getLines(fetch: Boolean = false): List<Line>
     suspend fun getVehicleTypes(fetch: Boolean = false): List<VehicleType>
     suspend fun ocrSpace(image: String, engine: String = "2"): OcrResponse
-    suspend fun getPrice(locationId: String): PriceResponse
+    suspend fun getPrice(locationId: String): List<Route>?
 }

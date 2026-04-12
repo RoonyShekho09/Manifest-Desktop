@@ -5,6 +5,8 @@ import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
 import com.jawharat.manifest.data.remote.model.vehicles.DispatchQrCodeResponse
 import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
+import com.jawharat.manifest.data.remote.model.PriceMatrix
+import com.jawharat.manifest.data.remote.model.RouteDetail
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 import com.jawharat.manifest.db.DispatchRecord
 import com.jawharat.manifest.db.DriverRecord
@@ -15,6 +17,9 @@ import com.jawharat.manifest.domain.entity.DriverInformation
 import com.jawharat.manifest.domain.entity.Line
 import com.jawharat.manifest.domain.entity.Office
 import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.Route
+import com.jawharat.manifest.domain.entity.Vehicle
+import com.jawharat.manifest.domain.entity.VehiclePrice
 import com.jawharat.manifest.domain.entity.VehicleType
 
 @JvmName("vehicleToDomain")
@@ -32,7 +37,7 @@ fun DriverResponse.toDomain() = Driver(
 )
 
 fun DispatchResponse.toDomain() = Dispatch(
-    vehicleType = vehicleType.orEmpty(),
+    vehicleName = vehicleName.orEmpty(),
     driverInformation = DriverInformation(
         destination = driverId?.destination.orEmpty(),
         _id = driverId?._id.orEmpty(),
@@ -45,7 +50,7 @@ fun DispatchResponse.toDomain() = Dispatch(
     line = Line(id = line?.id.orEmpty(), name = line?.name.orEmpty()),
     office = Office(office?.id.orEmpty(), office?.name.orEmpty()),
     price = price ?: 0,
-    type = type.orEmpty(),
+    vehicleType = vehicleType.orEmpty(),
     vehicleNumber = vehicleNumber.orEmpty()
 )
 
@@ -76,7 +81,7 @@ fun List<DispatchRecord>.toDomain() = map { it.toDomain() }
 
 fun DispatchRecord.toDomain() = Dispatch(
     id = id,
-    vehicleType = carType,
+    vehicleName = carType,
     driverInformation = DriverInformation(
         destination = driver_destination,
         _id = driver_id,
@@ -94,7 +99,7 @@ fun DispatchRecord.toDomain() = Dispatch(
         name = office_name
     ),
     price = price,
-    type = type,
+    vehicleType = type,
     vehicleNumber = vehicleNumber,
 )
 
@@ -103,7 +108,7 @@ fun List<Dispatch>.toEntity() = map { it.toEntity() }
 
 fun Dispatch.toEntity() = DispatchRecord(
     id = id,
-    carType = vehicleType,
+    carType = vehicleName,
     driver_destination = driverInformation.destination,
     driver_id = driverInformation.id,
     driver_name = driverInformation.name,
@@ -114,19 +119,19 @@ fun Dispatch.toEntity() = DispatchRecord(
     office_id = office.id,
     office_name = office.name,
     price = price,
-    type = type,
+    type = vehicleType,
     vehicleNumber = vehicleNumber
 )
 
 fun DispatchQrCodeResponse.toDomain() = Dispatch(
-    vehicleType = vehicleType.orEmpty(),
+    vehicleName = vehicleType.orEmpty(),
     driverInformation = DriverInformation("", "", "", "", ""),
     id = "",
     isInside = false,
     line = Line(name = line.orEmpty(), id = ""),
     office = Office("", ""),
     price = price ?: 0,
-    type = "",
+    vehicleType = "",
     vehicleNumber = vehicleNumber.orEmpty()
 )
 
@@ -185,3 +190,22 @@ fun VehicleType.toEntity() = VehicleRecord(
     name = name
 )
 
+fun PriceMatrix.toDomain(): List<Route> = listOfNotNull(
+    erbilBaghdad?.let { Route("هەولێر - بەغداد", it.toDomainPrices()) },
+    erbilKhanaqin?.let { Route("هەولێر - خانەقین", it.toDomainPrices()) },
+    erbilSulaymaniyah?.let { Route("هەولێر - سلێمانی", it.toDomainPrices()) },
+    erbilPerde?.let { Route("هەولێر - پردێ", it.toDomainPrices()) },
+    erbilChamchamal?.let { Route("هەولێر - چەمچەماڵ", it.toDomainPrices()) },
+    erbilRamadi?.let { Route("هەولێر - ڕومادی", it.toDomainPrices()) },
+    erbilKifri?.let { Route("هەولێر - کفری", it.toDomainPrices()) },
+    erbilKirkuk?.let { Route("هەولێر - کەرکووک", it.toDomainPrices()) },
+    erbilKalar?.let { Route("هەولێر - کەلار", it.toDomainPrices()) }
+).filter { it.prices.isNotEmpty() }
+
+fun RouteDetail.toDomainPrices(): List<VehiclePrice> = listOfNotNull(
+    taxi?.let { VehiclePrice(Vehicle.TAXI, it) },
+    bus?.let { VehiclePrice(Vehicle.BUS, it) },
+    obama?.let { VehiclePrice(Vehicle.OBAMA, it) },
+    gmcExternal?.let { VehiclePrice(Vehicle.GMC_EXTERNAL, it) },
+    gmcInternal?.let { VehiclePrice(Vehicle.GMC_INTERNAL, it) }
+)

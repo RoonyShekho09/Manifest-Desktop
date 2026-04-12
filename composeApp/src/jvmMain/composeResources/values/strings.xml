@@ -76,7 +76,7 @@
     <string name="passengers">سەرنشینەکان</string>
     <string name="personnel">کارمەندان</string>
     <string name="driver_name">ناوی شۆفێر</string>
-    <string name="driver_id_number">ژمارەی ناسنامەی شۆفێر</string>
+    <string name="driver_id_number">ژمارەی کارتی نیشتمانی</string>
     <string name="driver_phone_number">ژمارەی تەلەفۆنی شۆفێر</string>
     <string name="scan_qr_code">سکانکردنی کۆدی QR</string>
     <string name="search_placeholder">گەڕان بەپێی ناو، شوێنی مەبەست یان ژمارەی تەلەفۆن</string>
@@ -107,4 +107,6 @@
     <string name="request_failed">داواکارییەکە سەرکەوتوو نەبوو</string>
     <string name="result_not_found_try_scanning_again">ئەنجام نەدۆزرایەوە، دووبارە سکان بکەرەوە</string>
     <string name="failed_to_logout">failed_to_logout</string>
+    <string name="car_type">جۆری سەیارە</string>
+    <string name="failed_to_add_driver">نەتوانرا شۆفێر زیاد بکرێت</string>
 </resources>

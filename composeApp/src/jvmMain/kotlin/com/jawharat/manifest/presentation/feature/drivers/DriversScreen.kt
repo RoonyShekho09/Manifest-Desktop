@@ -98,8 +98,8 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
         }
     ) { paddingValues ->
         val listState = rememberLazyListState()
-        val filteredDrivers = state.searchState.searchResults
-        val query = state.searchState.query
+        val filteredDrivers = state.mainSearchState.searchResults
+        val query = state.mainSearchState.query
 
         if (state.isLoading)
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -125,8 +125,7 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                         AppTextField(
-                            value = query,
-                            onValueChange = viewModel::onDriverQueryChange,
+                            state = query,
                             placeholder = Res.string.search_placeholder.string,
                             modifier = Modifier.width(400.dp)
                         )
@@ -158,7 +157,6 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
             )
         }
 
-
         val scope = rememberCoroutineScope()
         if (listState.firstVisibleItemIndex > 6)
             ScrollToTopBox {
@@ -170,10 +168,11 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
 
     if (state.isDialogVisible)
         AddEditDriverDialog(
-            driver = state.driverToEdit,
+            driverToEdit = state.driverToEdit,
+            searchState = state.dialogSearchState,
             isEdit = state.driverToEdit != null,
             onDismiss = viewModel::onDismissDialog,
-            onConfirm = { viewModel.onConfirmAddEditDriver(it) }
+            onConfirm = viewModel::onConfirmAddEditDriver,
         )
 }
 

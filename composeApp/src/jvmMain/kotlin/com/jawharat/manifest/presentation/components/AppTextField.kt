@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jawharat.manifest.utils.fillHeightOfParent
@@ -51,6 +52,7 @@ fun AppTextField(
     BasicTextField(
         state = state,
         textStyle = LocalTextStyle.current.copy(
+            textDirection = TextDirection.Rtl,
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 14.sp
         ),
@@ -100,7 +102,8 @@ fun AppTextField(
         onValueChange = onValueChange,
         textStyle = LocalTextStyle.current.copy(
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            textDirection = TextDirection.Rtl,
         ),
         keyboardOptions = keyboardOptions,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),

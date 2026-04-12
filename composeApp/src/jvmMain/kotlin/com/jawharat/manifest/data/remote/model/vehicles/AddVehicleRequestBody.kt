@@ -8,7 +8,7 @@ data class AddVehicleRequestBody(
     @SerialName("vehicleNumber")
     val vehicleNumber: String? = null,
     @SerialName("type")
-    val type: String? = null,
+    val vehicleName: String? = null,
     @SerialName("carType")
     val carType: String? = null,
     @SerialName("price")
