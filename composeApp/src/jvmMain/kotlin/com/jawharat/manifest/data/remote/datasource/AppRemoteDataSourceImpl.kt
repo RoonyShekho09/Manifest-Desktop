@@ -2,6 +2,7 @@ package com.jawharat.manifest.data.remote.datasource
 
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.data.remote.model.PriceMatrix
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
@@ -44,8 +45,7 @@ class AppRemoteDataSourceImpl(
         password: String
     ): LoginResponse =
         manifestApiService.login(body = LoginRequestBody(username = email, password = password))
-            .body()
-            ?: throw Exception()
+            .body() ?: throw Exception()
 
     override suspend fun submitManifest(
         driverName: String,
@@ -191,4 +191,7 @@ class AppRemoteDataSourceImpl(
             setBody(multipart)
         }.body<OcrResponse>()
     }
+
+    override suspend fun getPrice(locationId: String) =
+        manifestApiService.getPrice(locationId).body() ?: throw Exception()
 }

@@ -12,6 +12,9 @@ import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocum
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
+import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.failed_to_logout
 import com.jawharat.manifest.utils.allCountries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,7 +27,8 @@ import java.awt.image.BufferedImage
 class HomeViewModel(
     private val authRepository: AuthRepository,
     private val manifestRepository: ManifestRepository,
-    private val documentScanner: IDocumentScanner
+    private val documentScanner: IDocumentScanner,
+    private val snackBarHostState: AppSnackBarHostState,
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState()) {
 
     private var scanJob: Job? = null
@@ -32,6 +36,9 @@ class HomeViewModel(
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
+        viewModelScope.launch {
+            manifestRepository.getPrice("693d62bb417d7b42b11e7987")
+        }
     }
 
     fun onCameraReady() = startDocumentScanner()
@@ -116,7 +123,10 @@ class HomeViewModel(
     fun logout() = tryToExecute(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
         block = authRepository::logout,
-        onSuccess = { emitEvent(HomeUiEvent.OnLogout) }
+        onSuccess = { emitEvent(HomeUiEvent.OnLogout) },
+        onError = {
+            snackBarHostState.showFailure(Res.string.failed_to_logout)
+        }
     )
 
     fun onStartScanning() {

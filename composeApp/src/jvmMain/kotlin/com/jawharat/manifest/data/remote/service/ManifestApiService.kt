@@ -1,6 +1,8 @@
 package com.jawharat.manifest.data.remote.service
 
 import com.jawharat.manifest.data.remote.model.LineResponse
+import com.jawharat.manifest.data.remote.model.PriceMatrix
+import com.jawharat.manifest.data.remote.model.PriceResponse
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
@@ -72,6 +74,9 @@ interface ManifestApiService {
 
     @GET("car-types")
     suspend fun getVehicleTypes(): Response<List<VehicleRemote>>
+
+    @GET("prices/location/{locationId}")
+    suspend fun getPrice(@Path("locationId") locationId: String): Response<PriceResponse>
 
     companion object {
         const val NO_AUTH_HEADER_KEY = "No-Authentication"
