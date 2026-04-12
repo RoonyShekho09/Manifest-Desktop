@@ -3,7 +3,6 @@ package com.jawharat.manifest.presentation.feature.home
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.data.remote.model.ocr.ParsedResult
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
@@ -23,6 +22,8 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.awt.image.BufferedImage
+import com.jawharat.manifest.resources.request_failed
+import com.jawharat.manifest.resources.result_not_found_try_scanning_again
 
 class HomeViewModel(
     private val authRepository: AuthRepository,
@@ -36,9 +37,6 @@ class HomeViewModel(
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
-        viewModelScope.launch {
-            manifestRepository.getPrice("693d62bb417d7b42b11e7987")
-        }
     }
 
     fun onCameraReady() = startDocumentScanner()
@@ -51,7 +49,7 @@ class HomeViewModel(
                 ensureActive()
                 if (!isAnalyzingId) {
                     documentScanner.scan(
-                        onResult = ::onDocumentScanResult,
+                        onResult = ::onPassportOcrResult,
                         onScan = {
                             val processedImage = preprocessImage(it)
                             performIdOcr(processedImage)
@@ -66,20 +64,34 @@ class HomeViewModel(
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
         block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
-        onSuccess = { result ->
-            onIdCardOcrResult(result.parsedResults?.firstOrNull())
-        },
+        onSuccess = { result -> onIdCardOcrResult(extractFromId(result.parsedResults?.firstOrNull()?.textOverlay)) },
+        onError = { snackBarHostState.showFailure(Res.string.request_failed) },
         onCompleted = { isAnalyzingId = false }
     )
 
-    private fun onIdCardOcrResult(firstOrNull: ParsedResult?) {
-        if (firstOrNull?.parsedText == null) return
-        val personDocument = extractFromId(firstOrNull.textOverlay)
-        onDocumentScanResult(personDocument)
+    private fun onIdCardOcrResult(result: PersonDocument?) {
+        if (result?.documentId.isNullOrEmpty() || result.fullName.isEmpty()) {
+            viewModelScope.launch {
+                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
+            }
+            return
+        }
+
+        updatePassengersState(result)
     }
 
-    private fun onDocumentScanResult(value: PersonDocument?) {
-        if (value == null) return
+    private fun onPassportOcrResult(value: PersonDocument?) {
+        if (value?.documentId.isNullOrEmpty() || value.fullName.isEmpty()) {
+            viewModelScope.launch {
+                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
+            }
+            return
+        }
+
+        updatePassengersState(value)
+    }
+
+    private fun updatePassengersState(value: PersonDocument) {
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
         if (value.fullName.isEmpty() || value.documentId.isEmpty() || value.countryCode.isEmpty()) return
 

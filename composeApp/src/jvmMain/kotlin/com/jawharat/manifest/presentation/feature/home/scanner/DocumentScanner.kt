@@ -23,6 +23,7 @@ import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFrom
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -103,10 +104,8 @@ class DocumentScanner : IDocumentScanner {
 
         liveTask = scanner?.startTask(FreerunTask.detection())
 
-        if (!isDocumentPresent) {
-            liveTask?.Stop()
+        if (!isDocumentPresent)
             return
-        }
 
         val scanTask = DocScannerTask()
         scanTask.add(Light.White).add(Light.Infra)
@@ -151,6 +150,7 @@ class DocumentScanner : IDocumentScanner {
                 initialized = false
             }
         }
+        scope.cancel()
     }
 
     private fun analyzeWithMrz(
