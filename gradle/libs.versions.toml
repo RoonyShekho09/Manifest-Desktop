@@ -11,6 +11,7 @@ ksp = "2.3.3"
 ktor = "3.4.1"
 sqldelight = "2.3.2"
 sentry = "0.25.0"
+kotlinx-collections = "0.4.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -44,7 +45,8 @@ sqldelight = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqld
 countrycodepicker = { module = "io.github.joelkanyi:komposecountrycodepicker", version = "2.0.0" }
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version = "2.0.30" }
 javakeyring = { module = "com.github.javakeyring:java-keyring", version = "1.0.4" }
-ktor-cio =  { module  = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+kotlinx-collections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections" }
 
 [plugins]
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
@@ -96,7 +98,8 @@ utils = [
     "webcam",
     "countrycodepicker",
     "pdfbox",
-    "javakeyring"
+    "javakeyring",
+    "kotlinx-collections"
 ]
 
 database = [
