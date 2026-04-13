@@ -42,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,11 +55,14 @@ import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.driver_id
 import com.jawharat.manifest.resources.driver_management
 import com.jawharat.manifest.resources.edit
+import com.jawharat.manifest.resources.generate_qr
 import com.jawharat.manifest.resources.ic_edit
 import com.jawharat.manifest.resources.ic_location_on
 import com.jawharat.manifest.resources.ic_profile
+import com.jawharat.manifest.resources.ic_qr_code_scanning
 import com.jawharat.manifest.resources.ic_refresh
 import com.jawharat.manifest.resources.search_placeholder
+import com.jawharat.manifest.utils.generateQRCode
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
@@ -136,6 +140,7 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
                     DriverRow(
                         driver = driver,
                         onEditClick = viewModel::onEditClick,
+                        onGenerateQrCodeClick = viewModel::onGenerateQrCodeClick
                     )
                 }
             }
@@ -179,7 +184,8 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
 @Composable
 fun DriverRow(
     driver: Driver,
-    onEditClick: (String) -> Unit
+    onEditClick: (String) -> Unit,
+    onGenerateQrCodeClick: (String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -258,6 +264,19 @@ fun DriverRow(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(Res.string.edit.string)
+            }
+
+            OutlinedButton(
+                onClick = { onGenerateQrCodeClick(driver.id) },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Icon(
+                    painter = Res.drawable.ic_qr_code_scanning.painter,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(Res.string.generate_qr.string)
             }
         }
     }

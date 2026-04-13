@@ -10,6 +10,7 @@ import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.presentation.feature.shared.SearchState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_add_driver
+import com.jawharat.manifest.utils.generateQRCode
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -164,6 +165,8 @@ class DriversViewModel(
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
+
+    fun onGenerateQrCodeClick(id: String) = generateQRCode("D:$id")
 
     fun onEditClick(id: String? = null) = updateState {
         copy(

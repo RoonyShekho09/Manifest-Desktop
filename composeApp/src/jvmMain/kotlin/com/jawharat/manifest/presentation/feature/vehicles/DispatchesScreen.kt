@@ -54,7 +54,9 @@ import com.jawharat.manifest.presentation.components.ScrollToTopBox
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.cars_management
 import com.jawharat.manifest.resources.edit
+import com.jawharat.manifest.resources.generate_qr
 import com.jawharat.manifest.resources.ic_edit
+import com.jawharat.manifest.resources.ic_qr_code_scanning
 import com.jawharat.manifest.resources.ic_refresh
 import com.jawharat.manifest.resources.inside
 import com.jawharat.manifest.resources.line_with_value
@@ -135,6 +137,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                     CarRow(
                         dispatch = car,
                         onEditClick = viewModel::onEditClick,
+                        onGenerateQrCodeClick = viewModel::onGenerateQrCodeClick
                     )
                 }
             }
@@ -180,6 +183,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
 private fun CarRow(
     dispatch: DispatchUiState,
     onEditClick: (String) -> Unit,
+    onGenerateQrCodeClick: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -267,6 +271,19 @@ private fun CarRow(
                     Spacer(Modifier.width(8.dp))
                     Text(Res.string.edit.string)
                 }
+            }
+
+            OutlinedButton(
+                onClick = { onGenerateQrCodeClick(dispatch.id) },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Icon(
+                    painter = Res.drawable.ic_qr_code_scanning.painter,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(Res.string.generate_qr.string)
             }
         }
     }

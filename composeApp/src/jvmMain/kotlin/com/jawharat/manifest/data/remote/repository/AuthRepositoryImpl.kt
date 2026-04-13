@@ -42,7 +42,7 @@ class AuthRepositoryImpl(
 
     private fun LoginResponse.saveLocally(email: String, password: String) {
         token?.let {
-            val expirationTime = Instant.now().plus(4, ChronoUnit.MINUTES).toEpochMilli()
+            val expirationTime = Instant.now().plus(6, ChronoUnit.HOURS).toEpochMilli()
             localDataSource.storeLoginSession(
                 LoginSessionLocal(
                     token = token,

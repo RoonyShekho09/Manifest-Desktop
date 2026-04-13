@@ -5,6 +5,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
+import com.jawharat.manifest.utils.generateQRCode
 import com.jawharat.manifest.utils.normalizeArabicKurdish
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
@@ -217,6 +218,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 
+    fun onGenerateQrCodeClick(id: String) = generateQRCode("V:$id")
     fun onEditClick(id: String? = null) {
         updateState {
             copy(
