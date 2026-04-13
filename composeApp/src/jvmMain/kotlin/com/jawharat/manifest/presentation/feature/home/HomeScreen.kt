@@ -176,7 +176,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(24.dp)
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -333,7 +333,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
 @Composable
 private fun formatedToday(): String {
-    val dateTime = LocalDateTime.now()
+    val dateTime = LocalDateTime.now(ZoneId.of("Etc/GMT+3"))
     val formatter = DateTimeFormatter.ofPattern(
         "EEEE, dd MMMM yyyy",
         Locale("ckb")
@@ -341,7 +341,6 @@ private fun formatedToday(): String {
     val formattedDateTime = dateTime.format(formatter)
     return formattedDateTime
 }
-
 
 private const val ADAPTIVE_RECOGNITION_URL_DOWNLOAD =
     "https://adaptiverecognition.com/doc/id-scanners-readers/combo-scan-full-page-id1-and-mrz-scanner/#software"

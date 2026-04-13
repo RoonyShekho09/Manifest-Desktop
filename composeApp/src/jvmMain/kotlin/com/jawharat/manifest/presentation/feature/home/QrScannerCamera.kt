@@ -29,12 +29,11 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 @OptIn(ExperimentalAtomicApi::class)
 @Composable
-fun QrCodeScanner(
+fun QrScannerCamera(
     onResult: (String) -> Unit,
     onCameraReady: () -> Unit,
 ) {
     var webcam by remember { mutableStateOf<Webcam?>(null) }
-    var frameCount by remember { mutableStateOf(0) }
     val onResultRef by rememberUpdatedState(onResult)
 
     var isRunning by remember { mutableStateOf(true) }
@@ -45,21 +44,21 @@ fun QrCodeScanner(
                 withContext(Dispatchers.Main) { println("❌ No camera found") }
                 return@withContext
             }
+
             try {
                 if (!cam.isOpen)
                     cam.viewSizes.maxByOrNull { it.width * it.height }?.let { cam.viewSize = it }
+
                 cam.open()
                 delay(1000)
 
                 withContext(Dispatchers.Main) {
                     webcam = cam
+                    onCameraReady()
                 }
-
-                onCameraReady()
 
                 while (isActive && isRunning) {
                     val image = cam.image ?: run {
-                        withContext(Dispatchers.Main) { println("⚠️ Got null frame") }
                         continue
                     }
 
@@ -69,19 +68,13 @@ fun QrCodeScanner(
                     val result = decodeQrCode(contrasted)
 
                     withContext(Dispatchers.Main) {
-                        frameCount++
-                        println("📷 Frame #$frameCount | Size: ${image.width}x${image.height}")
-                    }
-
-                    withContext(Dispatchers.Main) {
                         when (result) {
                             is QRResult.Found -> {
-                                println("✅ QR Found: ${result.value}")
                                 runCatching { onResultRef(result.value) }
                             }
 
                             is QRResult.NotFound -> {
-                                println("🔍 Frame #$frameCount - No QR detected")
+                                println("🔍 No QR detected")
                             }
 
                             is QRResult.Error -> {

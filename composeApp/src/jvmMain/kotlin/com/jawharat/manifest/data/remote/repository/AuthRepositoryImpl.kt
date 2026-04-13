@@ -32,12 +32,8 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun logout() {
-        val isSuccess = remoteDataSource.logout()
-        if (isSuccess) {
-            runCatching {
-                localDataSource.clearDataStore()
-            }
-        }
+        remoteDataSource.logout()
+        localDataSource.clearDataStore()
     }
 
     private fun LoginResponse.saveLocally(email: String, password: String) {
