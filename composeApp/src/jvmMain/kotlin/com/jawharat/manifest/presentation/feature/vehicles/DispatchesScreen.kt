@@ -170,7 +170,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
             routes = state.price,
             carTypes = state.carTypes,
             dispatchToEdit = state.dispatchToEdit,
-            lines = state.lines,
+            dispatchLines = state.dispatchLines,
             onDismiss = viewModel::onDismissDialog,
             onConfirm = viewModel::onConfirmAddEditDispatch,
         )

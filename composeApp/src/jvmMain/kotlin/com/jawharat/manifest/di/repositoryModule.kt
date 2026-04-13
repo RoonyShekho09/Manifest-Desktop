@@ -7,6 +7,6 @@ import com.jawharat.manifest.domain.repository.ManifestRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
-    single<ManifestRepository> { ManifestRepositoryImpl(get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
+    single<ManifestRepository> { ManifestRepositoryImpl(get(), get(), get()) }
 }

@@ -64,7 +64,7 @@ class HomeViewModel(
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
         block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
-        onSuccess = { result -> onIdCardOcrResult(extractFromId(result.parsedResults?.firstOrNull()?.textOverlay)) },
+        onSuccess = { result -> onIdCardOcrResult(extractFromId(result)) },
         onError = { snackBarHostState.showFailure(Res.string.request_failed) },
         onCompleted = { isAnalyzingId = false }
     )
@@ -195,7 +195,7 @@ class HomeViewModel(
                         vehicleNumber = it.vehicleNumber,
                         price = it.price,
                         vehicleType = it.vehicleName,
-                        from = it.line.name
+                        from = it.dispatchLine.name
                     ),
                     scanState = scanState.copy(isVehicleScanned = true)
                 )

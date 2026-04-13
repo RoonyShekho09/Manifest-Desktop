@@ -2,7 +2,7 @@ package com.jawharat.manifest.presentation.feature.vehicles
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.jawharat.manifest.domain.entity.Line
+import com.jawharat.manifest.domain.entity.DispatchLine
 import com.jawharat.manifest.domain.entity.Dispatch
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.Route
@@ -17,7 +17,7 @@ data class DispatchesUiState(
     val isDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
     val dispatchSearchState: SearchState<DispatchUiState> = SearchState(),
-    val lines: List<Line> = emptyList(),
+    val dispatchLines: List<DispatchLine> = emptyList(),
     val carTypes: List<VehicleType> = emptyList(),
     val vehicleTypeSearchState: SearchState<VehicleType> = SearchState(),
     val driverSearchState: SearchState<Driver> = SearchState(),
@@ -60,7 +60,7 @@ fun Dispatch.toUiState(): DispatchUiState {
         vehicleName = vehicleName,
         vehicleType = vehicleType,
         price = price.toString(),
-        line = DispatchData(id = line.id, name = line.name),
+        line = DispatchData(id = dispatchLine.id, name = dispatchLine.name),
         status = if (isInside) DriverStatus.INSIDE else DriverStatus.OUTSIDE
     )
 }

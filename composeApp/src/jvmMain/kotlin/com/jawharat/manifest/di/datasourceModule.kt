@@ -3,6 +3,9 @@ package com.jawharat.manifest.di
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSourceImpl
 import com.jawharat.manifest.data.local.factory.SqliteEntityStoreFactory
+import com.jawharat.manifest.data.observer.AuthObserver
+import com.jawharat.manifest.data.proxy.AuthProxy
+import com.jawharat.manifest.data.proxy.AuthProxyImpl
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSourceImpl
 import org.koin.core.qualifier.named
@@ -18,4 +21,7 @@ val dataSourceModule = module {
             mistralHttpClient = get(named("mistralClient")),
         )
     }
+    single<AuthProxy> { AuthProxyImpl(get(), get()) }
+
+    single { AuthObserver() }
 }

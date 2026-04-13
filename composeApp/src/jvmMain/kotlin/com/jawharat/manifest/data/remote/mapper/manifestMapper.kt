@@ -7,6 +7,7 @@ import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.PriceMatrix
 import com.jawharat.manifest.data.remote.model.RouteDetail
+import com.jawharat.manifest.data.remote.model.ocr.Line
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 import com.jawharat.manifest.db.DispatchRecord
 import com.jawharat.manifest.db.DriverRecord
@@ -14,13 +15,15 @@ import com.jawharat.manifest.db.LineRecord
 import com.jawharat.manifest.db.VehicleRecord
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.DriverInformation
-import com.jawharat.manifest.domain.entity.Line
+import com.jawharat.manifest.domain.entity.DispatchLine
 import com.jawharat.manifest.domain.entity.Office
 import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.Vehicle
 import com.jawharat.manifest.domain.entity.VehiclePrice
 import com.jawharat.manifest.domain.entity.VehicleType
+import com.jawharat.manifest.domain.entity.Word
 
 @JvmName("vehicleToDomain")
 fun List<DispatchResponse>.toDomain() = map { it.toDomain() }
@@ -47,7 +50,7 @@ fun DispatchResponse.toDomain() = Dispatch(
     ),
     id = id.orEmpty(),
     isInside = isInside ?: false,
-    line = Line(id = line?.id.orEmpty(), name = line?.name.orEmpty()),
+    dispatchLine = DispatchLine(id = line?.id.orEmpty(), name = line?.name.orEmpty()),
     office = Office(office?.id.orEmpty(), office?.name.orEmpty()),
     price = price ?: 0,
     vehicleType = vehicleType.orEmpty(),
@@ -76,7 +79,7 @@ fun Driver.toEntity() = DriverRecord(
     driverId = driverId
 )
 
-@JvmName("vehicleRecordToDomain")
+@JvmName("dispatchRecordToDomain")
 fun List<DispatchRecord>.toDomain() = map { it.toDomain() }
 
 fun DispatchRecord.toDomain() = Dispatch(
@@ -90,7 +93,7 @@ fun DispatchRecord.toDomain() = Dispatch(
         phoneNumber = driver_phone
     ),
     isInside = isInside,
-    line = Line(
+    dispatchLine = DispatchLine(
         id = line_id,
         name = line_name
     ),
@@ -114,8 +117,8 @@ fun Dispatch.toEntity() = DispatchRecord(
     driver_name = driverInformation.name,
     driver_phone = driverInformation.phoneNumber,
     isInside = isInside,
-    line_id = line.id,
-    line_name = line.name,
+    line_id = dispatchLine.id,
+    line_name = dispatchLine.name,
     office_id = office.id,
     office_name = office.name,
     price = price,
@@ -128,7 +131,7 @@ fun DispatchQrCodeResponse.toDomain() = Dispatch(
     driverInformation = DriverInformation("", "", "", "", ""),
     id = "",
     isInside = false,
-    line = Line(name = line.orEmpty(), id = ""),
+    dispatchLine = DispatchLine(name = line.orEmpty(), id = ""),
     office = Office("", ""),
     price = price ?: 0,
     vehicleType = "",
@@ -146,7 +149,7 @@ fun DriverQrCodeResponse.toDomain() = Driver(
 @JvmName("lineRecordToDomain")
 fun List<LineRecord>.toDomain() = map { it.toDomain() }
 
-fun LineRecord.toDomain() = Line(
+fun LineRecord.toDomain() = DispatchLine(
     id = id,
     name = name
 )
@@ -154,7 +157,7 @@ fun LineRecord.toDomain() = Line(
 @JvmName("lineResponseToDomain")
 fun List<LineResponse>.toDomain() = map { it.toDomain() }
 
-fun LineResponse.toDomain() = Line(
+fun LineResponse.toDomain() = DispatchLine(
     id = id.orEmpty(),
     name = name.orEmpty()
 )
@@ -175,6 +178,7 @@ fun VehicleRemote.toDomain() = VehicleType(
     name = name.orEmpty()
 )
 
+@JvmName("vehicleRecordToDomain")
 fun List<VehicleRecord>.toDomain() = map { it.toDomain() }
 
 fun VehicleRecord.toDomain() = VehicleType(
@@ -208,4 +212,21 @@ fun RouteDetail.toDomainPrices(): List<VehiclePrice> = listOfNotNull(
     obama?.let { VehiclePrice(Vehicle.OBAMA, it) },
     gmcExternal?.let { VehiclePrice(Vehicle.GMC_EXTERNAL, it) },
     gmcInternal?.let { VehiclePrice(Vehicle.GMC_INTERNAL, it) }
+)
+
+fun List<Line>.toDomain() = map { it.toDomain() }
+
+fun Line.toDomain() = OcrLine(
+    text = lineText.orEmpty(),
+    maxHeight = maxHeight,
+    minTop = minTop,
+    words = words.map {
+        Word(
+            height = it.height,
+            left = it.left,
+            top = it.top,
+            width = it.width,
+            wordText = it.wordText
+        )
+    }
 )

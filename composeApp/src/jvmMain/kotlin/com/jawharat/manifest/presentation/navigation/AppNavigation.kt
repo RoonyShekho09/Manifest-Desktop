@@ -13,6 +13,7 @@ import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,15 +22,28 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.jawharat.manifest.data.observer.AuthEvent
+import com.jawharat.manifest.data.observer.AuthObserver
+import com.jawharat.manifest.utils.Listen
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
+import org.koin.compose.koinInject
 
 @Composable
-fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.Home) {
+fun AppNavigation(modifier: Modifier = Modifier, startDestination: Screen = Screen.Home) {
     val navController = rememberNavController()
     val screens = listOf(Screen.Home, Screen.Drivers, Screen.Dispatches)
 
     val state = rememberWideNavigationRailState(initialValue = WideNavigationRailValue.Collapsed)
+
+    AuthExceptionRouterHandler(
+        onTokenExpiredException = {
+            navController.navigateTo(
+                Screen.Login,
+                popBackStack = true
+            )
+        }
+    )
 
     Row(modifier = modifier.fillMaxSize()) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -47,7 +61,8 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.
                         modifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
                         selected = currentRoute == destination::class.qualifiedName,
                         onClick = {
-                            val isCurrentDestination = destination::class.qualifiedName == currentRoute
+                            val isCurrentDestination =
+                                destination::class.qualifiedName == currentRoute
                             if (!isCurrentDestination)
                                 navController.navigate(route = destination)
                         },
@@ -69,5 +84,17 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Any = Screen.
             navController = navController,
             startDestination = startDestination
         )
+    }
+}
+
+@Composable
+private fun AuthExceptionRouterHandler(onTokenExpiredException: () -> Unit) {
+    val authObserver = koinInject<AuthObserver>()
+    val event by authObserver.events.collectAsState(null)
+
+    event.Listen {
+        println("AuthExceptionRouterHandler: $it")
+        if (it == AuthEvent.TokenExpired)
+            onTokenExpiredException()
     }
 }

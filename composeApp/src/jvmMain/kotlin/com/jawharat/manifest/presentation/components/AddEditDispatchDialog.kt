@@ -31,7 +31,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jawharat.manifest.domain.entity.Driver
-import com.jawharat.manifest.domain.entity.Line
+import com.jawharat.manifest.domain.entity.DispatchLine
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.presentation.feature.shared.SearchState
@@ -58,7 +58,7 @@ fun AddEditDispatchDialog(
     dispatchToEdit: DispatchUiState?,
     carTypes: List<VehicleType>,
     routes: List<Route>?,
-    lines: List<Line>,
+    dispatchLines: List<DispatchLine>,
     driverSearchState: SearchState<Driver>,
     onDismiss: () -> Unit,
     onConfirm: (DispatchUiState?) -> Unit,
@@ -138,7 +138,7 @@ fun AddEditDispatchDialog(
 
                 DropDownTextField(
                     value = line,
-                    data = lines.map { DispatchData(id = it.id, name = it.name) },
+                    data = dispatchLines.map { DispatchData(id = it.id, name = it.name) },
                     readOnly = true,
                     placeholder = Res.string.line_label.string,
                     initialValue = line.name,

@@ -1,6 +1,8 @@
 package com.jawharat.manifest.data.remote.datasource
 
+import com.jawharat.manifest.domain.Exceptions
 import de.jensklingenberg.ktorfit.Response
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 
 
@@ -42,13 +44,17 @@ interface BaseRemoteDataSource {
                 val apiResponse = result.body()!!
 
                 if (result.isSuccessful)
-                    kotlin.Result.success(mapper(apiResponse))
+                    Result.success(mapper(apiResponse))
                 else
-                    kotlin.Result.failure(Exception(result.message))
+                    Result.failure(Exception(result.message))
+            }
+
+            result.status == HttpStatusCode.Unauthorized -> {
+                throw Exceptions.TokenExpiredException()
             }
 
             else -> {
-                kotlin.Result.failure(
+                Result.failure(
                     Exception(
                         result.errorBody()?.toString() ?: "Unknown API error"
                     )
@@ -58,20 +64,3 @@ interface BaseRemoteDataSource {
     }
 }
 
-data class ApiResponse<T>(
-    val data: T?,
-    val status: String,
-    val message: String? = null
-)
-
-sealed class Result<out T> {
-    data class Success<T>(val data: T) : Result<T>()
-    data class Error(val message: String, val code: String? = null) : Result<Nothing>()
-}
-
-fun <T> ApiResponse<T>.toResult(): Result<T> {
-    return when {
-        status == "success" && data != null -> Result.Success(data)
-        else -> Result.Error(message ?: "Unknown error", status)
-    }
-}

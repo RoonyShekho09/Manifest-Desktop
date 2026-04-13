@@ -156,7 +156,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
 
     fun initializeLines(fetch: Boolean = false) = tryToExecute(
         block = { repository.getLines(fetch = fetch) },
-        onSuccess = { updateState { copy(lines = it) } }
+        onSuccess = { updateState { copy(dispatchLines = it) } }
     )
 
     fun editDispatch(value: DispatchUiState?) = tryToExecute(

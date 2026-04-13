@@ -33,7 +33,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
         block: suspend () -> T,
         onStart: suspend () -> Unit = {},
         onSuccess: suspend (T) -> Unit = {},
-        onError: suspend () -> Unit = {},
+        onError: suspend (Throwable) -> Unit = {},
         onCompleted: suspend () -> Unit = {},
         checkSuccess: suspend (T) -> Boolean = { true },
         context: CoroutineContext = Dispatchers.IO,
@@ -53,7 +53,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
                     println("OnFailure $it")
                     mapExceptionToErrorState(
                         throwable = it,
-                        onError = onError,
+                        onError = { onError(it) },
                     )
                 }
             onCompleted()

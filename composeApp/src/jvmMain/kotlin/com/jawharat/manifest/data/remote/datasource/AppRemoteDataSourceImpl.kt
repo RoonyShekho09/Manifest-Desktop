@@ -32,17 +32,14 @@ class AppRemoteDataSourceImpl(
     private val manifestApiService: ManifestApiService,
     private val pdfHttpClient: HttpClient,
     private val mistralHttpClient: HttpClient,
-) : AppRemoteDataSource {
+) : AppRemoteDataSource, BaseRemoteDataSource {
 
-    override suspend fun logout(): Boolean {
-        val response = manifestApiService.logout()
-        return response.isSuccessful
-    }
+    override suspend fun logout(): Boolean = callApi(
+        apiCall = { manifestApiService.logout() },
+        mapper = { true }
+    ).getOrThrow()
 
-    override suspend fun login(
-        email: String,
-        password: String
-    ): LoginResponse =
+    override suspend fun login(email: String, password: String): LoginResponse =
         manifestApiService.login(body = LoginRequestBody(username = email, password = password))
             .body() ?: throw Exception()
 
@@ -81,116 +78,122 @@ class AppRemoteDataSourceImpl(
     }
 
     override suspend fun addDriver(
-        driverId: String?,
-        name: String?,
-        phoneNumber: String?,
-        destination: String?
-    ) = manifestApiService.addDriver(
-        body = AddDriverRequestBody(
-            driverId = driverId,
-            name = name,
-            phoneNumber = phoneNumber,
-            destination = destination
-        )
-    ).body() ?: throw Exception()
+        driverId: String?, name: String?,
+        phoneNumber: String?, destination: String?
+    ) = callApi(
+        apiCall = {
+            manifestApiService.addDriver(
+                body = AddDriverRequestBody(driverId, name, phoneNumber, destination)
+            )
+        },
+        mapper = { it }
+    ).getOrThrow()
 
     override suspend fun addVehicle(
-        vehicleNumber: String?,
-        type: String?,
-        carType: String?,
-        price: Int?,
-        driverId: String?,
-        line: String?
-    ) = manifestApiService.addVehicle(
-        body = AddVehicleRequestBody(
-            vehicleNumber = vehicleNumber,
-            vehicleName = type,
-            carType = carType,
-            price = price,
-            driverId = driverId,
-            line = line
-        )
-    ).body() ?: throw Exception()
+        vehicleNumber: String?, type: String?,
+        carType: String?, price: Int?,
+        driverId: String?, line: String?
+    ) = callApi(
+        apiCall = {
+            manifestApiService.addVehicle(
+                body = AddVehicleRequestBody(vehicleNumber, type, carType, price, driverId, line)
+            )
+        },
+        mapper = { it }
+    ).getOrThrow()
 
     override suspend fun editDriver(
-        driverId: String?,
-        name: String?,
-        phoneNumber: String?,
-        destination: String?,
+        driverId: String?, name: String?,
+        phoneNumber: String?, destination: String?,
         id: String
-    ) {
-        val result = manifestApiService.editDriver(
-            body = AddDriverRequestBody(
-                driverId = driverId,
-                name = name,
-                phoneNumber = phoneNumber,
-                destination = destination
-            ),
-            id = id
-        )
-
-        return result.body() ?: throw Exception(result.message)
-    }
+    ) = callApi(
+        apiCall = {
+            manifestApiService.editDriver(
+                body = AddDriverRequestBody(driverId, name, phoneNumber, destination),
+                id = id
+            )
+        },
+        mapper = { it }
+    ).getOrThrow()
 
     override suspend fun editVehicle(
-        vehicleNumber: String?,
-        vehicleName: String?,
-        carType: String?,
-        price: Int?,
-        driverId: String?,
-        line: String?,
+        vehicleNumber: String?, vehicleName: String?,
+        carType: String?, price: Int?,
+        driverId: String?, line: String?,
         id: String
-    ) = manifestApiService.editVehicle(
-        body = AddVehicleRequestBody(
-            vehicleNumber = vehicleNumber,
-            vehicleName = vehicleName,
-            carType = carType,
-            price = price,
-            driverId = driverId,
-            line = line
-        ),
-        id = id
-    ).body() ?: throw Exception()
+    ) = callApi(
+        apiCall = {
+            manifestApiService.editVehicle(
+                body = AddVehicleRequestBody(
+                    vehicleNumber,
+                    vehicleName,
+                    carType,
+                    price,
+                    driverId,
+                    line
+                ),
+                id = id
+            )
+        },
+        mapper = { it }
+    ).getOrThrow()
 
-    override suspend fun getLines(): List<LineResponse> =
-        manifestApiService.getLines().body() ?: throw Exception()
+    override suspend fun getLines(): List<LineResponse> = callApi(
+        apiCall = { manifestApiService.getLines() },
+        mapper = { it }
+    ).getOrThrow()
 
-    override suspend fun getDispatches(): List<DispatchResponse> =
-        manifestApiService.getVehicles().body() ?: throw Exception()
+    override suspend fun getDispatches(): List<DispatchResponse> = callApi(
+        apiCall = { manifestApiService.getVehicles() },
+        mapper = { it }
+    ).getOrThrow()
 
-    override suspend fun scanManifestQrCode(id: String) =
-        manifestApiService.scanManifestQrCode(id).body() ?: throw Exception()
+    override suspend fun scanManifestQrCode(id: String) = callApi(
+        apiCall = { manifestApiService.scanManifestQrCode(id) },
+        mapper = { it }
+    ).getOrThrow()
 
-    override suspend fun scanDriverQrCode(id: String) =
-        manifestApiService.scanDriverQrCode(id).body() ?: throw Exception()
+    override suspend fun scanDriverQrCode(id: String) = callApi(
+        apiCall = { manifestApiService.scanDriverQrCode(id) },
+        mapper = { it }
+    ).getOrThrow()
 
-    override suspend fun scanDispatchQrCode(id: String) =
-        manifestApiService.scanVehicleQrCode(id).body() ?: throw Exception()
+    override suspend fun scanDispatchQrCode(id: String) = callApi(
+        apiCall = { manifestApiService.scanVehicleQrCode(id) },
+        mapper = { it }
+    ).getOrThrow()
 
-    override suspend fun getDrivers(): List<DriverResponse> =
-        manifestApiService.getDrivers().body() ?: throw Exception()
+    override suspend fun getDrivers(): List<DriverResponse> = callApi(
+        apiCall = { manifestApiService.getDrivers() },
+        mapper = { it }
+    ).getOrThrow()
 
-    override suspend fun getVehicleTypes(): List<VehicleRemote> =
-        manifestApiService.getVehicleTypes().body() ?: throw Exception()
+    override suspend fun getVehicleTypes(): List<VehicleRemote> = callApi(
+        apiCall = { manifestApiService.getVehicleTypes() },
+        mapper = { it }
+    ).getOrThrow()
 
     override suspend fun ocr(image: String, engine: String): OcrResponse {
         val multipart = MultiPartFormDataContent(
             formData {
                 append("apikey", "0cd0e66ab388957")
                 append("language", "auto")
-                append("OCREngine", 2)
+                append("OCREngine", "2")
                 append("base64Image", image)
-                append("isOverlayRequired", true)
-                append("scale", true)
-                append("detectOrientation", true)
+                append("isOverlayRequired", "true")
+                append("scale", "true")
+                append("detectOrientation", "true")
             }
         )
-
-        return mistralHttpClient.post("https://api.ocr.space/parse/image") {
+        val response = mistralHttpClient.post("https://api.ocr.space/parse/image") {
             setBody(multipart)
-        }.body<OcrResponse>()
+        }
+
+        return response.body()
     }
 
-    override suspend fun getPrice(locationId: String) =
-        manifestApiService.getPrice(locationId).body() ?: throw Exception()
+    override suspend fun getPrice(locationId: String) = callApi(
+        apiCall = { manifestApiService.getPrice(locationId) },
+        mapper = { it }
+    ).getOrThrow()
 }

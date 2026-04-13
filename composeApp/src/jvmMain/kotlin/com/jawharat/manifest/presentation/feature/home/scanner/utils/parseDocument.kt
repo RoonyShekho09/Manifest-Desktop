@@ -1,15 +1,15 @@
 package com.jawharat.manifest.presentation.feature.home.scanner.utils
 
 import Pr22.Processing.Document
-import com.jawharat.manifest.data.remote.model.ocr.TextOverlay
+import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.utils.containsAny
 
 
-fun extractFromId(overlay: TextOverlay?, fullNameMinimumLength: Int = 3): PersonDocument? {
-    if (overlay == null || overlay.lines == null)
+fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): PersonDocument? {
+    if (lines == null)
         return null
 
-    if (overlay.lines.any { it.lineText?.contains("Passport", ignoreCase = true) == true }) {
+    if (lines.any { it.text.contains("Passport", ignoreCase = true) }) {
         return null
     }
 
@@ -33,8 +33,8 @@ fun extractFromId(overlay: TextOverlay?, fullNameMinimumLength: Int = 3): Person
         "وزارة", "الداخلية", "سه لماندنى", "كمسايه", "كه سايه", "ادايت", "وضبة"
     )
 
-    for (line in overlay.lines) {
-        val text = line.lineText?.trim().orEmpty()
+    for (line in lines) {
+        val text = line.text.trim()
 
         if (documentId == null) {
             val alphaMatch = idRegex.find(text)

@@ -5,7 +5,7 @@ data class Dispatch(
     val driverInformation: DriverInformation,
     val id: String,
     val isInside: Boolean,
-    val line: Line,
+    val dispatchLine: DispatchLine,
     val office: Office,
     val price: Int,
     val vehicleType: String,
