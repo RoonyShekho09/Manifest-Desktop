@@ -174,7 +174,6 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
     if (state.isDialogVisible)
         AddEditDriverDialog(
             driverToEdit = state.driverToEdit,
-            searchState = state.dialogSearchState,
             isEdit = state.driverToEdit != null,
             onDismiss = viewModel::onDismissDialog,
             onConfirm = viewModel::onConfirmAddEditDriver,

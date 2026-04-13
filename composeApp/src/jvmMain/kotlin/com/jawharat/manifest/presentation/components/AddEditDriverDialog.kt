@@ -27,8 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jawharat.manifest.domain.entity.Driver
-import com.jawharat.manifest.presentation.feature.shared.SearchState
-import com.jawharat.manifest.presentation.feature.vehicles.DispatchData
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.add_new_driver
 import com.jawharat.manifest.resources.cancel
@@ -46,29 +44,20 @@ import com.jawharat.manifest.utils.string
 @Composable
 fun AddEditDriverDialog(
     driverToEdit: Driver?,
-    searchState: SearchState<Driver>,
     isEdit: Boolean = false,
     onDismiss: () -> Unit,
     onConfirm: (Driver?) -> Unit
 ) {
-    var driver by remember {
-        mutableStateOf(
-            DispatchData(
-                id = driverToEdit?.id.orEmpty(),
-                name = driverToEdit?.name.orEmpty()
-            )
-        )
-    }
+    var driverName by remember { mutableStateOf(driverToEdit?.name.orEmpty()) }
     val phoneNumber = rememberTextFieldState(initialText = driverToEdit?.phone.orEmpty())
     val destination = rememberTextFieldState(initialText = driverToEdit?.destination.orEmpty())
     val driverId = rememberTextFieldState(initialText = driverToEdit?.driverId.orEmpty())
 
     val isConfirmEnabled by rememberUpdatedState(
-        searchState.query.text.isNotBlank() &&
-                phoneNumber.text.isNotBlank() &&
-                destination.text.isNotBlank() &&
-                driverId.text.isNotBlank() &&
-                (!isEdit || searchState.searchResults.any { it.name == searchState.query.text.trimEnd() })
+        driverName.length > 3 &&
+                phoneNumber.text.length > 4 &&
+                destination.text.length >= 2 &&
+                driverId.text.length > 3
     )
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
@@ -95,19 +84,10 @@ fun AddEditDriverDialog(
                     placeholder = Res.string.driver_id_number.string
                 )
 
-                DropDownTextField(
-                    value = driver,
-                    query = searchState.query,
-                    data = if (isEdit) searchState.searchResults.map {
-                        DispatchData(
-                            id = it.id,
-                            name = it.name
-                        )
-                    } else
-                        emptyList(),
+                AppTextField(
+                    value = driverName,
+                    onValueChange = { driverName = it },
                     placeholder = Res.string.driver.string,
-                    initialValue = driverToEdit?.name.orEmpty(),
-                    onSelect = { driver = it }
                 )
 
                 AppTextField(
@@ -138,7 +118,7 @@ fun AddEditDriverDialog(
                             if (isEdit)
                                 onConfirm(
                                     driverToEdit?.copy(
-                                        name = driver.name,
+                                        name = driverName,
                                         phone = phoneNumber.text.toString(),
                                         destination = destination.text.toString(),
                                     )
@@ -147,7 +127,7 @@ fun AddEditDriverDialog(
                                 onConfirm(
                                     Driver(
                                         id = "",
-                                        name = driver.name,
+                                        name = driverName,
                                         phone = phoneNumber.text.toString(),
                                         destination = destination.text.toString(),
                                         driverId = driverToEdit?.driverId.orEmpty()

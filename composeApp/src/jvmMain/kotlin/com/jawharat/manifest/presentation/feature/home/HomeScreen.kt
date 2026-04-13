@@ -73,6 +73,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -169,7 +170,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
     ) { paddingValues ->
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             if (currentPlatform != Platform.MacOS)
-                QrCodeScanner(
+                QrScannerCamera(
                     onResult = viewModel::onQrCodeResult,
                     onCameraReady = viewModel::onCameraReady
                 )

@@ -56,7 +56,7 @@ import com.jawharat.manifest.utils.string
 @Composable
 fun AddEditDispatchDialog(
     dispatchToEdit: DispatchUiState?,
-    carTypes: List<VehicleType>,
+    vehicleTypes: List<VehicleType>,
     routes: List<Route>?,
     dispatchLines: List<DispatchLine>,
     driverSearchState: SearchState<Driver>,
@@ -67,15 +67,24 @@ fun AddEditDispatchDialog(
     var price by remember { mutableStateOf(dispatchToEdit?.price.orEmpty()) }
     val plateNumber = rememberTextFieldState(initialText = dispatchToEdit?.plateNumber.orEmpty())
     var vehicleName by remember { mutableStateOf(dispatchToEdit?.vehicleName.orEmpty()) }
-    var vehicleType by remember { mutableStateOf(DispatchData(name = dispatchToEdit?.vehicleType.orEmpty())) }
+    var vehicleType by remember {
+        mutableStateOf(
+            DispatchData(
+                name = dispatchToEdit?.vehicleType.orEmpty(),
+                id = dispatchToEdit?.id.orEmpty()
+            )
+        )
+    }
     var line by remember { mutableStateOf(dispatchToEdit?.line ?: DispatchData()) }
+    val isEdit = dispatchToEdit != null
+
     val isConfirmEnabled by rememberUpdatedState(
         driver.name.isNotBlank() && price.isNotBlank()
                 && plateNumber.text.isNotBlank() && vehicleName.isNotBlank()
                 && vehicleType.name.isNotBlank()
+                && (driverSearchState.searchResults.any { it.name == driverSearchState.query.text.trimEnd() })
+                && vehicleTypes.any { it.name == vehicleType.name }
     )
-
-    val isEdit = dispatchToEdit != null
 
     LaunchedEffect(line.name, vehicleType.name) {
         val currentRoutes = routes ?: return@LaunchedEffect
@@ -87,9 +96,9 @@ fun AddEditDispatchDialog(
             ?.price
             ?.toString()
 
-        if (foundPrice != null) {
-            price = foundPrice
-        }
+        println("found price: $foundPrice")
+
+        price = foundPrice.orEmpty()
     }
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
@@ -132,8 +141,7 @@ fun AddEditDispatchDialog(
                     },
                     placeholder = Res.string.driver.string,
                     initialValue = driver.name,
-                    onSelect = { driver = it
-                    }
+                    onSelect = { driver = it }
                 )
 
                 DropDownTextField(
@@ -147,7 +155,8 @@ fun AddEditDispatchDialog(
 
                 DropDownTextField(
                     value = vehicleType,
-                    data = carTypes.map { DispatchData(id = it.id, name = it.name) },
+                    readOnly = true,
+                    data = vehicleTypes.map { DispatchData(id = it.id, name = it.name) },
                     placeholder = Res.string.car_type.string,
                     initialValue = vehicleType.name,
                     onSelect = { vehicleType = it }

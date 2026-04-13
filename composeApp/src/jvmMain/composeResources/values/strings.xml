@@ -108,7 +108,6 @@
     <string name="result_not_found_try_scanning_again">ئەنجام نەدۆزرایەوە، دووبارە سکان بکەرەوە</string>
     <string name="failed_to_logout">نەتوانرا دەرچوون بکرێت</string>
     <string name="car_type">جۆری سەیارە</string>
-    <string name="car_type">جۆری سەیارە</string>
     <string name="failed_to_add_driver">نەتوانرا شۆفێر زیاد بکرێت</string>
     <string name="session_expired">Session expired</string>
 </resources>
