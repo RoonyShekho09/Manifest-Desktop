@@ -25,6 +25,10 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         initializeVehicleTypes()
         initializeDrivers()
         initializeUserInformation()
+        initializeSearch()
+    }
+
+    private fun initializeSearch() {
         state.value.dispatchSearchState.query.initializeSearch(
             onSearch = ::onSearch,
             onEmptyStateUpdater = {
