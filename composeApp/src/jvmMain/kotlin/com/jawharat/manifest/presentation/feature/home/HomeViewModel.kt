@@ -71,9 +71,9 @@ class HomeViewModel(
 
     private fun onIdCardOcrResult(result: PersonDocument?) {
         if (result?.documentId.isNullOrEmpty() || result.fullName.isEmpty()) {
-            viewModelScope.launch {
-                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
-            }
+//            viewModelScope.launch {
+//                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
+//            }
             return
         }
 
@@ -135,10 +135,8 @@ class HomeViewModel(
     fun logout() = tryToExecute(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
         block = authRepository::logout,
-        onSuccess = { emitEvent(HomeUiEvent.OnLogout) },
-        onError = {
-            snackBarHostState.showFailure(Res.string.failed_to_logout)
-        }
+        onCompleted = { emitEvent(HomeUiEvent.OnLogout) },
+        onError = { snackBarHostState.showFailure(Res.string.failed_to_logout) }
     )
 
     fun onStartScanning() {

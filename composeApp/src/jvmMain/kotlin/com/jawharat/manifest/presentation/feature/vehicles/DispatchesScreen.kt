@@ -171,7 +171,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
         AddEditDispatchDialog(
             driverSearchState = state.driverSearchState,
             routes = state.price,
-            carTypes = state.carTypes,
+            vehicleTypes = state.carTypes,
             dispatchToEdit = state.dispatchToEdit,
             dispatchLines = state.dispatchLines,
             onDismiss = viewModel::onDismissDialog,

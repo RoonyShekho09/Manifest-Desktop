@@ -22,6 +22,9 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.jawharat.manifest.presentation.feature.shared.LocalSnackBarState
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.session_expired
 import com.jawharat.manifest.data.remote.observer.AuthEvent
 import com.jawharat.manifest.data.remote.observer.AuthObserver
 import com.jawharat.manifest.utils.Listen
@@ -91,10 +94,13 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Screen = Scre
 private fun AuthExceptionRouterHandler(onTokenExpiredException: () -> Unit) {
     val authObserver = koinInject<AuthObserver>()
     val event by authObserver.events.collectAsState(null)
+    val snackBarHostState = LocalSnackBarState.current
 
     event.Listen {
         println("AuthExceptionRouterHandler: $it")
-        if (it == AuthEvent.TokenExpired)
+        if (it == AuthEvent.TokenExpired) {
+            snackBarHostState.showFailure(Res.string.session_expired)
             onTokenExpiredException()
+        }
     }
 }

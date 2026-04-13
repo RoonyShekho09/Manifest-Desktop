@@ -42,6 +42,5 @@ class AuthInterceptor(private val localDataSource: AppLocalDataSource) {
         }
     }
 
-
     operator fun invoke(): ClientPlugin<Unit> = plugin
 }
