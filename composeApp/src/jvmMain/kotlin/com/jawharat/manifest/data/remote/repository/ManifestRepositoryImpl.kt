@@ -1,7 +1,7 @@
 package com.jawharat.manifest.data.remote.repository
 
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
-import com.jawharat.manifest.data.proxy.AuthProxy
+import com.jawharat.manifest.data.remote.proxy.AuthProxy
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.mapper.toDomain
 import com.jawharat.manifest.data.remote.mapper.toEntity

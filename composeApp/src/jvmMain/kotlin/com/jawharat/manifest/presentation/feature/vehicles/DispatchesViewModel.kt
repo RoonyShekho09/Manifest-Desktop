@@ -55,7 +55,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         onSuccess = { updateState { copy(price = it) } }
     )
 
-    private fun initializeDrivers(fetch: Boolean = false) = tryToExecute(
+    private fun initializeDrivers(fetch: Boolean = true) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { repository.getDrivers(fetch = fetch) },
         onSuccess = {
@@ -116,7 +116,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         )
     }
 
-    private fun initializeVehicleTypes(fetch: Boolean = false) = tryToExecute(
+    private fun initializeVehicleTypes(fetch: Boolean = true) = tryToExecute(
         block = { repository.getVehicleTypes(fetch = fetch) },
         onSuccess = { updateState { copy(carTypes = it) } }
     )
@@ -154,7 +154,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         )
     }
 
-    fun initializeLines(fetch: Boolean = false) = tryToExecute(
+    fun initializeLines(fetch: Boolean = true) = tryToExecute(
         block = { repository.getLines(fetch = fetch) },
         onSuccess = { updateState { copy(dispatchLines = it) } }
     )
@@ -201,7 +201,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         initializeDrivers(fetch = true)
     }
 
-    private fun initializeDispatches(fetch: Boolean = false) = tryToExecute(
+    private fun initializeDispatches(fetch: Boolean = true) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { repository.getDispatches(fetch = fetch) },
         onSuccess = {

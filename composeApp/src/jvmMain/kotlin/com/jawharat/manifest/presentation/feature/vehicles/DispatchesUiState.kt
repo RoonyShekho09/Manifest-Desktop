@@ -48,19 +48,16 @@ enum class DriverStatus {
 
 fun List<Dispatch>.toUiState() = map { it.toUiState() }
 
-fun Dispatch.toUiState(): DispatchUiState {
-    println("id: ${driverInformation._id}")
-    return DispatchUiState(
-        id = id,
-        driver = DispatchData(
-            id = driverInformation.id,
-            name = driverInformation.name,
-        ),
-        plateNumber = vehicleNumber,
-        vehicleName = vehicleName,
-        vehicleType = vehicleType,
-        price = price.toString(),
-        line = DispatchData(id = dispatchLine.id, name = dispatchLine.name),
-        status = if (isInside) DriverStatus.INSIDE else DriverStatus.OUTSIDE
-    )
-}
+fun Dispatch.toUiState(): DispatchUiState = DispatchUiState(
+    id = id,
+    driver = DispatchData(
+        id = driverInformation.id,
+        name = driverInformation.name,
+    ),
+    plateNumber = vehicleNumber,
+    vehicleName = vehicleName,
+    vehicleType = vehicleType,
+    price = price.toString(),
+    line = DispatchData(id = dispatchLine.id, name = dispatchLine.name),
+    status = if (isInside) DriverStatus.INSIDE else DriverStatus.OUTSIDE
+)

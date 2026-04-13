@@ -1,8 +1,8 @@
-package com.jawharat.manifest.data.proxy
+package com.jawharat.manifest.data.remote.proxy
 
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
-import com.jawharat.manifest.data.observer.AuthEvent
-import com.jawharat.manifest.data.observer.AuthObserver
+import com.jawharat.manifest.data.remote.observer.AuthEvent
+import com.jawharat.manifest.data.remote.observer.AuthObserver
 import com.jawharat.manifest.domain.Exceptions
 
 interface AuthProxy {

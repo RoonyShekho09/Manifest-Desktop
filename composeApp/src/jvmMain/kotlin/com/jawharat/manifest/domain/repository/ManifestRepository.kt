@@ -9,8 +9,8 @@ import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.VehicleType
 
 interface ManifestRepository {
-    suspend fun getDrivers(fetch: Boolean = false): List<Driver>
-    suspend fun getDispatches(fetch: Boolean = false): List<Dispatch>
+    suspend fun getDrivers(fetch: Boolean = true): List<Driver>
+    suspend fun getDispatches(fetch: Boolean = true): List<Dispatch>
     suspend fun scanManifestQrCode(id: String)
     suspend fun scanDriverQrCode(id: String): Driver
     suspend fun scanVehicleQrCode(id: String): Dispatch
@@ -59,8 +59,8 @@ interface ManifestRepository {
         id: String
     )
 
-    suspend fun getLines(fetch: Boolean = false): List<DispatchLine>
-    suspend fun getVehicleTypes(fetch: Boolean = false): List<VehicleType>
+    suspend fun getLines(fetch: Boolean = true): List<DispatchLine>
+    suspend fun getVehicleTypes(fetch: Boolean = true): List<VehicleType>
     suspend fun ocrSpace(image: String, engine: String = "2"): List<OcrLine>?
     suspend fun getPrice(locationId: String): List<Route>?
 }

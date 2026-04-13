@@ -150,7 +150,7 @@ class DriversViewModel(
         initializeDrivers(fetch = true)
     }
 
-    private fun initializeDrivers(fetch: Boolean = false) = tryToExecute(
+    private fun initializeDrivers(fetch: Boolean = true) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { repository.getDrivers(fetch = fetch) },
         onSuccess = {

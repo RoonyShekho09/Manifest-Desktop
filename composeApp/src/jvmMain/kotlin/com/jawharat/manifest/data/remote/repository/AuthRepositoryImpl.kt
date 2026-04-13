@@ -3,7 +3,7 @@ package com.jawharat.manifest.data.remote.repository
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.local.model.LoginSessionLocal
 import com.jawharat.manifest.data.local.model.UserLocal
-import com.jawharat.manifest.data.proxy.AuthProxy
+import com.jawharat.manifest.data.remote.proxy.AuthProxy
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.domain.repository.AuthRepository

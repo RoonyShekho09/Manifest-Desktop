@@ -22,8 +22,8 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jawharat.manifest.data.observer.AuthEvent
-import com.jawharat.manifest.data.observer.AuthObserver
+import com.jawharat.manifest.data.remote.observer.AuthEvent
+import com.jawharat.manifest.data.remote.observer.AuthObserver
 import com.jawharat.manifest.utils.Listen
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string

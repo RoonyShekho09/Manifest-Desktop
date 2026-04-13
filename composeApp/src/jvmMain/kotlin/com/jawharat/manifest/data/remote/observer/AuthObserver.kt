@@ -1,4 +1,4 @@
-package com.jawharat.manifest.data.observer
+package com.jawharat.manifest.data.remote.observer
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
