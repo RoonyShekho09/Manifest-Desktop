@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.jawharat.manifest.domain.entity.Manifest
+import com.jawharat.manifest.domain.entity.UserLocation
 
 @Suppress("ArrayInDataClass")
 @Immutable
@@ -17,6 +18,7 @@ data class HomeUiState(
     val passengers: List<PassengerFieldState> = emptyList(),
     val pdfByteArray: ByteArray? = null,
     val isDocumentScanningSoftwareInstalled: Boolean = true,
+    val userLocation: UserLocation = UserLocation(),
 ) {
     val isPassengersValid: Boolean get() = manifest.price != 10000 && passengers.isNotEmpty()
     val isSubmitEnabled: Boolean

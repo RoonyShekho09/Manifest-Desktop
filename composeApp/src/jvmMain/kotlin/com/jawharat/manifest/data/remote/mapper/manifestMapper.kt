@@ -7,6 +7,7 @@ import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.PriceMatrix
 import com.jawharat.manifest.data.remote.model.RouteDetail
+import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
 import com.jawharat.manifest.data.remote.model.ocr.Line
 import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
 import com.jawharat.manifest.db.DispatchRecord
@@ -20,6 +21,8 @@ import com.jawharat.manifest.domain.entity.Office
 import com.jawharat.manifest.domain.entity.Dispatch
 import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.domain.entity.Route
+import com.jawharat.manifest.domain.entity.UserInformation
+import com.jawharat.manifest.domain.entity.UserLocation
 import com.jawharat.manifest.domain.entity.Vehicle
 import com.jawharat.manifest.domain.entity.VehiclePrice
 import com.jawharat.manifest.domain.entity.VehicleType
@@ -229,4 +232,9 @@ fun Line.toDomain() = OcrLine(
             wordText = it.wordText
         )
     }
+)
+
+fun UserInformationResponse.toDomain() = UserInformation(
+    name = name.orEmpty(),
+    location = UserLocation(id = location?.id.orEmpty(), name = location?.name.orEmpty())
 )

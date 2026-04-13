@@ -24,7 +24,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         initializeLines()
         initializeVehicleTypes()
         initializeDrivers()
-        initializePrice()
+        initializeUserInformation()
         state.value.dispatchSearchState.query.initializeSearch(
             onSearch = ::onSearch,
             onEmptyStateUpdater = {
@@ -51,8 +51,15 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
         )
     }
 
-    private fun initializePrice() = tryToExecute(
-        block = { repository.getPrice("693d62bb417d7b42b11e7987") },
+    private fun initializeUserInformation() = tryToExecute(
+        block = repository::getUserInformation,
+        onSuccess = {
+            initializePrice(locationId = it.location.id)
+        }
+    )
+
+    private fun initializePrice(locationId: String) = tryToExecute(
+        block = { repository.getPrice(locationId = locationId) },
         onSuccess = { updateState { copy(price = it) } }
     )
 

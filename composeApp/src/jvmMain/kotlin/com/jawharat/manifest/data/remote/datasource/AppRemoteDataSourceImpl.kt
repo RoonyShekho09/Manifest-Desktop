@@ -196,4 +196,9 @@ class AppRemoteDataSourceImpl(
         apiCall = { manifestApiService.getPrice(locationId) },
         mapper = { it }
     ).getOrThrow()
+
+    override suspend fun getUserInformation() = callApi(
+        apiCall = { manifestApiService.getUserInformation() },
+        mapper = { it }
+    ).getOrThrow()
 }

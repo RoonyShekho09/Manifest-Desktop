@@ -6,6 +6,7 @@ import com.jawharat.manifest.domain.entity.DispatchLine
 import com.jawharat.manifest.domain.entity.Dispatch
 import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.domain.entity.Route
+import com.jawharat.manifest.domain.entity.UserInformation
 import com.jawharat.manifest.domain.entity.VehicleType
 
 interface ManifestRepository {
@@ -63,4 +64,5 @@ interface ManifestRepository {
     suspend fun getVehicleTypes(fetch: Boolean = true): List<VehicleType>
     suspend fun ocrSpace(image: String, engine: String = "2"): List<OcrLine>?
     suspend fun getPrice(locationId: String): List<Route>?
+    suspend fun getUserInformation(): UserInformation
 }

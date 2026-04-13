@@ -37,7 +37,20 @@ class HomeViewModel(
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
+        initializeUserInformation()
     }
+
+    private fun initializeUserInformation() = tryToExecute(
+        block = manifestRepository::getUserInformation,
+        onSuccess = {
+            updateState {
+                copy(
+                    userLocation = it.location,
+                    manifest = manifest.copy(from = it.location.name)
+                )
+            }
+        }
+    )
 
     fun onCameraReady() = startDocumentScanner()
 

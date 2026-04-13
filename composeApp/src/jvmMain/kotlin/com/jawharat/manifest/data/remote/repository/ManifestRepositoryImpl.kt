@@ -158,6 +158,10 @@ class ManifestRepositoryImpl(
         remoteDataSource.getPrice(locationId).priceMatrix?.toDomain()
     }
 
+    override suspend fun getUserInformation() = authorizedCall {
+        remoteDataSource.getUserInformation().toDomain()
+    }
+
     override suspend fun getVehicleTypes(fetch: Boolean): List<VehicleType> = authorizedCall {
         if (localDataSource.vehicleTypes.hasRecords && !fetch)
             localDataSource.vehicleTypes.query().toDomain()
