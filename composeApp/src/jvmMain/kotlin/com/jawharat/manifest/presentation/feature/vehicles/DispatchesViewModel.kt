@@ -5,8 +5,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
+import com.jawharat.manifest.utils.PrintContent
 import com.jawharat.manifest.utils.generateQRCode
 import com.jawharat.manifest.utils.normalizeArabicKurdish
+import com.jawharat.manifest.utils.printContent
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class DispatchesViewModel(private val repository: ManifestRepository) :
     BaseViewModel<DispatchesUiState, Unit>(DispatchesUiState()) {
@@ -190,20 +193,38 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
     )
 
     fun addDispatch(value: DispatchUiState?) = tryToExecute(
+        onStart = { updateState { copy(isDialogVisible = false, isLoading = true) } },
         block = {
-            value?.id?.let {
-                repository.addVehicle(
-                    plateNumber = value.plateNumber.trimEnd(),
-                    vehicleName = value.vehicleName.trimEnd(),
-                    price = value.price.toIntOrNull(),
-                    driverId = value.driver.id,
-                    line = value.line.id,
-                    vehicleType = value.vehicleType.trimEnd()
+            value?.let {
+                repository.addDispatch(
+                    plateNumber = it.plateNumber.trimEnd(),
+                    vehicleName = it.vehicleName.trimEnd(),
+                    price = it.price.toIntOrNull(),
+                    driverId = it.driver.id,
+                    line = it.line.id,
+                    vehicleType = it.vehicleType.trimEnd()
                 )
             }
         },
-        onSuccess = { initializeDispatches(fetch = true) },
-        onCompleted = { updateState { copy(isDialogVisible = false) } }
+        onSuccess = { result ->
+            if (result == null || value == null) return@tryToExecute
+            val qr1 = generateQRCode(text = "D:${value.driver.id}", displayQrCode = false)
+            val qr2 = generateQRCode(text = "V:${result.id}", displayQrCode = false)
+
+            viewModelScope.launch {
+                printContent(
+                    content = PrintContent.QrCodes(qrCode1 = qr1, qrCode2 = qr2),
+                    onStatusChange = {
+                        println("On status change: $it")
+                    }
+                )
+            }
+
+            updateState { copy(isDialogVisible = false) }
+
+            initializeDispatches(fetch = true)
+        },
+        onCompleted = { updateState { copy(isLoading = false) } }
     )
 
     fun onRefresh() {
@@ -230,6 +251,9 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
     )
 
     fun onGenerateQrCodeClick(id: String) = generateQRCode("V:$id")
+
+    fun onAddClick() = updateState { copy(isDialogVisible = true) }
+
     fun onEditClick(id: String? = null) {
         updateState {
             copy(

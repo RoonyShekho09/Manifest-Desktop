@@ -130,7 +130,7 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                             modifier = Modifier.width(400.dp)
                         )
 
-                        AddItemButton(onClick = viewModel::onEditClick)
+                        AddItemButton(onClick = viewModel::onAddClick)
                     }
                 }
                 items(filteredVehicles, key = { it.id }) { car ->

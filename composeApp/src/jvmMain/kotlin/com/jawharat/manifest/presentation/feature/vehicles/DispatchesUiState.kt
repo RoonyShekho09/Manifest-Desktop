@@ -13,7 +13,6 @@ import com.jawharat.manifest.presentation.feature.shared.SearchState
 data class DispatchesUiState(
     val dispatches: List<DispatchUiState> = emptyList(),
     val dispatchToEdit: DispatchUiState? = null,
-    val dispatchToAdd: DispatchUiState? = null,
     val isDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
     val dispatchSearchState: SearchState<DispatchUiState> = SearchState(),
@@ -54,7 +53,7 @@ fun Dispatch.toUiState(): DispatchUiState = DispatchUiState(
         id = driverInformation.id,
         name = driverInformation.name,
     ),
-    plateNumber = vehicleNumber,
+    plateNumber = plateNumber,
     vehicleName = vehicleName,
     vehicleType = vehicleType,
     price = price.toString(),

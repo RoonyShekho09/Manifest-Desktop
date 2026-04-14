@@ -2,14 +2,14 @@ package com.jawharat.manifest.data.remote.mapper
 
 import com.jawharat.manifest.data.remote.model.drivers.DriverQrCodeResponse
 import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
-import com.jawharat.manifest.data.remote.model.vehicles.DispatchQrCodeResponse
-import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchQrCodeResponse
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.PriceMatrix
 import com.jawharat.manifest.data.remote.model.RouteDetail
 import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
 import com.jawharat.manifest.data.remote.model.ocr.Line
-import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
+import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 import com.jawharat.manifest.db.DispatchRecord
 import com.jawharat.manifest.db.DriverRecord
 import com.jawharat.manifest.db.LineRecord
@@ -57,7 +57,7 @@ fun DispatchResponse.toDomain() = Dispatch(
     office = Office(office?.id.orEmpty(), office?.name.orEmpty()),
     price = price ?: 0,
     vehicleType = vehicleType.orEmpty(),
-    vehicleNumber = vehicleNumber.orEmpty()
+    plateNumber = vehicleNumber.orEmpty()
 )
 
 @JvmName("driverDbToDomain")
@@ -106,7 +106,7 @@ fun DispatchRecord.toDomain() = Dispatch(
     ),
     price = price,
     vehicleType = type,
-    vehicleNumber = vehicleNumber,
+    plateNumber = vehicleNumber,
 )
 
 @JvmName("vehicleToEntity")
@@ -126,7 +126,7 @@ fun Dispatch.toEntity() = DispatchRecord(
     office_name = office.name,
     price = price,
     type = vehicleType,
-    vehicleNumber = vehicleNumber
+    vehicleNumber = plateNumber
 )
 
 fun DispatchQrCodeResponse.toDomain() = Dispatch(
@@ -138,7 +138,7 @@ fun DispatchQrCodeResponse.toDomain() = Dispatch(
     office = Office("", ""),
     price = price ?: 0,
     vehicleType = "",
-    vehicleNumber = vehicleNumber.orEmpty()
+    plateNumber = vehicleNumber.orEmpty()
 )
 
 fun DriverQrCodeResponse.toDomain() = Driver(

@@ -1,4 +1,4 @@
-package com.jawharat.manifest.data.remote.model.vehicles
+package com.jawharat.manifest.data.remote.model.dispatches
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

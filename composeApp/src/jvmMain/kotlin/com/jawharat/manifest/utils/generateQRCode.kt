@@ -16,7 +16,12 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.WindowConstants
 
-fun generateQRCode(text: String, width: Int = 400, height: Int = 400): BufferedImage {
+fun generateQRCode(
+    text: String,
+    width: Int = 400,
+    height: Int = 400,
+    displayQrCode: Boolean = true
+): BufferedImage {
     val bitMatrix = MultiFormatWriter().encode(
         text,
         BarcodeFormat.QR_CODE,
@@ -41,14 +46,17 @@ fun generateQRCode(text: String, width: Int = 400, height: Int = 400): BufferedI
         font = java.awt.Font("SansSerif", java.awt.Font.BOLD, 14)
         border = javax.swing.BorderFactory.createEmptyBorder(10, 20, 10, 20)
 
-        addMouseListener(object : java.awt.event.MouseAdapter() {
-            override fun mouseEntered(e: java.awt.event.MouseEvent) {
-                if (isEnabled) background = java.awt.Color(41, 128, 185)
+        addMouseListener(
+            object : java.awt.event.MouseAdapter() {
+                override fun mouseEntered(e: java.awt.event.MouseEvent) {
+                    if (isEnabled) background = java.awt.Color(41, 128, 185)
+                }
+
+                override fun mouseExited(e: java.awt.event.MouseEvent) {
+                    if (isEnabled) background = java.awt.Color(52, 152, 219)
+                }
             }
-            override fun mouseExited(e: java.awt.event.MouseEvent) {
-                if (isEnabled) background = java.awt.Color(52, 152, 219)
-            }
-        })
+        )
 
         addActionListener {
             copyQrToClipboard(bitMatrix)
@@ -75,10 +83,11 @@ fun generateQRCode(text: String, width: Int = 400, height: Int = 400): BufferedI
     frame.add(button, BorderLayout.SOUTH)
     frame.pack()
     frame.setLocationRelativeTo(null)
-    frame.isVisible = true
+    frame.isVisible = displayQrCode
 
     return image
 }
+
 @OptIn(ExperimentalFoundationApi::class)
 fun copyQrToClipboard(bitMatrix: BitMatrix) {
     val image = MatrixToImageWriter.toBufferedImage(bitMatrix)

@@ -185,16 +185,28 @@ fun AddEditDispatchDialog(
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         onClick = {
-                            onConfirm(
-                                dispatchToEdit?.copy(
-                                    driver = driver,
-                                    plateNumber = plateNumber.text.toString(),
-                                    vehicleName = vehicleName,
-                                    vehicleType = vehicleType.name,
-                                    line = line,
-                                    price = price
+                            if (isEdit)
+                                onConfirm(
+                                    dispatchToEdit.copy(
+                                        driver = driver,
+                                        plateNumber = plateNumber.text.toString(),
+                                        vehicleName = vehicleName,
+                                        vehicleType = vehicleType.name,
+                                        line = line,
+                                        price = price
+                                    )
                                 )
-                            )
+                            else
+                                onConfirm(
+                                    DispatchUiState(
+                                        driver = driver,
+                                        plateNumber = plateNumber.text.toString(),
+                                        vehicleName = vehicleName,
+                                        price = price,
+                                        vehicleType = vehicleType.name,
+                                        line = line,
+                                    )
+                                )
                         },
                         enabled = isConfirmEnabled,
                         modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)

@@ -8,9 +8,9 @@ import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
 import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
 import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
-import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
-import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
-import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
+import com.jawharat.manifest.data.remote.model.dispatches.AddVehicleRequestBody
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
+import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.di.BASE_URL
 import io.ktor.client.HttpClient
@@ -89,17 +89,17 @@ class AppRemoteDataSourceImpl(
         mapper = { it }
     ).getOrThrow()
 
-    override suspend fun addVehicle(
+    override suspend fun addDispatch(
         vehicleNumber: String?, type: String?,
         carType: String?, price: Int?,
         driverId: String?, line: String?
     ) = callApi(
         apiCall = {
-            manifestApiService.addVehicle(
+            manifestApiService.addDispatch(
                 body = AddVehicleRequestBody(vehicleNumber, type, carType, price, driverId, line)
             )
         },
-        mapper = { it }
+        mapper = { it.dispatch }
     ).getOrThrow()
 
     override suspend fun editDriver(

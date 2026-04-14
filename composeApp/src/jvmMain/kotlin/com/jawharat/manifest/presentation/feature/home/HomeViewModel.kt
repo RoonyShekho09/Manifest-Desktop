@@ -203,7 +203,7 @@ class HomeViewModel(
             updateState {
                 copy(
                     manifest = state.value.manifest.copy(
-                        vehicleNumber = it.vehicleNumber,
+                        vehicleNumber = it.plateNumber,
                         price = it.price,
                         vehicleType = it.vehicleName,
                         from = it.dispatchLine.name

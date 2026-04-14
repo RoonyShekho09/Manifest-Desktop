@@ -62,11 +62,12 @@ import com.jawharat.manifest.resources.vehicle_number
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.Listen
 import com.jawharat.manifest.utils.Platform
+import com.jawharat.manifest.utils.PrintContent
 import com.jawharat.manifest.utils.currentPlatform
 import com.jawharat.manifest.utils.handClickable
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
-import com.jawharat.manifest.utils.printPdf
+import com.jawharat.manifest.utils.printContent
 import com.jawharat.manifest.utils.string
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -106,12 +107,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
     LaunchedEffect(state.pdfByteArray) {
         state.pdfByteArray?.let { bytes ->
             withContext(Dispatchers.IO) {
-                printPdf(
-                    pdfData = bytes,
-                    onStatusChange = {
-                        println("onStatusChange: $it")
-                    }
-                )
+                printContent(content = PrintContent.Pdf(bytes), onStatusChange = {})
             }
         }
     }

@@ -33,14 +33,14 @@ interface ManifestRepository {
         destination: String? = null,
     )
 
-    suspend fun addVehicle(
+    suspend fun addDispatch(
         plateNumber: String? = null,
         vehicleName: String? = null,
         vehicleType: String? = null,
         price: Int? = null,
         driverId: String? = null,
         line: String? = null,
-    )
+    ): Dispatch
 
     suspend fun editDriver(
         driverId: String? = null,

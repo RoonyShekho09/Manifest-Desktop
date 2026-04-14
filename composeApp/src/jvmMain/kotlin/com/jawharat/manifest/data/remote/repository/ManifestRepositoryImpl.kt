@@ -72,7 +72,7 @@ class ManifestRepositoryImpl(
         )
     }
 
-    override suspend fun addVehicle(
+    override suspend fun addDispatch(
         plateNumber: String?,
         vehicleName: String?,
         vehicleType: String?,
@@ -80,13 +80,21 @@ class ManifestRepositoryImpl(
         driverId: String?,
         line: String?
     ) = authorizedCall {
-        remoteDataSource.addVehicle(
+        remoteDataSource.addDispatch(
             vehicleNumber = plateNumber,
             type = vehicleName,
             carType = vehicleType,
             price = price,
             driverId = driverId,
             line = line
+        )
+    }.let {
+        Dispatch(
+            id = it?.id.orEmpty(),
+            isInside = it?.isInside == true,
+            price = it?.price ?: 0,
+            vehicleType = it?.type.orEmpty(),
+            plateNumber = it?.vehicleNumber.orEmpty()
         )
     }
 

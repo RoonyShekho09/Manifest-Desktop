@@ -1,8 +1,15 @@
 package com.jawharat.manifest.utils
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.pdmodel.PDPage
+import org.apache.pdfbox.pdmodel.PDPageContentStream
+import org.apache.pdfbox.pdmodel.common.PDRectangle
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory
 import org.apache.pdfbox.printing.PDFPrintable
 import org.apache.pdfbox.printing.Scaling
+import java.awt.image.BufferedImage
 import java.awt.print.PageFormat
 import java.awt.print.Pageable
 import java.awt.print.Printable
@@ -18,11 +25,45 @@ import javax.print.attribute.standard.PrinterStateReasons
 import javax.print.attribute.standard.Severity
 import javax.print.attribute.standard.Sides
 
-fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
-    if (pdfData.isEmpty()) return
+sealed class PrintContent {
+    data class Pdf(val pdfData: ByteArray) : PrintContent() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
 
+            other as Pdf
+
+            return pdfData.contentEquals(other.pdfData)
+        }
+
+        override fun hashCode(): Int {
+            return pdfData.contentHashCode()
+        }
+    }
+
+    data class QrCodes(val qrCode1: BufferedImage, val qrCode2: BufferedImage) : PrintContent()
+}
+
+suspend fun printContent(content: PrintContent, onStatusChange: (String) -> Unit) {
     try {
-        PDDocument.load(pdfData).use { document ->
+        val document = when (content) {
+            is PrintContent.Pdf -> {
+                if (content.pdfData.isEmpty()) {
+                    onStatusChange("Error: PDF data is empty.")
+                    return
+                }
+
+                withContext(Dispatchers.IO) {
+                    PDDocument.load(content.pdfData)
+                }
+            }
+
+            is PrintContent.QrCodes -> {
+                buildQrDocument(content.qrCode1, content.qrCode2)
+            }
+        }
+
+        document.use {
             val printerJob = PrinterJob.getPrinterJob()
 
             val pageable = object : Pageable {
@@ -61,7 +102,9 @@ fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
                     }
                 }.also { it.isDaemon = true; it.start() }
 
-                printerJob.print(attributes)
+                withContext(Dispatchers.IO) {
+                    printerJob.print(attributes)
+                }
                 pollJob.interrupt()
                 onStatusChange("Success: Sent to spooler.")
             } else {
@@ -72,6 +115,35 @@ fun printPdf(pdfData: ByteArray, onStatusChange: (String) -> Unit) {
         onStatusChange("Error: ${e.message}")
         e.printStackTrace()
     }
+}
+
+/**
+ * Builds a new single-page A4 PDDocument with the 2 QR codes placed side by side.
+ */
+private fun buildQrDocument(qrCode1: BufferedImage, qrCode2: BufferedImage): PDDocument {
+    val document = PDDocument()
+    val page = PDPage(PDRectangle.A4)
+    document.addPage(page)
+
+    val pageWidth = page.mediaBox.width
+    val pageHeight = page.mediaBox.height
+
+    val qrSize = 350f
+    val spacing = 20f
+    val totalHeight = (qrSize * 2) + spacing
+
+    val startY = (pageHeight + totalHeight) / 2
+    val x = (pageWidth - qrSize) / 2
+
+    PDPageContentStream(document, page).use { contentStream ->
+        val pdImage1 = LosslessFactory.createFromImage(document, qrCode1)
+        contentStream.drawImage(pdImage1, x, startY - qrSize, qrSize, qrSize)
+
+        val pdImage2 = LosslessFactory.createFromImage(document, qrCode2)
+        contentStream.drawImage(pdImage2, x, startY - qrSize - spacing - qrSize, qrSize, qrSize)
+    }
+
+    return document
 }
 
 fun pollPrinterStatus(printService: PrintService, onStatusChange: (String) -> Unit) {
@@ -94,4 +166,3 @@ fun pollPrinterStatus(printService: PrintService, onStatusChange: (String) -> Un
         else -> onStatusChange("Printer state unknown.")
     }
 }
-

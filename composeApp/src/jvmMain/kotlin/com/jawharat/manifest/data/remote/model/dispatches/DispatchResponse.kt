@@ -1,4 +1,4 @@
-package com.jawharat.manifest.data.remote.model.vehicles
+package com.jawharat.manifest.data.remote.model.dispatches
 
 import com.jawharat.manifest.data.remote.model.drivers.DriverInformationRemote
 import com.jawharat.manifest.data.remote.model.LineRemote

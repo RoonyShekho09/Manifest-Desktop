@@ -6,13 +6,14 @@ import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
+import com.jawharat.manifest.data.remote.model.dispatches.AddDispatchResponse
 import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
 import com.jawharat.manifest.data.remote.model.drivers.DriverQrCodeResponse
 import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
-import com.jawharat.manifest.data.remote.model.vehicles.AddVehicleRequestBody
-import com.jawharat.manifest.data.remote.model.vehicles.DispatchQrCodeResponse
-import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
-import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
+import com.jawharat.manifest.data.remote.model.dispatches.AddVehicleRequestBody
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchQrCodeResponse
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
+import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 import de.jensklingenberg.ktorfit.Response
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
@@ -58,7 +59,7 @@ interface ManifestApiService {
     suspend fun addDriver(@Body body: AddDriverRequestBody): Response<Unit>
 
     @POST("vehicles")
-    suspend fun addVehicle(@Body body: AddVehicleRequestBody): Response<Unit>
+    suspend fun addDispatch(@Body body: AddVehicleRequestBody): Response<AddDispatchResponse>
 
     @PUT("drivers/{id}")
     suspend fun editDriver(@Body body: AddDriverRequestBody, @Path("id") id: String): Response<Unit>

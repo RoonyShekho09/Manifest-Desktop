@@ -2,15 +2,16 @@ package com.jawharat.manifest.data.remote.datasource
 
 import com.jawharat.manifest.data.remote.model.drivers.DriverQrCodeResponse
 import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
-import com.jawharat.manifest.data.remote.model.vehicles.DispatchQrCodeResponse
-import com.jawharat.manifest.data.remote.model.vehicles.DispatchResponse
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchQrCodeResponse
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.data.remote.model.PriceResponse
 import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchRemote
 import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
-import com.jawharat.manifest.data.remote.model.vehicles.VehicleRemote
+import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 
 interface AppRemoteDataSource {
     suspend fun logout(): Boolean
@@ -38,14 +39,14 @@ interface AppRemoteDataSource {
         destination: String? = null,
     )
 
-    suspend fun addVehicle(
+    suspend fun addDispatch(
         vehicleNumber: String? = null,
         type: String? = null,
         carType: String? = null,
         price: Int? = null,
         driverId: String? = null,
         line: String? = null,
-    )
+    ): DispatchRemote?
 
     suspend fun editDriver(
         driverId: String? = null,
