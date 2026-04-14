@@ -1,10 +1,9 @@
 package com.jawharat.manifest.presentation.feature.home.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,16 +11,15 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +33,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.ic_search
@@ -67,57 +66,61 @@ fun CountrySelectionDropDown(
         focusRequester.requestFocus()
     }
 
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        modifier = modifier
-            .width(300.dp)
-            .heightIn(max = 400.dp)
-            .background(containerColor),
-        properties = PopupProperties(focusable = true)
-    ) {
-        Column {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .padding(8.dp)
-                    .focusRequester(focusRequester),
-                value = searchValue,
-                onValueChange = { searchValue = it },
-                placeholder = {
-                    Text(
-                        text = Res.string.search.string,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_search),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                },
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = contentColor,
-                    unfocusedTextColor = contentColor,
-                    cursorColor = contentColor
-                )
-            )
-
-            HorizontalDivider(color = contentColor.copy(alpha = 0.12f))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 200.dp)
-                    .verticalScroll(rememberScrollState()),
+    if (expanded)
+        Popup(
+            onDismissRequest = onDismissRequest,
+            properties = PopupProperties(focusable = true)
+        ) {
+            Surface(
+                modifier = modifier
+                    .width(300.dp)
+                    .heightIn(max = 400.dp),
+                shape = MaterialTheme.shapes.medium,
+                color = containerColor,
+                shadowElevation = 8.dp
             ) {
-                filteredItems.forEach { countryItem ->
-                    DropdownMenuItem(
-                        text = {
+                Column {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(70.dp)
+                            .padding(8.dp)
+                            .focusRequester(focusRequester),
+                        value = searchValue,
+                        onValueChange = { searchValue = it },
+                        placeholder = {
+                            Text(
+                                text = Res.string.search.string,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_search),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = contentColor,
+                            unfocusedTextColor = contentColor,
+                            cursorColor = contentColor
+                        )
+                    )
+
+                    HorizontalDivider(color = contentColor.copy(alpha = 0.12f))
+
+                    LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                        items(filteredItems, key = { it.code }) { countryItem ->
                             Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onSelect(countryItem)
+                                        searchValue = ""
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
@@ -138,18 +141,11 @@ fun CountrySelectionDropDown(
                                     color = contentColor.copy(alpha = 0.7f)
                                 )
                             }
-                        },
-                        onClick = {
-                            onSelect(countryItem)
-                            searchValue = ""
-                        },
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                    )
+                        }
+                    }
                 }
-
             }
         }
-    }
 }
 
 fun List<Country>.searchForAnItem(
