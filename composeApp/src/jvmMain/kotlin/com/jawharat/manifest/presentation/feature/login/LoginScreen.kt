@@ -1,7 +1,6 @@
 package com.jawharat.manifest.presentation.feature.login
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,8 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,7 +59,6 @@ import com.jawharat.manifest.resources.ic_password_visible
 import com.jawharat.manifest.resources.login
 import com.jawharat.manifest.resources.login_to_continue
 import com.jawharat.manifest.resources.password
-import com.jawharat.manifest.resources.save_credentials
 import com.jawharat.manifest.resources.username
 import com.jawharat.manifest.utils.Listen
 import com.jawharat.manifest.utils.handPointerHover
@@ -205,26 +201,6 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                         }
                     }
                 )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = state.saveCredentials,
-                        onCheckedChange = { viewModel.onSaveCredentialsChange(it) },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0xFFE2B631)
-                        )
-                    )
-                    Text(
-                        text = Res.string.save_credentials.string,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.clickable {
-                            viewModel.onSaveCredentialsChange(!state.saveCredentials)
-                        }
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
