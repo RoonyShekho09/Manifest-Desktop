@@ -7,7 +7,6 @@ import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.login_failed
 import com.jawharat.manifest.utils.IKeyringProvider
-import org.jetbrains.compose.resources.getString
 
 
 class LoginViewModel(
@@ -20,7 +19,6 @@ class LoginViewModel(
         initializeSavedCredentials()
     }
 
-    fun onSaveCredentialsChange(value: Boolean) = updateState { copy(saveCredentials = value) }
     private fun initializeSavedCredentials() {
         runCatching {
             keyring.use { keyring ->
@@ -45,14 +43,13 @@ class LoginViewModel(
             )
         },
         onSuccess = {
-            if (state.value.saveCredentials)
-                keyring.getKeyring().use { keyring ->
-                    keyring?.setPassword(
-                        "jawharat-erbil",
-                        state.value.emailState.text.toString(),
-                        state.value.passwordState.text.toString()
-                    )
-                }
+            keyring.getKeyring().use { keyring ->
+                keyring?.setPassword(
+                    "jawharat-erbil",
+                    state.value.emailState.text.toString(),
+                    state.value.passwordState.text.toString()
+                )
+            }
 
             emitEvent(LoginUiEvent.OnNavigateToHome)
         },
