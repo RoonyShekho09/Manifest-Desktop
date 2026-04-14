@@ -13,5 +13,4 @@ data class DriverUiState(
     val isDialogVisible: Boolean = false,
     val isLoading: Boolean = false,
     val mainSearchState: SearchState<Driver> = SearchState(),
-    val dialogSearchState: SearchState<Driver> = SearchState(),
 )

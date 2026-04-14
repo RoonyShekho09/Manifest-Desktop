@@ -164,7 +164,8 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                             if (it.key == Key.Enter) {
                                 focusManager.moveFocus(FocusDirection.Next)
                                 true
-                            } else false
+                            } else
+                                false
                         },
                     placeholder = Res.string.username.string,
                     leadingIcon = {
@@ -183,7 +184,8 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                             if (it.key == Key.Enter && state.isLoginEnabled) {
                                 viewModel.login()
                                 true
-                            } else false
+                            } else
+                                false
                         },
                     outputTransformation = if (isPasswordVisible) null else PasswordOutputTransformation(),
                     leadingIcon = {

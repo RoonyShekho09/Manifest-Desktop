@@ -30,15 +30,10 @@ class DriversViewModel(
 
     init {
         initializeDrivers()
-        getLines()
+     //   getLines()
         state.value.mainSearchState.query.initializeSearch(
             onSearch = ::onMainScreenSearch,
             onEmptyStateUpdater = { copy(mainSearchState = mainSearchState.copy(searchResults = drivers)) }
-        )
-
-        state.value.dialogSearchState.query.initializeSearch(
-            onSearch = ::onDialogSearch,
-            onEmptyStateUpdater = { copy(dialogSearchState = dialogSearchState.copy(searchResults = drivers)) }
         )
     }
 
@@ -98,30 +93,6 @@ class DriversViewModel(
         onCompleted = { updateState { copy(isLoading = false, isDialogVisible = false) } },
     )
 
-    private fun onDialogSearch(query: String) =
-        updateState {
-            copy(
-                dialogSearchState = dialogSearchState.copy(
-                    searchResults = state.value.drivers.filter {
-                        it.name.contains(query, ignoreCase = true) || it.destination.contains(
-                            query,
-                            ignoreCase = true
-                        ) || it.phone.contains(
-                            query,
-                            ignoreCase = true
-                        )
-                    }
-                        .sortedBy {
-                            it.name
-                        }
-                        .sortedBy {
-                            !it.name.startsWith(query, ignoreCase = true)
-                        }
-                        .toImmutableList()
-                )
-            )
-        }
-
     private fun onMainScreenSearch(query: String) =
         updateState {
             copy(
@@ -147,7 +118,7 @@ class DriversViewModel(
         }
 
     fun onRefresh() {
-        updateState { copy(mainSearchState = SearchState()) }
+        updateState { copy(mainSearchState = mainSearchState.copy(query = TextFieldState())) }
         initializeDrivers(fetch = true)
     }
 
@@ -157,9 +128,10 @@ class DriversViewModel(
         onSuccess = {
             updateState {
                 copy(
-                    drivers = it.toImmutableList(),
-                    mainSearchState = mainSearchState.copy(searchResults = it.toImmutableList()),
-                    dialogSearchState = dialogSearchState.copy(searchResults = it.toImmutableList())
+                    drivers = if (it.isEmpty()) drivers else it.toImmutableList(),
+                    mainSearchState = if (it.isEmpty()) mainSearchState else mainSearchState.copy(
+                        searchResults = it.toImmutableList()
+                    ),
                 )
             }
         },
