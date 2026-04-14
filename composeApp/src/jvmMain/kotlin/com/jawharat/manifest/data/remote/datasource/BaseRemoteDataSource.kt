@@ -1,6 +1,6 @@
 package com.jawharat.manifest.data.remote.datasource
 
-import com.jawharat.manifest.domain.Exceptions
+import com.jawharat.manifest.domain.exceptions.NetworkException
 import de.jensklingenberg.ktorfit.Response
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
@@ -50,7 +50,7 @@ interface BaseRemoteDataSource {
             }
 
             result.status == HttpStatusCode.Unauthorized -> {
-                throw Exceptions.TokenExpiredException()
+                throw NetworkException.TokenExpiredException()
             }
 
             else -> {
