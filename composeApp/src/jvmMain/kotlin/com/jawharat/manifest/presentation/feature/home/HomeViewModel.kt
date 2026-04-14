@@ -106,7 +106,7 @@ class HomeViewModel(
 
     private fun updatePassengersState(value: PersonDocument) {
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
-        if (value.fullName.isEmpty() || value.documentId.isEmpty() || value.countryCode.isEmpty()) return
+        if (value.fullName.isEmpty() || value.documentId.isEmpty() || allCountries.all { it.code != value.countryCode.lowercase() }) return
 
         updateState {
             copy(
@@ -128,7 +128,8 @@ class HomeViewModel(
                                 ignoreCase = true
                             )
                         }?.code.orEmpty()
-                    )
+                    ),
+                    isEditable = false
                 )
             )
         }
