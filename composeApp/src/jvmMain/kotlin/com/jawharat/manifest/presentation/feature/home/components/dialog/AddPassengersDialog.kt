@@ -121,14 +121,14 @@ fun AddPassengersDialog(
                             Box(modifier = Modifier.weight(1f)) {
                                 AppTextField(
                                     state = passenger.id,
-                                    //   placeholder = Res.string.id_placeholder.string
+                                    readOnly = !passenger.isEditable
                                 )
                             }
 
                             Box(modifier = Modifier.weight(1f)) {
                                 AppTextField(
                                     state = passenger.name,
-                                    //  placeholder = Res.string.full_name.string
+                                    readOnly = !passenger.isEditable
                                 )
                             }
 
@@ -137,14 +137,14 @@ fun AddPassengersDialog(
                                     Box {
                                         AppTextField(
                                             state = passenger.countryCode,
-                                            //    placeholder = Res.string.country.string,
+                                            readOnly = !passenger.isEditable,
                                             modifier = Modifier.fillMaxWidth()
                                         )
 
                                         Box(
                                             modifier = Modifier
                                                 .matchParentSize()
-                                                .handClickable { isDropDownExpanded = true }
+                                                .handClickable { isDropDownExpanded = passenger.isEditable }
                                         )
                                     }
 

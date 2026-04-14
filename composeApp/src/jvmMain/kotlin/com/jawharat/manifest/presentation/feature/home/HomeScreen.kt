@@ -255,10 +255,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         modifier = Modifier.weight(1f)
                     )
 
-                    Box(
-                        modifier = Modifier.weight(1f)
-                            .handClickable(onClick = viewModel::onPassengerFieldClick)
-                    ) {
+                    Box(modifier = Modifier.weight(1f)) {
                         AppTextField(
                             value = state.passengers.joinToString(", ") { it.name.text.toString() },
                             placeholder = Res.string.passengers.string,
@@ -266,7 +263,10 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                             readOnly = false,
                             enabled = false,
                         )
-                        Box(modifier = Modifier.matchParentSize())
+                        Box(
+                            modifier = Modifier.matchParentSize()
+                                .handClickable(onClick = viewModel::onPassengerFieldClick)
+                        )
                     }
                 }
 
