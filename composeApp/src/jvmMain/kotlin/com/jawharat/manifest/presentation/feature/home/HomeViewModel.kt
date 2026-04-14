@@ -3,6 +3,7 @@ package com.jawharat.manifest.presentation.feature.home
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.domain.entity.Manifest
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
@@ -24,6 +25,9 @@ import kotlinx.coroutines.launch
 import java.awt.image.BufferedImage
 import com.jawharat.manifest.resources.request_failed
 import com.jawharat.manifest.resources.result_not_found_try_scanning_again
+import com.jawharat.manifest.utils.PrintContent
+import com.jawharat.manifest.utils.printContent
+import kotlinx.coroutines.withContext
 
 class HomeViewModel(
     private val authRepository: AuthRepository,
@@ -154,31 +158,33 @@ class HomeViewModel(
         onError = { snackBarHostState.showFailure(Res.string.failed_to_logout) }
     )
 
-    fun onSubmitManifestClick() {
-        tryToExecute(
-            block = {
-                manifestRepository.submitManifest(
-                    driverName = state.value.manifest.driverName,
-                    vehicleNumber = state.value.manifest.vehicleNumber,
-                    vehicleType = state.value.manifest.vehicleType,
-                    phoneNumber = state.value.manifest.driverPhoneNumber,
-                    to = state.value.manifest.to,
-                    price = state.value.manifest.price ?: 0,
-                    passengers = state.value.passengers.map {
-                        Passenger(
-                            id = it.id.text.toString(),
-                            name = it.name.text.toString(),
-                            nationality = it.countryCode.text.toString(),
-                            manual = true
-                        )
-                    },
-                    driverId = state.value.manifest.driverIdNumber,
-                )
-            },
-            onSuccess = { updateState { copy(pdfByteArray = it) } }
-        )
-        updateState { copy(startScanning = true) }
-    }
+    fun onSubmitManifestClick() = tryToExecute(
+        block = {
+            manifestRepository.submitManifest(
+                driverName = state.value.manifest.driverName,
+                vehicleNumber = state.value.manifest.vehicleNumber,
+                vehicleType = state.value.manifest.vehicleType,
+                phoneNumber = state.value.manifest.driverPhoneNumber,
+                to = state.value.manifest.to,
+                price = state.value.manifest.price ?: 0,
+                passengers = state.value.passengers.map {
+                    Passenger(
+                        id = it.id.text.toString(),
+                        name = it.name.text.toString(),
+                        nationality = it.countryCode.text.toString(),
+                        manual = true
+                    )
+                },
+                driverId = state.value.manifest.driverIdNumber,
+            )
+        },
+        onSuccess = {
+            withContext(Dispatchers.IO) {
+                printContent(content = PrintContent.Pdf(it), onStatusChange = {})
+            }
+            updateState { copy(manifest = Manifest()) }
+        }
+    )
 
     fun onQrCodeResult(value: String) {
         val driverId = value.substringAfter("D:", missingDelimiterValue = "").ifEmpty { null }
@@ -195,7 +201,7 @@ class HomeViewModel(
         }
 
         if (state.value.scanState.allScanned)
-            updateState { copy(startScanning = false, scanState = ScanState()) }
+            updateState { copy(scanState = ScanState()) }
     }
 
     fun scanVehicleQrCode(id: String) = tryToExecute(

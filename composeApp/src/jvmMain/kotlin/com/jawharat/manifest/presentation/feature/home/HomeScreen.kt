@@ -29,7 +29,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -62,16 +61,12 @@ import com.jawharat.manifest.resources.vehicle_number
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.Listen
 import com.jawharat.manifest.utils.Platform
-import com.jawharat.manifest.utils.PrintContent
 import com.jawharat.manifest.utils.currentPlatform
 import com.jawharat.manifest.utils.handClickable
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
-import com.jawharat.manifest.utils.printContent
 import com.jawharat.manifest.utils.string
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -103,15 +98,6 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(state: HomeUiState, viewModel: HomeViewModel) {
-
-    LaunchedEffect(state.pdfByteArray) {
-        state.pdfByteArray?.let { bytes ->
-            withContext(Dispatchers.IO) {
-                printContent(content = PrintContent.Pdf(bytes), onStatusChange = {})
-            }
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
