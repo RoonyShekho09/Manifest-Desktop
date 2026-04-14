@@ -1,5 +1,5 @@
-package com.jawharat.manifest.domain
+package com.jawharat.manifest.domain.exceptions
 
-sealed class Exceptions : Exception() {
+sealed class NetworkException : Exception() {
     data class TokenExpiredException(override val message: String = "Token has expired") : Exception()
 }
