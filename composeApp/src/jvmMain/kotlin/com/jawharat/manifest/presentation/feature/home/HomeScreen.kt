@@ -297,7 +297,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                 Spacer(Modifier.height(32.dp))
 
                 Button(
-                    onClick = viewModel::onStartScanning,
+                    onClick = viewModel::onSubmitManifestClick,
                     enabled = state.isSubmitEnabled,
                     modifier = Modifier.handPointerHover()
                         .align(Alignment.CenterHorizontally)

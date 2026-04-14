@@ -52,7 +52,7 @@ class HomeViewModel(
         }
     )
 
-    fun onCameraReady() = startDocumentScanner()
+    fun onCameraReady() = Unit
 
     private fun startDocumentScanner() {
         if (!documentScanner.isSoftwareInstalled) return
@@ -140,7 +140,8 @@ class HomeViewModel(
     fun onAddPassengers(value: List<PassengerFieldState>) =
         updateState { copy(passengers = value, isAddPassengersDialogVisible = false) }
 
-    fun onPassengerFieldClick() = updateState { copy(isAddPassengersDialogVisible = true) }
+    fun onPassengerFieldClick() =
+        updateState { copy(isAddPassengersDialogVisible = state.value.manifest.price != 10000) }
 
     fun onDismissAddPassengerDialog() = updateState { copy(isAddPassengersDialogVisible = false) }
 
@@ -153,7 +154,7 @@ class HomeViewModel(
         onError = { snackBarHostState.showFailure(Res.string.failed_to_logout) }
     )
 
-    fun onStartScanning() {
+    fun onSubmitManifestClick() {
         tryToExecute(
             block = {
                 manifestRepository.submitManifest(
@@ -212,6 +213,9 @@ class HomeViewModel(
                     scanState = scanState.copy(isVehicleScanned = true)
                 )
             }
+
+            if (it.price != 10000)
+                startDocumentScanner()
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )

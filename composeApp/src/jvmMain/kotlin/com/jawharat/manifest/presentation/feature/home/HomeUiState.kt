@@ -20,11 +20,11 @@ data class HomeUiState(
     val isDocumentScanningSoftwareInstalled: Boolean = true,
     val userLocation: UserLocation = UserLocation(),
 ) {
-    val isPassengersValid: Boolean get() = manifest.price != 10000 && passengers.isNotEmpty()
     val isSubmitEnabled: Boolean
         get() = manifest.to.isNotEmpty() && manifest.price != null &&
                 manifest.vehicleNumber.isNotEmpty() && manifest.driverName.isNotEmpty() &&
-                manifest.driverIdNumber.isNotEmpty() && manifest.driverPhoneNumber.isNotEmpty() && isPassengersValid
+                manifest.driverIdNumber.isNotEmpty() && manifest.driverPhoneNumber.isNotEmpty()
+                && (passengers.isNotEmpty() || manifest.price == 10000)
 }
 
 @Stable
