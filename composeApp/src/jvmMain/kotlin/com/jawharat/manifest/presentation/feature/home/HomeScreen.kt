@@ -49,7 +49,7 @@ import com.jawharat.manifest.resources.driver_id_number
 import com.jawharat.manifest.resources.driver_name
 import com.jawharat.manifest.resources.driver_phone_number
 import com.jawharat.manifest.resources.from
-import com.jawharat.manifest.resources.ic_qr_code_scanning
+import com.jawharat.manifest.resources.ic_print
 import com.jawharat.manifest.resources.install_now
 import com.jawharat.manifest.resources.logout
 import com.jawharat.manifest.resources.passengers
@@ -303,7 +303,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         .align(Alignment.CenterHorizontally)
                 ) {
                     Icon(
-                        painter = Res.drawable.ic_qr_code_scanning.painter,
+                        painter = Res.drawable.ic_print.painter,
                         tint = Color.White,
                         contentDescription = null
                     )
