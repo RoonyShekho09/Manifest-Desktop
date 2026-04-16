@@ -6,6 +6,7 @@ import com.jawharat.manifest.data.local.model.UserLocal
 import com.jawharat.manifest.data.remote.proxy.AuthProxy
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
+import com.jawharat.manifest.domain.entity.UpdateInfo
 import com.jawharat.manifest.domain.repository.AuthRepository
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -39,7 +40,7 @@ class AuthRepositoryImpl(
     override suspend fun isUpdateAvailable(
         currentVersion: String,
         versionFileUrl: String
-    ): Boolean = remoteDataSource.isUpdateAvailable(
+    ): UpdateInfo = remoteDataSource.getUpdateInfo(
         currentVersion = currentVersion,
         versionFileUrl = versionFileUrl
     )

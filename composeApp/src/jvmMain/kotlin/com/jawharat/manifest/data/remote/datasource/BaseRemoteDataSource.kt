@@ -49,9 +49,12 @@ interface BaseRemoteDataSource {
                     Result.failure(Exception(result.message))
             }
 
-            result.status == HttpStatusCode.Unauthorized -> {
-                throw NetworkException.TokenExpiredException()
-            }
+            result.status == HttpStatusCode.Unauthorized -> throw NetworkException.TokenExpiredException()
+
+            result.status == HttpStatusCode.TooManyRequests -> throw NetworkException.TooManyRequests()
+
+            result.status == HttpStatusCode.Found -> @Suppress("UNCHECKED_CAST")
+            Result.success(null as R)
 
             else -> {
                 Result.failure(

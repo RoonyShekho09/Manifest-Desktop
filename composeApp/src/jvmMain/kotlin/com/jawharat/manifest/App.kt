@@ -3,44 +3,51 @@
 package com.jawharat.manifest
 
 import ManifestDesktop.composeApp.BuildConfig
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.jawharat.manifest.di.dataSourceModule
-import com.jawharat.manifest.di.databaseModule
-import com.jawharat.manifest.di.networkModule
-import com.jawharat.manifest.di.repositoryModule
-import com.jawharat.manifest.di.utilModule
-import com.jawharat.manifest.di.viewModelModule
+import com.jawharat.manifest.domain.entity.UpdateInfo
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.presentation.navigation.AppNavigation
 import com.jawharat.manifest.presentation.navigation.Screen
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.download
+import com.jawharat.manifest.utils.string
+import io.sentry.kotlin.multiplatform.Sentry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.compose.koinInject
-import org.koin.core.context.startKoin
-import io.sentry.kotlin.multiplatform.Sentry
-import kotlinx.coroutines.runBlocking
+import java.awt.Desktop
+import java.net.URI
 
 @Composable
 @Preview
 fun App() {
-    startKoin {
-        modules(
-            networkModule,
-            viewModelModule,
-            repositoryModule,
-            dataSourceModule,
-            databaseModule,
-            utilModule
-        )
-    }
-
     Sentry.init { options ->
         options.dsn =
             "https://c540b9e616e448c84ff4d2e200429d5b@o4511178272997376.ingest.de.sentry.io/4511178413834320"
@@ -49,17 +56,28 @@ fun App() {
     }
 
     val repository = koinInject<AuthRepository>()
+    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
+    var isUpdateDialogVisible by remember { mutableStateOf(false) }
 
-    if (isNewUpdateAvailable(repository)) {
-        Dialog(
-            onDismissRequest = {},
-            properties = remember { DialogProperties() },
-            content = {
-
-            }
-        )
-        return
+    LaunchedEffect(Unit) {
+        updateInfo = checkUpdates(repository)
     }
+
+    val currentBuild = 0
+
+    LaunchedEffect(updateInfo) {
+        updateInfo?.let {
+            if (it.build > currentBuild) {
+                isUpdateDialogVisible = true
+            }
+        }
+    }
+
+    if (isUpdateDialogVisible)
+        UpdateDialog(
+            isForced = updateInfo!!.isForced || updateInfo!!.minBuild > currentBuild,
+            onDismiss = { isUpdateDialogVisible = false }
+        )
 
     MaterialTheme {
         CompositionLocalProvider(
@@ -70,15 +88,82 @@ fun App() {
     }
 }
 
-private fun isNewUpdateAvailable(repository: AuthRepository): Boolean {
-    val current = BuildConfig.BUILD_NUMBER
-    var isAvailable = false
-    runBlocking {
-        isAvailable = repository.isUpdateAvailable(
-            currentVersion = current.toString(),
-            versionFileUrl = "https://github.com/RoonyShekho09/Manifest-Desktop-Releases/blob/main/buildNumber.txt"
-        )
-    }
+@Composable
+private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
+    Dialog(
+        onDismissRequest = {
+            if (!isForced) {
+                onDismiss()
+            }
+        },
+        properties = remember { DialogProperties() },
+        content = {
+            Card(
+                modifier = Modifier.padding(16.dp),
+                shape = MaterialTheme.shapes.medium,
+                elevation = CardDefaults.elevatedCardElevation(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = if (isForced) "Mandatory Update Required" else "Update Available",
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = if (isForced) {
+                            "A critical update is required to continue using the application. Please download the latest version."
+                        } else {
+                            "A new version of the app is ready. Would you like to download it now?"
+                        },
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        if (!isForced) {
+                            OutlinedButton(onClick = onDismiss) {
+                                Text("Dismiss")
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Button(
+                            onClick = {
+                                val downloadUrl = "https://musical-croquembouche-4e57a3.netlify.app"
+                                if (Desktop.isDesktopSupported() && Desktop.getDesktop()
+                                        .isSupported(Desktop.Action.BROWSE)
+                                ) {
+                                    Desktop.getDesktop().browse(URI(downloadUrl))
+                                }
+                            }
+                        ) {
+                            Text(Res.string.download.string)
+                        }
+                    }
+                }
+            }
+        }
+    )
 
-    return isAvailable
+    if (isForced) {
+        return
+    }
+}
+
+private suspend fun checkUpdates(repository: AuthRepository): UpdateInfo? {
+    val current = BuildConfig.BUILD_NUMBER
+    var result: UpdateInfo? = null
+
+    result = repository.isUpdateAvailable(
+        currentVersion = current.toString(),
+        versionFileUrl = "https://raw.githubusercontent.com/RoonyShekho09/Manifest-Desktop-Releases/refs/heads/main/buildNumber.txt"
+    )
+
+    println("result: $result")
+
+    return result
 }

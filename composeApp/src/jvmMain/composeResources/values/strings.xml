@@ -110,4 +110,7 @@
     <string name="car_type">جۆری سەیارە</string>
     <string name="failed_to_add_driver">نەتوانرا شۆفێر زیاد بکرێت</string>
     <string name="session_expired">Session expired</string>
+    <string name="update_available">وەشانێکی نوێ بەردەستە</string>
+    <string name="update_description">وەشانێکی نوێی ئەپڵیکەیشنەکە ئامادەیە. تکایە دوایین نوێکردنەوە دابەزێنە بۆ بەردەوامبوون.</string>
+    <string name="download">دابەزاندن</string>
 </resources>

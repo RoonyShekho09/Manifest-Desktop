@@ -13,9 +13,9 @@ import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.di.BASE_URL
+import com.jawharat.manifest.domain.entity.UpdateInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -39,31 +39,30 @@ class AppRemoteDataSourceImpl(
     private val mistralHttpClient: HttpClient,
 ) : AppRemoteDataSource, BaseRemoteDataSource {
 
-    override suspend fun isUpdateAvailable(currentVersion: String, versionFileUrl: String): Boolean {
+    override suspend fun getUpdateInfo(currentVersion: String, versionFileUrl: String): UpdateInfo {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = mistralHttpClient.get(versionFileUrl)
                 val latestVersion = response.bodyAsText().trim()
                 mistralHttpClient.close()
-
-                isNewerVersion(currentVersion, latestVersion)
+                parseUpdateInfo(latestVersion)
             } catch (e: Exception) {
-                false
+                throw e
             }
         }
     }
 
-    private fun isNewerVersion(current: String, latest: String): Boolean {
-        val currentBuild = current.substringAfterLast(".").toIntOrNull() ?: 0
+    private fun parseUpdateInfo(text: String): UpdateInfo {
+        val build = Regex("""BUILD_NUMBER\s*=\s*(\d+)""")
+            .find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
 
-        val latestBuild = Regex("""BUILD_NUMBER\s*=\s*(\d+)""")
-            .find(latest)
-            ?.groupValues?.get(1)
-            ?.toIntOrNull() ?: 0
+        val isForced = Regex("""IS_FORCED\s*=\s*(true|false)""", RegexOption.IGNORE_CASE)
+            .find(text)?.groupValues?.get(1)?.toBoolean() ?: false
 
-        println("latestBuild: $latestBuild")
+        val minBuild = Regex("""MINIMUM_BUILD_NUMBER\s*=\s*(\d+)""")
+            .find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
 
-        return latestBuild > currentBuild
+        return UpdateInfo(build, isForced, minBuild)
     }
 
     override suspend fun logout(): Boolean = callApi(

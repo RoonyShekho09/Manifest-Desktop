@@ -13,7 +13,7 @@ plugins {
     id("com.github.gmazzo.buildconfig") version "6.0.9"
 }
 
-val currentBuild = 42
+val currentBuild = 1
 
 version = "1.0.0"
 
