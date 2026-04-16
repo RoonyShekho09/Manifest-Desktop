@@ -30,7 +30,7 @@ jobs:
       - name: Upload Artifacts to Remote Repo
         uses: softprops/action-gh-release@v2
         with:
-          repository: https://github.com/RoonyShekho09/Manifest-Desktop-Releases
+          repository: RoonyShekho09/Manifest-Desktop-Releases
           generate_release_notes: true
           files: |
             composeApp/build/compose/binaries/main-release/**/*.msi
