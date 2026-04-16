@@ -27,6 +27,12 @@ jobs:
         run: Get-ChildItem -Recurse -Include *.msi,*.exe composeApp\build\compose | Select-Object FullName
         shell: pwsh
 
+      - name: Rename MSI
+        run: |
+          $msi = Get-ChildItem -Recurse -Include *.msi composeApp\build\compose\binaries\main-release
+          Rename-Item $msi.FullName "manifest.msi"
+        shell: pwsh
+
       - name: Upload Artifacts to Remote Repo
         uses: softprops/action-gh-release@v2
         with:

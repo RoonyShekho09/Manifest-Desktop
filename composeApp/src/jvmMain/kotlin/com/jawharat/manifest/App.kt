@@ -152,18 +152,13 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
     }
 }
 
-private suspend fun checkUpdates(repository: AuthRepository): UpdateInfo? {
+private suspend fun checkUpdates(repository: AuthRepository): UpdateInfo {
     val current = BuildConfig.BUILD_NUMBER
-    var result: UpdateInfo? = null
 
-    result = repository.isUpdateAvailable(
+    return repository.isUpdateAvailable(
         currentVersion = current.toString(),
         versionFileUrl = "https://raw.githubusercontent.com/RoonyShekho09/Manifest-Desktop-Releases/refs/heads/main/buildNumber.txt"
     )
-
-    println("result: $result")
-
-    return result
 }
 
 
