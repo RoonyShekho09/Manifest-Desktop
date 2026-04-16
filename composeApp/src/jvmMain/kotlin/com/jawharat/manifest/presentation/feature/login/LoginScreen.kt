@@ -226,11 +226,8 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
 
                 Spacer(Modifier.height(48.dp))
 
-                val versionName = BuildConfig.APP_VERSION
-                val buildNumber = BuildConfig.BUILD_NUMBER
-
                 Text(
-                    text = "V${versionName.clearQuotes()}(${buildNumber})",
+                    text = "V${BuildConfig.APP_VERSION.clearQuotes()}(${BuildConfig.BUILD_NUMBER})",
                     style = MaterialTheme.typography.labelSmall
                 )
             }
