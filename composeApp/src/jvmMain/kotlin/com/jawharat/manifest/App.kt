@@ -63,11 +63,9 @@ fun App() {
         updateInfo = checkUpdates(repository)
     }
 
-    val currentBuild = 0
-
     LaunchedEffect(updateInfo) {
         updateInfo?.let {
-            if (it.build > currentBuild) {
+            if (it.build > CURRENT_BUILD_NUMBER) {
                 isUpdateDialogVisible = true
             }
         }
@@ -75,7 +73,7 @@ fun App() {
 
     if (isUpdateDialogVisible)
         UpdateDialog(
-            isForced = updateInfo!!.isForced || updateInfo!!.minBuild > currentBuild,
+            isForced = updateInfo!!.isForced || updateInfo!!.minBuild > CURRENT_BUILD_NUMBER,
             onDismiss = { isUpdateDialogVisible = false }
         )
 
@@ -167,3 +165,6 @@ private suspend fun checkUpdates(repository: AuthRepository): UpdateInfo? {
 
     return result
 }
+
+
+const val CURRENT_BUILD_NUMBER = BuildConfig.BUILD_NUMBER

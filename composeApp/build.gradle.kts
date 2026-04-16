@@ -13,9 +13,9 @@ plugins {
     id("com.github.gmazzo.buildconfig") version "6.0.9"
 }
 
-val currentBuild = 1
+val currentBuild = 2
 
-version = "1.0.0"
+version = "1.0.1"
 
 buildConfig {
     buildConfigField("int", "BUILD_NUMBER", "$currentBuild")
