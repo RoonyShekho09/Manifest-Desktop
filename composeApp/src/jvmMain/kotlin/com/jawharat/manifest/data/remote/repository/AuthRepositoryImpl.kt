@@ -36,6 +36,14 @@ class AuthRepositoryImpl(
         localDataSource.clearDataStore()
     }
 
+    override suspend fun isUpdateAvailable(
+        currentVersion: String,
+        versionFileUrl: String
+    ): Boolean = remoteDataSource.isUpdateAvailable(
+        currentVersion = currentVersion,
+        versionFileUrl = versionFileUrl
+    )
+
     private fun LoginResponse.saveLocally(email: String, password: String) {
         token?.let {
             val expirationTime = Instant.now().plus(6, ChronoUnit.HOURS).toEpochMilli()

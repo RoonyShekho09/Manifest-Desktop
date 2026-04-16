@@ -15,17 +15,22 @@ import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.di.BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 class AppRemoteDataSourceImpl(
@@ -33,6 +38,33 @@ class AppRemoteDataSourceImpl(
     private val pdfHttpClient: HttpClient,
     private val mistralHttpClient: HttpClient,
 ) : AppRemoteDataSource, BaseRemoteDataSource {
+
+    override suspend fun isUpdateAvailable(currentVersion: String, versionFileUrl: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = mistralHttpClient.get(versionFileUrl)
+                val latestVersion = response.bodyAsText().trim()
+                mistralHttpClient.close()
+
+                isNewerVersion(currentVersion, latestVersion)
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    private fun isNewerVersion(current: String, latest: String): Boolean {
+        val currentBuild = current.substringAfterLast(".").toIntOrNull() ?: 0
+
+        val latestBuild = Regex("""BUILD_NUMBER\s*=\s*(\d+)""")
+            .find(latest)
+            ?.groupValues?.get(1)
+            ?.toIntOrNull() ?: 0
+
+        println("latestBuild: $latestBuild")
+
+        return latestBuild > currentBuild
+    }
 
     override suspend fun logout(): Boolean = callApi(
         apiCall = { manifestApiService.logout() },

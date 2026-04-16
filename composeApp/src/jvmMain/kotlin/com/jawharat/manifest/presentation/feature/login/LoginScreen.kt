@@ -1,5 +1,6 @@
 package com.jawharat.manifest.presentation.feature.login
 
+import ManifestDesktop.composeApp.BuildConfig
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,6 +65,7 @@ import com.jawharat.manifest.utils.Listen
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
+import org.koin.ext.clearQuotes
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -221,6 +223,16 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
+
+                Spacer(Modifier.height(48.dp))
+
+                val versionName = BuildConfig.APP_VERSION
+                val buildNumber = BuildConfig.BUILD_NUMBER
+
+                Text(
+                    text = "V${versionName.clearQuotes()}(${buildNumber})",
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
     }

@@ -2,12 +2,16 @@
 
 package com.jawharat.manifest
 
+import ManifestDesktop.composeApp.BuildConfig
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.jawharat.manifest.di.dataSourceModule
 import com.jawharat.manifest.di.databaseModule
 import com.jawharat.manifest.di.networkModule
@@ -21,6 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
 import io.sentry.kotlin.multiplatform.Sentry
+import kotlinx.coroutines.runBlocking
 
 @Composable
 @Preview
@@ -45,6 +50,17 @@ fun App() {
 
     val repository = koinInject<AuthRepository>()
 
+    if (isNewUpdateAvailable(repository)) {
+        Dialog(
+            onDismissRequest = {},
+            properties = remember { DialogProperties() },
+            content = {
+
+            }
+        )
+        return
+    }
+
     MaterialTheme {
         CompositionLocalProvider(
             LocalLayoutDirection provides LayoutDirection.Rtl
@@ -52,4 +68,17 @@ fun App() {
             AppNavigation(startDestination = if (repository.isUserLoggedIn && !repository.hasSessionExpired) Screen.Home else Screen.Login)
         }
     }
+}
+
+private fun isNewUpdateAvailable(repository: AuthRepository): Boolean {
+    val current = BuildConfig.BUILD_NUMBER
+    var isAvailable = false
+    runBlocking {
+        isAvailable = repository.isUpdateAvailable(
+            currentVersion = current.toString(),
+            versionFileUrl = "https://github.com/RoonyShekho09/Manifest-Desktop-Releases/blob/main/buildNumber.txt"
+        )
+    }
+
+    return isAvailable
 }
