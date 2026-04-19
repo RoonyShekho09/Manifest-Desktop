@@ -153,7 +153,7 @@ class HomeViewModel(
 
     fun onDismissAddPassengerDialog() = updateState { copy(isAddPassengersDialogVisible = false) }
 
-    fun onDismissLogoutConfirmation() = updateState { copy(isLogoutConfirmationVisible = true) }
+    fun onDismissLogoutConfirmation() = updateState { copy(isLogoutConfirmationVisible = false) }
 
     fun logout() = tryToExecute(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
