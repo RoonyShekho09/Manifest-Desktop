@@ -46,7 +46,7 @@ fun AddEditDriverDialog(
     driverToEdit: Driver?,
     isEdit: Boolean = false,
     onDismiss: () -> Unit,
-    onConfirm: (Driver?) -> Unit
+    onConfirm: (driver: Driver?, isEdit: Boolean) -> Unit
 ) {
     var driverName by remember { mutableStateOf(driverToEdit?.name.orEmpty()) }
     val phoneNumber = rememberTextFieldState(initialText = driverToEdit?.phone.orEmpty())
@@ -121,7 +121,8 @@ fun AddEditDriverDialog(
                                         name = driverName,
                                         phone = phoneNumber.text.toString(),
                                         destination = destination.text.toString(),
-                                    )
+                                    ),
+                                    true
                                 )
                             else
                                 onConfirm(
@@ -131,7 +132,8 @@ fun AddEditDriverDialog(
                                         phone = phoneNumber.text.toString(),
                                         destination = destination.text.toString(),
                                         driverId = driverToEdit?.driverId.orEmpty()
-                                    )
+                                    ),
+                                    false
                                 )
                         },
                         enabled = isConfirmEnabled,

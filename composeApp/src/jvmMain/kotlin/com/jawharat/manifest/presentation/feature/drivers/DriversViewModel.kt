@@ -12,6 +12,8 @@ import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_add_driver
 import com.jawharat.manifest.utils.generateQRCode
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,21 +26,22 @@ import kotlin.uuid.ExperimentalUuidApi
 
 class DriversViewModel(
     private val repository: ManifestRepository,
-    private val snackBarHostState: AppSnackBarHostState
+    private val snackBarHostState: AppSnackBarHostState,
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) :
-    BaseViewModel<DriverUiState, Unit>(DriverUiState()) {
+    BaseViewModel<DriverUiState, Unit>(DriverUiState(), ioDispatcher = ioDispatcher) {
 
     init {
         initializeDrivers()
-     //   getLines()
+        //   getLines()
         state.value.mainSearchState.query.initializeSearch(
             onSearch = ::onMainScreenSearch,
             onEmptyStateUpdater = { copy(mainSearchState = mainSearchState.copy(searchResults = drivers)) }
         )
     }
 
-    fun onConfirmAddEditDriver(value: Driver?) {
-        if (value != null)
+    fun onConfirmAddEditDriver(value: Driver?, isEdit: Boolean) {
+        if (isEdit)
             editDriver(value)
         else
             addDriver(value)
