@@ -37,7 +37,12 @@ import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.presentation.navigation.AppNavigation
 import com.jawharat.manifest.presentation.navigation.Screen
 import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.dismiss
 import com.jawharat.manifest.resources.download
+import com.jawharat.manifest.resources.mandatory_update_msg
+import com.jawharat.manifest.resources.mandatory_update_title
+import com.jawharat.manifest.resources.optional_update_msg
+import com.jawharat.manifest.resources.update_available_title
 import com.jawharat.manifest.utils.string
 import io.sentry.kotlin.multiplatform.Sentry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -106,17 +111,23 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = if (isForced) "Mandatory Update Required" else "Update Available",
-                        style = MaterialTheme.typography.headlineLarge
+                        text = if (isForced) {
+                            Res.string.mandatory_update_title.string
+                        } else {
+                            Res.string.update_available_title.string
+                        },
+                        style = MaterialTheme.typography.headlineMedium
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
                         text = if (isForced) {
-                            "A critical update is required to continue using the application. Please download the latest version."
+                            Res.string.mandatory_update_msg.string
                         } else {
-                            "A new version of the app is ready. Would you like to download it now?"
+                            Res.string.optional_update_msg.string
                         },
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(
@@ -125,7 +136,7 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
                     ) {
                         if (!isForced) {
                             OutlinedButton(onClick = onDismiss) {
-                                Text("Dismiss")
+                                Text(text = Res.string.dismiss.string)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                         }
