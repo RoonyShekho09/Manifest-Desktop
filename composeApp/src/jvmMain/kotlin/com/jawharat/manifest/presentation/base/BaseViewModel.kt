@@ -2,6 +2,7 @@ package com.jawharat.manifest.presentation.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -21,7 +22,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
+abstract class BaseViewModel<S, E : Any>(
+    initState: S,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
 
     val state: StateFlow<S>
         field = MutableStateFlow(initState)
@@ -36,7 +40,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
         onError: suspend (Throwable) -> Unit = {},
         onCompleted: suspend () -> Unit = {},
         checkSuccess: suspend (T) -> Boolean = { true },
-        context: CoroutineContext = Dispatchers.IO,
+        context: CoroutineContext = ioDispatcher,
         inScope: CoroutineScope = viewModelScope,
     ): Job {
         return inScope.launch(context) {
@@ -62,7 +66,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
 
     protected fun <T> tryToCollect(
         block: suspend () -> Flow<T>,
-        context: CoroutineContext = Dispatchers.IO,
+        context: CoroutineContext = ioDispatcher,
         onStart: () -> Unit = {},
         onNewValue: suspend (T) -> Unit = {},
         onError: () -> Unit = {},
@@ -95,7 +99,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
         this + CoroutineExceptionHandler { _, exception -> launchCatching { onFailure(exception) } }
 
     protected fun <R> ViewModel.launchCatching(
-        context: CoroutineContext = Dispatchers.IO,
+        context: CoroutineContext = ioDispatcher,
         start: CoroutineStart = CoroutineStart.DEFAULT,
         onSuccess: (value: R) -> Unit = {},
         onFailure: () -> Unit = {},
@@ -128,7 +132,7 @@ abstract class BaseViewModel<S, E : Any>(initState: S) : ViewModel() {
     }
 
     protected fun emitEvent(newEvent: E) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             _event.emit(newEvent)
         }
     }
