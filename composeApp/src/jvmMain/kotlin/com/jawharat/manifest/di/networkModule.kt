@@ -87,7 +87,7 @@ val networkModule = module {
                 ignoreUnknownKeys = true
                 coerceInputValues = true
                 explicitNulls = false
-                encodeDefaults = true // Add this line
+                encodeDefaults = true
             }
 
             install(ContentNegotiation) {

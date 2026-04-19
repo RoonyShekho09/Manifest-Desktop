@@ -13,19 +13,24 @@ import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.di.BASE_URL
+import com.jawharat.manifest.domain.entity.UpdateInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 class AppRemoteDataSourceImpl(
@@ -34,14 +39,43 @@ class AppRemoteDataSourceImpl(
     private val mistralHttpClient: HttpClient,
 ) : AppRemoteDataSource, BaseRemoteDataSource {
 
+    override suspend fun getUpdateInfo(currentVersion: String, versionFileUrl: String): UpdateInfo {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: HttpResponse = mistralHttpClient.get(versionFileUrl)
+                val latestVersion = response.bodyAsText().trim()
+                mistralHttpClient.close()
+                parseUpdateInfo(latestVersion)
+            } catch (e: Exception) {
+                throw e
+            }
+        }
+    }
+
+    private fun parseUpdateInfo(text: String): UpdateInfo {
+        val build = Regex("""BUILD_NUMBER\s*=\s*(\d+)""")
+            .find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+
+        val isForced = Regex("""IS_FORCED\s*=\s*(true|false)""", RegexOption.IGNORE_CASE)
+            .find(text)?.groupValues?.get(1)?.toBoolean() ?: false
+
+        val minBuild = Regex("""MINIMUM_BUILD_NUMBER\s*=\s*(\d+)""")
+            .find(text)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+
+        return UpdateInfo(build, isForced, minBuild)
+    }
+
     override suspend fun logout(): Boolean = callApi(
         apiCall = { manifestApiService.logout() },
         mapper = { true }
     ).getOrThrow()
 
-    override suspend fun login(email: String, password: String): LoginResponse =
-        manifestApiService.login(body = LoginRequestBody(username = email, password = password))
-            .body() ?: throw Exception()
+    override suspend fun login(email: String, password: String): LoginResponse = callApi(
+        apiCall = {
+            manifestApiService.login(body = LoginRequestBody(username = email, password = password))
+        },
+        mapper = { it }
+    ).getOrThrow()
 
     override suspend fun submitManifest(
         driverName: String,
@@ -71,10 +105,11 @@ class AppRemoteDataSourceImpl(
                 )
             )
         }
-        if (response.status == HttpStatusCode.OK)
-            return response.readRawBytes()
-        else
-            throw Exception(response.bodyAsText())
+        when (response.status) {
+            HttpStatusCode.OK -> return response.readRawBytes()
+            HttpStatusCode.TooManyRequests -> throw response.toTooManyRequestsException()
+            else -> throw Exception(response.bodyAsText())
+        }
     }
 
     override suspend fun addDriver(

@@ -123,7 +123,10 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                 contentPadding = PaddingValues(24.dp)
             ) {
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(32.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         AppTextField(
                             state = query,
                             placeholder = Res.string.search_driver_placeholder.string,

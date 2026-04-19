@@ -16,6 +16,8 @@ data class HomeUiState(
     val passengers: List<PassengerFieldState> = emptyList(),
     val isDocumentScanningSoftwareInstalled: Boolean = true,
     val userLocation: UserLocation = UserLocation(),
+    val isCountDownVisible: Boolean = false,
+    val retryInSeconds: Int = 0,
 ) {
     val isSubmitEnabled: Boolean
         get() = manifest.to.isNotEmpty() && manifest.price != null &&

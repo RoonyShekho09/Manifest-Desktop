@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.entity.Manifest
+import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
@@ -23,7 +24,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.awt.image.BufferedImage
-import com.jawharat.manifest.resources.request_failed
 import com.jawharat.manifest.resources.result_not_found_try_scanning_again
 import com.jawharat.manifest.utils.PrintContent
 import com.jawharat.manifest.utils.printContent
@@ -56,6 +56,8 @@ class HomeViewModel(
         }
     )
 
+    fun onDismissCountDownDialog() = updateState { copy(isCountDownVisible = false) }
+
     fun onCameraReady() = Unit
 
     private fun startDocumentScanner() {
@@ -82,7 +84,7 @@ class HomeViewModel(
         onStart = { isAnalyzingId = true },
         block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
         onSuccess = { result -> onIdCardOcrResult(extractFromId(result)) },
-        onError = { snackBarHostState.showFailure(Res.string.request_failed) },
+      //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
         onCompleted = { isAnalyzingId = false }
     )
 
@@ -159,6 +161,7 @@ class HomeViewModel(
     )
 
     fun onSubmitManifestClick() = tryToExecute(
+        onStart = { updateState { copy(isLoading = true) } },
         block = {
             manifestRepository.submitManifest(
                 driverName = state.value.manifest.driverName,
@@ -180,10 +183,15 @@ class HomeViewModel(
         },
         onSuccess = {
             withContext(Dispatchers.IO) {
-                printContent(content = PrintContent.Pdf(it), onStatusChange = {})
+                printContent(content = PrintContent.Pdf(it))
             }
-            updateState { copy(manifest = Manifest()) }
-        }
+            updateState { copy(manifest = Manifest(), passengers = emptyList()) }
+        },
+        onError = {
+            if (it is NetworkException.ManifestSubmittedRecentlyException)
+                updateState { copy(isCountDownVisible = true, retryInSeconds = it.retryInSeconds) }
+        },
+        onCompleted = { updateState { copy(isLoading = false) } }
     )
 
     fun onQrCodeResult(value: String) {

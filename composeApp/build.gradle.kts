@@ -10,6 +10,16 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.sentry)
+    id("com.github.gmazzo.buildconfig") version "6.0.9"
+}
+
+val currentBuild = 1
+
+version = "1.0.0"
+
+buildConfig {
+    buildConfigField("int", "BUILD_NUMBER", "$currentBuild")
+    buildConfigField("APP_VERSION", provider { "\"${project.version}\"" })
 }
 
 kotlin {
@@ -105,8 +115,8 @@ compose.desktop {
             }
 
             buildTypes.release.proguard {
-                isEnabled.set(true)
-                obfuscate.set(true)
+                isEnabled.set(false)
+                obfuscate.set(false)
                 optimize.set(true)
                 joinOutputJars.set(false)
                 configurationFiles.from(project.file("compose-desktop.pro"))

@@ -6,17 +6,31 @@ import com.jawharat.manifest.data.local.adapter.PriceAdapter
 import com.jawharat.manifest.db.DispatchRecord
 import com.jawharat.manifest.db.ManifestDatabase
 import org.koin.dsl.module
-import java.util.Properties
+import java.io.File
 
 val databaseModule = module {
     single<SqlDriver> {
-        JdbcSqliteDriver(
-            "jdbc:sqlite:test4.db",
-            Properties(),
-            ManifestDatabase.Schema
-        )
+        val databaseName = "test4.db"
+        val homeDir = System.getProperty("user.home")
+        val appDir = File(homeDir, ".manifest_app")
+
+        if (!appDir.exists()) {
+            appDir.mkdirs()
+        }
+
+        val dbFile = File(appDir, databaseName)
+        val driver = JdbcSqliteDriver("jdbc:sqlite:${dbFile.absolutePath}")
+
+        if (dbFile.length() == 0L) {
+            ManifestDatabase.Schema.create(driver)
+        }
+
+        driver
     }
     single {
-        ManifestDatabase(driver = get(), DispatchRecord.Adapter(priceAdapter = PriceAdapter()))
+        DispatchRecord.Adapter(priceAdapter = PriceAdapter())
+    }
+    single {
+        ManifestDatabase(driver = get(), DispatchRecordAdapter = get())
     }
 }

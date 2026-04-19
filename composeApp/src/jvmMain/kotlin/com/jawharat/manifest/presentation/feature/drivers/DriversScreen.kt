@@ -42,7 +42,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -62,7 +61,6 @@ import com.jawharat.manifest.resources.ic_profile
 import com.jawharat.manifest.resources.ic_qr_code_scanning
 import com.jawharat.manifest.resources.ic_refresh
 import com.jawharat.manifest.resources.search_placeholder
-import com.jawharat.manifest.utils.generateQRCode
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
@@ -127,7 +125,10 @@ private fun Content(state: DriverUiState, viewModel: DriversViewModel) {
                 )
             ) {
                 item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(32.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         AppTextField(
                             state = query,
                             placeholder = Res.string.search_placeholder.string,

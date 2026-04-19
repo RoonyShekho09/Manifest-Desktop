@@ -12,6 +12,7 @@ import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
 import com.jawharat.manifest.data.remote.model.dispatches.DispatchRemote
 import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
+import com.jawharat.manifest.domain.entity.UpdateInfo
 
 interface AppRemoteDataSource {
     suspend fun logout(): Boolean
@@ -71,4 +72,5 @@ interface AppRemoteDataSource {
     suspend fun ocr(image: String, engine: String): OcrResponse
     suspend fun getPrice(locationId: String): PriceResponse
     suspend fun getUserInformation(): UserInformationResponse
+    suspend fun getUpdateInfo(currentVersion: String, versionFileUrl: String): UpdateInfo
 }
