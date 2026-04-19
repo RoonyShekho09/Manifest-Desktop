@@ -25,5 +25,5 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
 
-      - name: Run all KMP tests
+      - name: Run all unit tests
         run: ./gradlew allTests --continue

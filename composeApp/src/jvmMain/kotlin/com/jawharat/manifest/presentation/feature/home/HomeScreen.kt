@@ -234,7 +234,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     AppTextField(
-                        value = state.manifest.vehicleNumber,
+                        value = state.manifest.plateNumber,
                         placeholder = Res.string.vehicle_number.string,
                         onValueChange = {},
                         readOnly = true,
@@ -273,7 +273,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         modifier = Modifier.weight(1f)
                     )
                     AppTextField(
-                        value = state.manifest.driverIdNumber,
+                        value = state.manifest.driverId,
                         placeholder = Res.string.driver_id_number.string,
                         onValueChange = {},
                         readOnly = true,

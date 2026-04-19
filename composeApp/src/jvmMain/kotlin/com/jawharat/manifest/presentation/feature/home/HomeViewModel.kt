@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage
 import com.jawharat.manifest.resources.result_not_found_try_scanning_again
 import com.jawharat.manifest.utils.PrintContent
 import com.jawharat.manifest.utils.printContent
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 class HomeViewModel(
@@ -34,7 +35,8 @@ class HomeViewModel(
     private val manifestRepository: ManifestRepository,
     private val documentScanner: IDocumentScanner,
     private val snackBarHostState: AppSnackBarHostState,
-) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState()) {
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState(), ioDispatcher) {
 
     private var scanJob: Job? = null
     private var isAnalyzingId = false
@@ -84,7 +86,7 @@ class HomeViewModel(
         onStart = { isAnalyzingId = true },
         block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
         onSuccess = { result -> onIdCardOcrResult(extractFromId(result)) },
-      //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
+        //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
         onCompleted = { isAnalyzingId = false }
     )
 
@@ -165,7 +167,7 @@ class HomeViewModel(
         block = {
             manifestRepository.submitManifest(
                 driverName = state.value.manifest.driverName,
-                vehicleNumber = state.value.manifest.vehicleNumber,
+                vehicleNumber = state.value.manifest.plateNumber,
                 vehicleType = state.value.manifest.vehicleType,
                 phoneNumber = state.value.manifest.driverPhoneNumber,
                 to = state.value.manifest.to,
@@ -178,7 +180,7 @@ class HomeViewModel(
                         manual = true
                     )
                 },
-                driverId = state.value.manifest.driverIdNumber,
+                driverId = state.value.manifest.driverId,
             )
         },
         onSuccess = {
@@ -218,8 +220,8 @@ class HomeViewModel(
         onSuccess = {
             updateState {
                 copy(
-                    manifest = state.value.manifest.copy(
-                        vehicleNumber = it.plateNumber,
+                    manifest = manifest.copy(
+                        plateNumber = it.plateNumber,
                         price = it.price,
                         vehicleType = it.vehicleName,
                         from = it.dispatchLine.name
@@ -240,8 +242,8 @@ class HomeViewModel(
         onSuccess = {
             updateState {
                 copy(
-                    manifest = state.value.manifest.copy(
-                        driverIdNumber = it.driverId,
+                    manifest = manifest.copy(
+                        driverId = it.driverId,
                         to = it.destination,
                         driverName = it.name,
                         driverPhoneNumber = it.phone,

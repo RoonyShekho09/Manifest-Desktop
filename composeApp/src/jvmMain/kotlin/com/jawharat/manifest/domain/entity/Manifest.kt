@@ -8,9 +8,9 @@ data class Manifest(
     val price: Int? = null,
     val from: String = "",
     val to: String = "",
-    val vehicleNumber: String = "",
+    val plateNumber: String = "",
     val vehicleType: String = "",
     val driverName: String = " ",
-    val driverIdNumber: String = "",
+    val driverId: String = "",
     val driverPhoneNumber: String = "",
 )

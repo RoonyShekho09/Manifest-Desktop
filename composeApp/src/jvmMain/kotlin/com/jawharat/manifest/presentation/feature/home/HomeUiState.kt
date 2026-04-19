@@ -21,8 +21,8 @@ data class HomeUiState(
 ) {
     val isSubmitEnabled: Boolean
         get() = manifest.to.isNotEmpty() && manifest.price != null &&
-                manifest.vehicleNumber.isNotEmpty() && manifest.driverName.isNotEmpty() &&
-                manifest.driverIdNumber.isNotEmpty() && manifest.driverPhoneNumber.isNotEmpty()
+                manifest.plateNumber.isNotEmpty() && manifest.driverName.isNotEmpty() &&
+                manifest.driverId.isNotEmpty() && manifest.driverPhoneNumber.isNotEmpty()
                 && (passengers.isNotEmpty() || manifest.price == 10000)
 }
 
