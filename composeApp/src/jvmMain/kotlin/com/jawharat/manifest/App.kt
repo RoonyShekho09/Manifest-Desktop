@@ -71,9 +71,7 @@ fun App() {
 
     LaunchedEffect(updateInfo) {
         updateInfo?.let {
-            if (it.build > CURRENT_BUILD_NUMBER) {
-                isUpdateDialogVisible = true
-            }
+            isUpdateDialogVisible = it.build > CURRENT_BUILD_NUMBER
         }
     }
 
@@ -101,9 +99,8 @@ fun App() {
 private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
     Dialog(
         onDismissRequest = {
-            if (!isForced) {
+            if (!isForced)
                 onDismiss()
-            }
         },
         properties = remember { DialogProperties() },
         content = {
@@ -164,10 +161,6 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
             }
         }
     )
-
-    if (isForced) {
-        return
-    }
 }
 
 private suspend fun checkUpdates(repository: AuthRepository): UpdateInfo {

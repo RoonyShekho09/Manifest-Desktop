@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.sentry)
-    id("com.github.gmazzo.buildconfig") version "6.0.9"
+    alias(libs.plugins.buildConfig)
 }
 
 val currentBuild = 1
