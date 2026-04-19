@@ -17,7 +17,7 @@ class AuthProxyImpl(
     override suspend fun <T> authorizedCall(block: suspend () -> T): T {
         if (localDataSource.hasSessionExpired) {
             observer.emit(AuthEvent.TokenExpired)
-            throw NetworkException.TokenExpiredException()
+            throw NetworkException.SessionExpiredException()
         }
 
         return block()

@@ -5,29 +5,43 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
+import com.jawharat.manifest.resources.Res
+import com.jawharat.manifest.resources.already_submitted_msg
+import com.jawharat.manifest.resources.closing_in
+import com.jawharat.manifest.resources.countdown_title
+import com.jawharat.manifest.resources.dismiss
+import com.jawharat.manifest.utils.string
 import kotlinx.coroutines.delay
 
 @Composable
 fun CountdownDialog(
-    initialTime: Int = 10,
+    initialTime: Int,
     onDismissRequest: () -> Unit
 ) {
-    var timeLeft by remember { mutableStateOf(initialTime) }
+    var secondsLeft by remember { mutableStateOf(initialTime) }
+    val duration by remember {
+        derivedStateOf {
+            val minutes = secondsLeft / 60
+            val seconds = secondsLeft % 60
+            "%02d:%02d".format(minutes, seconds)
+        }
+    }
 
     LaunchedEffect(Unit) {
-        while (timeLeft > 0) {
+        while (secondsLeft > 0) {
             delay(1000L)
-            timeLeft--
+            secondsLeft--
         }
         onDismissRequest()
     }
 
     DialogWindow(
-        title = "Countdown",
+        title = Res.string.countdown_title.string,
+        resizable = false,
         onCloseRequest = onDismissRequest
     ) {
         Surface(
@@ -40,40 +54,24 @@ fun CountdownDialog(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Closing in $timeLeft seconds",
-                    style = MaterialTheme.typography.h6
+                    text = Res.string.already_submitted_msg.string,
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = Res.string.closing_in.string(duration),
+                    style = MaterialTheme.typography.h6,
+                    fontWeight = FontWeight.Bold
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
+
                 Button(onClick = onDismissRequest) {
-                    Text("Dismiss")
+                    Text(text = Res.string.dismiss.string)
                 }
-            }
-        }
-    }
-}
-
-fun main() = application {
-    var isDialogOpen by remember { mutableStateOf(true) }
-
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "Main Application"
-    ) {
-        MaterialTheme {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(onClick = { isDialogOpen = true }) {
-                    Text("Open Dialog")
-                }
-            }
-
-            if (isDialogOpen) {
-                CountdownDialog(
-                    initialTime = 5,
-                    onDismissRequest = { isDialogOpen = false }
-                )
             }
         }
     }

@@ -44,12 +44,11 @@ sealed class PrintContent {
     data class QrCodes(val qrCode1: BufferedImage, val qrCode2: BufferedImage) : PrintContent()
 }
 
-suspend fun printContent(content: PrintContent, onStatusChange: (String) -> Unit) {
+suspend fun printContent(content: PrintContent) {
     try {
         val document = when (content) {
             is PrintContent.Pdf -> {
                 if (content.pdfData.isEmpty()) {
-                    onStatusChange("Error: PDF data is empty.")
                     return
                 }
 
@@ -93,12 +92,15 @@ suspend fun printContent(content: PrintContent, onStatusChange: (String) -> Unit
             attributes.add(PrintQuality.HIGH)
 
             if (printerJob.printDialog(attributes)) {
-                onStatusChange("Printing started...")
 
                 val pollJob = Thread {
                     repeat(20) {
                         Thread.sleep(2000)
-                        printerJob.printService?.let { pollPrinterStatus(it, onStatusChange) }
+                        printerJob.printService?.let {
+                            pollPrinterStatus(
+                                it,
+                                onStatusChange = { println(it) })
+                        }
                     }
                 }.also { it.isDaemon = true; it.start() }
 
@@ -106,13 +108,11 @@ suspend fun printContent(content: PrintContent, onStatusChange: (String) -> Unit
                     printerJob.print(attributes)
                 }
                 pollJob.interrupt()
-                onStatusChange("Success: Sent to spooler.")
             } else {
-                onStatusChange("User cancelled the print dialog.")
+                println("User cancelled the print dialog.")
             }
         }
     } catch (e: Exception) {
-        onStatusChange("Error: ${e.message}")
         e.printStackTrace()
     }
 }

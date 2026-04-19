@@ -113,4 +113,12 @@
     <string name="update_available">وەشانێکی نوێ بەردەستە</string>
     <string name="update_description">وەشانێکی نوێی ئەپڵیکەیشنەکە ئامادەیە. تکایە دوایین نوێکردنەوە دابەزێنە بۆ بەردەوامبوون.</string>
     <string name="download">دابەزاندن</string>
+    <string name="countdown_title">بژاردنی پێچەوانە</string>
+    <string name="already_submitted_msg">ئەم مانیفێستە پێشتر لە ١٥ خولەکی ڕابردوودا نێردراوە، دووبارە هەوڵ بدەرەوە لە:</string>
+    <string name="closing_in">داخستن دوای %1$s</string>
+    <string name="dismiss">لابردن</string>
+    <string name="mandatory_update_title">نوێکردنەوەی ناچاری پێویستە</string>
+    <string name="update_available_title">وەشانێکی نوێ بەردەستە</string>
+    <string name="mandatory_update_msg">بۆ بەردەوامبوون لە بەکارهێنانی ئەپڵیکەیشنەکە، پێویستە وەشانێکی نوێ دابەزێنیت. تکایە دوایین وەشان دابەزێنە.</string>
+    <string name="optional_update_msg">وەشانێکی نوێی ئەپڵیکەیشنەکە ئامادەیە. ئایا دەتەوێت ئێستا دایبەزێنیت؟</string>
 </resources>

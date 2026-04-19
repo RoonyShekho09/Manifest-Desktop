@@ -70,9 +70,12 @@ class AppRemoteDataSourceImpl(
         mapper = { true }
     ).getOrThrow()
 
-    override suspend fun login(email: String, password: String): LoginResponse =
-        manifestApiService.login(body = LoginRequestBody(username = email, password = password))
-            .body() ?: throw Exception()
+    override suspend fun login(email: String, password: String): LoginResponse = callApi(
+        apiCall = {
+            manifestApiService.login(body = LoginRequestBody(username = email, password = password))
+        },
+        mapper = { it }
+    ).getOrThrow()
 
     override suspend fun submitManifest(
         driverName: String,
@@ -102,10 +105,11 @@ class AppRemoteDataSourceImpl(
                 )
             )
         }
-        if (response.status == HttpStatusCode.OK)
-            return response.readRawBytes()
-        else
-            throw Exception(response.bodyAsText())
+        when (response.status) {
+            HttpStatusCode.OK -> return response.readRawBytes()
+            HttpStatusCode.TooManyRequests -> throw response.toTooManyRequestsException()
+            else -> throw Exception(response.bodyAsText())
+        }
     }
 
     override suspend fun addDriver(

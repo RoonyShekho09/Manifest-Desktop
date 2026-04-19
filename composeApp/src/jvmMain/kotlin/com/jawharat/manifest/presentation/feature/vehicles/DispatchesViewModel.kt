@@ -212,12 +212,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
             val qr2 = generateQRCode(text = "V:${result.id}", displayQrCode = false)
 
             viewModelScope.launch {
-                printContent(
-                    content = PrintContent.QrCodes(qrCode1 = qr1, qrCode2 = qr2),
-                    onStatusChange = {
-                        println("On status change: $it")
-                    }
-                )
+                printContent(content = PrintContent.QrCodes(qrCode1 = qr1, qrCode2 = qr2))
             }
 
             updateState { copy(isDialogVisible = false) }

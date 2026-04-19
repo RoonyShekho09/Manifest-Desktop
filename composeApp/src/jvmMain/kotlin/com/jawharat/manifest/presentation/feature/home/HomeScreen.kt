@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.components.AppTextField
 import com.jawharat.manifest.presentation.feature.home.components.dialog.AddPassengersDialog
+import com.jawharat.manifest.presentation.feature.home.components.dialog.CountdownDialog
 import com.jawharat.manifest.presentation.feature.home.components.dialog.LogoutConfirmationDialog
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarVisuals
 import com.jawharat.manifest.presentation.feature.shared.LocalSnackBarState
@@ -98,6 +99,13 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(state: HomeUiState, viewModel: HomeViewModel) {
+
+    if (state.isCountDownVisible)
+        CountdownDialog(
+            initialTime = state.retryInSeconds,
+            onDismissRequest = viewModel::onDismissCountDownDialog
+        )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -284,7 +292,7 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 
                 Button(
                     onClick = viewModel::onSubmitManifestClick,
-                    enabled = state.isSubmitEnabled,
+                    enabled = state.isSubmitEnabled && !state.isLoading,
                     modifier = Modifier.handPointerHover()
                         .align(Alignment.CenterHorizontally)
                 ) {

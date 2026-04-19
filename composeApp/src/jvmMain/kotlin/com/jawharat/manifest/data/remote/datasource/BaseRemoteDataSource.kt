@@ -1,9 +1,13 @@
 package com.jawharat.manifest.data.remote.datasource
 
+import com.jawharat.manifest.data.remote.exceptions.TooManyRequestsException
 import com.jawharat.manifest.domain.exceptions.NetworkException
 import de.jensklingenberg.ktorfit.Response
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
+import kotlinx.serialization.json.Json
 
 
 interface BaseRemoteDataSource {
@@ -35,7 +39,7 @@ interface BaseRemoteDataSource {
         return block()
     }
 
-    private fun <T, R> checkIfSuccessful(
+    private suspend fun <T, R> checkIfSuccessful(
         result: Response<T>,
         mapper: (T) -> R
     ) = run {
@@ -49,9 +53,7 @@ interface BaseRemoteDataSource {
                     Result.failure(Exception(result.message))
             }
 
-            result.status == HttpStatusCode.Unauthorized -> throw NetworkException.TokenExpiredException()
-
-            result.status == HttpStatusCode.TooManyRequests -> throw NetworkException.TooManyRequests()
+            result.status == HttpStatusCode.Unauthorized -> throw NetworkException.SessionExpiredException()
 
             result.status == HttpStatusCode.Found -> @Suppress("UNCHECKED_CAST")
             Result.success(null as R)
@@ -67,3 +69,10 @@ interface BaseRemoteDataSource {
     }
 }
 
+suspend fun HttpResponse.toTooManyRequestsException(): NetworkException.ManifestSubmittedRecentlyException {
+    val exception = Json.decodeFromString<TooManyRequestsException>(this.bodyAsText())
+    return NetworkException.ManifestSubmittedRecentlyException(
+        message = exception.message.orEmpty(),
+        retryInSeconds = exception.retryAfter ?: 0
+    )
+}
