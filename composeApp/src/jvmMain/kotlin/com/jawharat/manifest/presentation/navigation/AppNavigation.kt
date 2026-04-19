@@ -42,7 +42,7 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Screen = Scre
     AuthExceptionRouterHandler(
         onTokenExpiredException = {
             navController.navigateTo(
-                Screen.Login,
+                route = Screen.Login,
                 popBackStack = true
             )
         }

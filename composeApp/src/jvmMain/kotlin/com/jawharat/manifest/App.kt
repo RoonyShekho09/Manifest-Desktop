@@ -3,6 +3,7 @@
 package com.jawharat.manifest
 
 import ManifestDesktop.composeApp.BuildConfig
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -76,11 +77,16 @@ fun App() {
         }
     }
 
-    if (isUpdateDialogVisible)
-        UpdateDialog(
-            isForced = updateInfo!!.isForced || updateInfo!!.minBuild > CURRENT_BUILD_NUMBER,
-            onDismiss = { isUpdateDialogVisible = false }
-        )
+    AnimatedVisibility(isUpdateDialogVisible) {
+        updateInfo?.let {
+            UpdateDialog(
+                isForced = it.isForced || it.minBuild > CURRENT_BUILD_NUMBER,
+                onDismiss = { isUpdateDialogVisible = false }
+            )
+        }
+    }
+
+    if (isUpdateDialogVisible && updateInfo?.isForced == true) return
 
     MaterialTheme {
         CompositionLocalProvider(
@@ -142,7 +148,8 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
                         }
                         Button(
                             onClick = {
-                                val downloadUrl = "https://musical-croquembouche-4e57a3.netlify.app"
+                                val downloadUrl =
+                                    "https://github.com/RoonyShekho09/Manifest-Desktop-Releases/releases/latest/download/manifest.msi"
                                 if (Desktop.isDesktopSupported() && Desktop.getDesktop()
                                         .isSupported(Desktop.Action.BROWSE)
                                 ) {
@@ -150,7 +157,7 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
                                 }
                             }
                         ) {
-                            Text(Res.string.download.string)
+                            Text(text = Res.string.download.string)
                         }
                     }
                 }
