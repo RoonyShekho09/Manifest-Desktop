@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -18,12 +17,12 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -113,6 +112,7 @@ fun AddPassengersDialog(
                 ) {
                     itemsIndexed(passengers) { index, passenger ->
                         var isDropDownExpanded by remember { mutableStateOf(false) }
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -144,7 +144,9 @@ fun AddPassengersDialog(
                                         Box(
                                             modifier = Modifier
                                                 .matchParentSize()
-                                                .handClickable { isDropDownExpanded = passenger.isEditable }
+                                                .handClickable {
+                                                    isDropDownExpanded = passenger.isEditable
+                                                }
                                         )
                                     }
 
@@ -163,32 +165,41 @@ fun AddPassengersDialog(
                                 }
                             }
 
-                            when {
-                                index == 0 -> FilledIconButton(
-                                    onClick = { passengers.add(PassengerFieldState()) },
-                                    enabled = passengers.size <= 15,
-                                ) {
-                                    Icon(
-                                        painter = Res.drawable.ic_add.painter,
-                                        contentDescription = null
-                                    )
-                                }
-
-                                passengers.size > 1 && index > 0 -> IconButton(
-                                    onClick = {
-                                        passengers.remove(
-                                            passenger
-                                        )
+                            IconButton(
+                                onClick = {
+                                    if (index == 0) {
+                                        passenger.apply {
+                                            id.clearText()
+                                            countryCode.clearText()
+                                            name.clearText()
+                                        }
+                                    } else {
+                                        passengers.remove(passenger)
                                     }
-                                ) {
-                                    Icon(
-                                        painter = Res.drawable.ic_remove.painter,
-                                        contentDescription = null
-                                    )
                                 }
-
-                                else -> Spacer(modifier = Modifier.size(48.dp))
+                            ) {
+                                Icon(
+                                    painter = Res.drawable.ic_remove.painter,
+                                    contentDescription = null
+                                )
                             }
+                        }
+                    }
+
+                    item {
+                        TextButton(
+                            onClick = { passengers.add(PassengerFieldState()) },
+                            enabled = passengers.size <= 15,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        ) {
+                            Icon(
+                                painter = Res.drawable.ic_add.painter,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(text = Res.string.add_passengers.string)
                         }
                     }
                 }
