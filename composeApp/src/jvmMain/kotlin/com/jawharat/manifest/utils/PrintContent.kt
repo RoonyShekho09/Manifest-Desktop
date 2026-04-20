@@ -1,6 +1,9 @@
 package com.jawharat.manifest.utils
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
@@ -92,9 +95,9 @@ suspend fun printContent(content: PrintContent) {
             attributes.add(PrintQuality.HIGH)
 
             if (printerJob.printDialog(attributes)) {
-
-                val pollJob = Thread {
+                val pollJob = CoroutineScope(Dispatchers.IO).launch {
                     repeat(20) {
+                        delay(2000)
                         Thread.sleep(2000)
                         printerJob.printService?.let {
                             pollPrinterStatus(
@@ -102,12 +105,12 @@ suspend fun printContent(content: PrintContent) {
                                 onStatusChange = { println(it) })
                         }
                     }
-                }.also { it.isDaemon = true; it.start() }
+                }
 
                 withContext(Dispatchers.IO) {
                     printerJob.print(attributes)
                 }
-                pollJob.interrupt()
+                pollJob.cancel()
             } else {
                 println("User cancelled the print dialog.")
             }
