@@ -28,8 +28,6 @@ fun QrScannerCamera(
     var webcam by remember { mutableStateOf<Webcam?>(null) }
     val onResultRef by rememberUpdatedState(onResult)
 
-    var isRunning by remember { mutableStateOf(true) }
-
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             val cam = Webcam.getDefault() ?: run {
@@ -49,10 +47,8 @@ fun QrScannerCamera(
                     onCameraReady()
                 }
 
-                while (isActive && isRunning) {
-                    val image = cam.image ?: run {
-                        continue
-                    }
+                while (isActive) {
+                    val image = cam.image ?: continue
 
                     val scaled = scaleImage(image)
                     val contrasted = increaseContrast(scaled)
@@ -86,7 +82,6 @@ fun QrScannerCamera(
 
     DisposableEffect(Unit) {
         onDispose {
-            isRunning = false
             println("close webcam")
             webcam?.let { if (it.isOpen) it.close() }
         }
