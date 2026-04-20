@@ -19,10 +19,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,8 +30,8 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.DispatchLine
+import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.presentation.feature.shared.SearchState
@@ -78,26 +78,20 @@ fun AddEditDispatchDialog(
     var line by remember { mutableStateOf(dispatchToEdit?.line ?: DispatchData()) }
     val isEdit = dispatchToEdit != null
 
-    val isConfirmEnabled by rememberUpdatedState(
-        driver.name.isNotBlank() && price.isNotBlank()
-                && plateNumber.text.isNotBlank() && vehicleName.isNotBlank()
-                && vehicleType.name.isNotBlank()
-                && (driverSearchState.searchResults.any { it.name == driverSearchState.query.text.trimEnd() })
-                && vehicleTypes.any { it.name == vehicleType.name }
-    )
+    val isConfirmEnabled by remember {
+        derivedStateOf {
+            driver.name.isNotBlank() && price.isNotBlank()
+                    && plateNumber.text.isNotBlank() && vehicleName.isNotBlank()
+                    && vehicleType.name.isNotBlank()
+                    && (driverSearchState.searchResults.any { it.name == driverSearchState.query.text.trimEnd() })
+                    && vehicleTypes.any { it.name == vehicleType.name }
+        }
+    }
 
-    LaunchedEffect(line.name, vehicleType.name) {
-        val currentRoutes = routes ?: return@LaunchedEffect
-
-        val foundPrice = currentRoutes
-            .firstOrNull { it.routeName == line.name }
-            ?.prices
-            ?.firstOrNull { it.type.displayName == vehicleType.name }
-            ?.price
-            ?.toString()
-
-        println("found price: $foundPrice")
-
+    LaunchedEffect(line, vehicleType) {
+        val foundPrice = routes?.find { it.routeName == line.name }
+            ?.prices?.find { it.type.displayName == vehicleType.name }
+            ?.price?.toString()
         price = foundPrice.orEmpty()
     }
 

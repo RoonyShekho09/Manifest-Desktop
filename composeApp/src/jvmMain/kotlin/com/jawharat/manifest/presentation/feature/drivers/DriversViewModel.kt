@@ -1,13 +1,13 @@
 package com.jawharat.manifest.presentation.feature.drivers
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
-import com.jawharat.manifest.presentation.feature.shared.SearchState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_add_driver
 import com.jawharat.manifest.utils.generateQRCode
@@ -40,8 +40,8 @@ class DriversViewModel(
         )
     }
 
-    fun onConfirmAddEditDriver(value: Driver?, isEdit: Boolean) {
-        if (isEdit)
+    fun onConfirmAddEditDriver(value: Driver?) {
+        if (state.value.driverToEdit != null)
             editDriver(value)
         else
             addDriver(value)
@@ -70,11 +70,15 @@ class DriversViewModel(
         },
         onSuccess = {
             initializeDrivers(fetch = true)
-            updateState { copy(mainSearchState = SearchState()) }
+            updateState {
+                mainSearchState.query.clearText()
+                copy(isDialogVisible = false)
+            }
         },
         onError = {
             snackBarHostState.showFailure(Res.string.failed_to_add_driver)
-        }
+        },
+        onCompleted = { updateState { copy(isDialogVisible = false) } }
     )
 
     fun editDriver(value: Driver?) = tryToExecute(

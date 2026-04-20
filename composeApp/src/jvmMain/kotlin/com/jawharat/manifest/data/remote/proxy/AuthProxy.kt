@@ -20,6 +20,11 @@ class AuthProxyImpl(
             throw NetworkException.SessionExpiredException()
         }
 
-        return block()
+        return try {
+            block()
+        } catch (e: NetworkException.SessionExpiredException) {
+            observer.emit(AuthEvent.TokenExpired)
+            throw e
+        }
     }
 }

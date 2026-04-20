@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
@@ -17,11 +18,9 @@ import androidx.compose.material.TextButton
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -46,24 +45,26 @@ fun AddEditDriverDialog(
     driverToEdit: Driver?,
     isEdit: Boolean = false,
     onDismiss: () -> Unit,
-    onConfirm: (driver: Driver?, isEdit: Boolean) -> Unit
+    onConfirm: (Driver?) -> Unit
 ) {
-    var driverName by remember { mutableStateOf(driverToEdit?.name.orEmpty()) }
-    val phoneNumber = rememberTextFieldState(initialText = driverToEdit?.phone.orEmpty())
-    val destination = rememberTextFieldState(initialText = driverToEdit?.destination.orEmpty())
-    val driverId = rememberTextFieldState(initialText = driverToEdit?.driverId.orEmpty())
+    val driverNameState = rememberTextFieldState(initialText = driverToEdit?.name.orEmpty())
+    val phoneNumberState = rememberTextFieldState(initialText = driverToEdit?.phone.orEmpty())
+    val destinationState = rememberTextFieldState(initialText = driverToEdit?.destination.orEmpty())
+    val driverIdState = rememberTextFieldState(initialText = driverToEdit?.driverId.orEmpty())
 
-    val isConfirmEnabled by rememberUpdatedState(
-        driverName.length > 3 &&
-                phoneNumber.text.length > 4 &&
-                destination.text.length >= 2 &&
-                driverId.text.length > 3
-    )
+    val isConfirmEnabled by remember {
+        derivedStateOf {
+            driverNameState.text.length > 3 &&
+                    phoneNumberState.text.length > 4 &&
+                    destinationState.text.length >= 2 &&
+                    driverIdState.text.length > 3
+        }
+    }
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
-                .width(600.dp)
+                .widthIn(min = 400.dp, max = 600.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(8.dp),
             elevation = 8.dp
@@ -79,25 +80,24 @@ fun AddEditDriverDialog(
                 )
 
                 AppTextField(
-                    state = driverId,
+                    state = driverIdState,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = Res.string.driver_id_number.string
                 )
 
                 AppTextField(
-                    value = driverName,
-                    onValueChange = { driverName = it },
+                    state = driverNameState,
                     placeholder = Res.string.driver.string,
                 )
 
                 AppTextField(
-                    state = phoneNumber,
+                    state = phoneNumberState,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = Res.string.driver_phone_number.string
                 )
 
                 AppTextField(
-                    state = destination,
+                    state = destinationState,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = Res.string.destination.string
                 )
@@ -118,22 +118,21 @@ fun AddEditDriverDialog(
                             if (isEdit)
                                 onConfirm(
                                     driverToEdit?.copy(
-                                        name = driverName,
-                                        phone = phoneNumber.text.toString(),
-                                        destination = destination.text.toString(),
-                                    ),
-                                    true
+                                        name = driverNameState.text.toString(),
+                                        phone = phoneNumberState.text.toString(),
+                                        destination = destinationState.text.toString(),
+                                        driverId = driverIdState.text.toString()
+                                    )
                                 )
                             else
                                 onConfirm(
                                     Driver(
                                         id = "",
-                                        name = driverName,
-                                        phone = phoneNumber.text.toString(),
-                                        destination = destination.text.toString(),
-                                        driverId = driverToEdit?.driverId.orEmpty()
-                                    ),
-                                    false
+                                        name = driverNameState.text.toString(),
+                                        phone = phoneNumberState.text.toString(),
+                                        destination = destinationState.text.toString(),
+                                        driverId = driverIdState.text.toString()
+                                    )
                                 )
                         },
                         enabled = isConfirmEnabled,

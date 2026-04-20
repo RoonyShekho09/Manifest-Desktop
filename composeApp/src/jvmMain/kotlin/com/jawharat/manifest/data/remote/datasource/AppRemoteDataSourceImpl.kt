@@ -44,7 +44,6 @@ class AppRemoteDataSourceImpl(
             try {
                 val response: HttpResponse = mistralHttpClient.get(versionFileUrl)
                 val latestVersion = response.bodyAsText().trim()
-                mistralHttpClient.close()
                 parseUpdateInfo(latestVersion)
             } catch (e: Exception) {
                 throw e
@@ -151,14 +150,14 @@ class AppRemoteDataSourceImpl(
         mapper = { it }
     ).getOrThrow()
 
-    override suspend fun editVehicle(
+    override suspend fun editDispatch(
         vehicleNumber: String?, vehicleName: String?,
         carType: String?, price: Int?,
         driverId: String?, line: String?,
         id: String
     ) = callApi(
         apiCall = {
-            manifestApiService.editVehicle(
+            manifestApiService.editDispatch(
                 body = AddVehicleRequestBody(
                     vehicleNumber,
                     vehicleName,

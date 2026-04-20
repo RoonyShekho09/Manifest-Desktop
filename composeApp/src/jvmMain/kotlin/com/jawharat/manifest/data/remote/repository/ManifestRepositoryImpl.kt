@@ -114,7 +114,7 @@ class ManifestRepositoryImpl(
         )
     }
 
-    override suspend fun editVehicle(
+    override suspend fun editDispatch(
         vehicleNumber: String?,
         vehicleName: String?,
         vehicleType: String?,
@@ -123,7 +123,7 @@ class ManifestRepositoryImpl(
         line: String?,
         id: String
     ) = authorizedCall {
-        remoteDataSource.editVehicle(
+        remoteDataSource.editDispatch(
             vehicleNumber = vehicleNumber,
             vehicleName = vehicleName,
             carType = vehicleType,

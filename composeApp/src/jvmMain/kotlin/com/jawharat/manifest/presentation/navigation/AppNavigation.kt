@@ -97,10 +97,9 @@ private fun AuthExceptionRouterHandler(onTokenExpiredException: () -> Unit) {
     val snackBarHostState = LocalSnackBarState.current
 
     event.Listen {
-        println("AuthExceptionRouterHandler: $it")
         if (it == AuthEvent.TokenExpired) {
-            snackBarHostState.showFailure(Res.string.session_expired)
             onTokenExpiredException()
+            snackBarHostState.showFailure(Res.string.session_expired)
         }
     }
 }

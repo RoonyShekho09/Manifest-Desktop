@@ -50,7 +50,7 @@ interface ManifestRepository {
         id: String
     )
 
-    suspend fun editVehicle(
+    suspend fun editDispatch(
         vehicleNumber: String? = null,
         vehicleName: String? = null,
         vehicleType: String? = null,

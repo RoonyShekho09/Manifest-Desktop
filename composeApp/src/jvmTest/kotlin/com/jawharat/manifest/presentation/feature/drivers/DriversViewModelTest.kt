@@ -112,7 +112,7 @@ class DriversViewModelTest {
             destination = "Dest"
         )
 
-        viewModel.onConfirmAddEditDriver(value = driver, isEdit = true)
+        viewModel.onConfirmAddEditDriver(value = driver)
         testDispatcher.scheduler.advanceUntilIdle()
 
         coVerify { repository.editDriver(any(), any(), any(), any(), any()) }
@@ -128,8 +128,9 @@ class DriversViewModelTest {
                 phone = "(899) 671-4903",
                 destination = "option",
                 driverId = "dignissim"
-            ),  isEdit = false
+            ),
         )
+
         testDispatcher.scheduler.advanceUntilIdle()
 
         coVerify(exactly = 1) { repository.addDriver(any(), any(), any(), any()) }

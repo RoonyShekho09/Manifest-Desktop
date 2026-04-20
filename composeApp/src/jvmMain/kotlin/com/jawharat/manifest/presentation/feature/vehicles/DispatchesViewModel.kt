@@ -10,6 +10,8 @@ import com.jawharat.manifest.utils.generateQRCode
 import com.jawharat.manifest.utils.normalizeArabicKurdish
 import com.jawharat.manifest.utils.printContent
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -19,8 +21,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class DispatchesViewModel(private val repository: ManifestRepository) :
-    BaseViewModel<DispatchesUiState, Unit>(DispatchesUiState()) {
+class DispatchesViewModel(
+    private val repository: ManifestRepository,
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : BaseViewModel<DispatchesUiState, Unit>(DispatchesUiState(), ioDispatcher = ioDispatcher) {
 
     init {
         initializeDispatches()
@@ -177,7 +181,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
     fun editDispatch(value: DispatchUiState?) = tryToExecute(
         block = {
             value?.id?.let {
-                repository.editVehicle(
+                repository.editDispatch(
                     vehicleNumber = value.plateNumber.trimEnd(),
                     vehicleName = value.vehicleName.trimEnd(),
                     vehicleType = value.vehicleType.trimEnd(),
@@ -193,7 +197,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
     )
 
     fun addDispatch(value: DispatchUiState?) = tryToExecute(
-        onStart = { updateState { copy(isDialogVisible = false, isLoading = true) } },
+        onStart = { updateState { copy(isLoading = true) } },
         block = {
             value?.let {
                 repository.addDispatch(
@@ -219,7 +223,7 @@ class DispatchesViewModel(private val repository: ManifestRepository) :
 
             initializeDispatches(fetch = true)
         },
-        onCompleted = { updateState { copy(isLoading = false) } }
+        onCompleted = { updateState { copy(isLoading = false, isDialogVisible = false) } }
     )
 
     fun onRefresh() {

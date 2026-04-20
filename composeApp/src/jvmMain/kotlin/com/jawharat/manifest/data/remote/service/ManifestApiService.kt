@@ -65,7 +65,7 @@ interface ManifestApiService {
     suspend fun editDriver(@Body body: AddDriverRequestBody, @Path("id") id: String): Response<Unit>
 
     @PUT("vehicles/{id}")
-    suspend fun editVehicle(
+    suspend fun editDispatch(
         @Body body: AddVehicleRequestBody,
         @Path("id") id: String
     ): Response<Unit>
