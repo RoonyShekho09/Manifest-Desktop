@@ -40,7 +40,8 @@ interface IDocumentScanner {
     )
 }
 
-class DocumentScanner : IDocumentScanner {
+class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = { DocumentReaderDevice() }) :
+    IDocumentScanner {
     override var isSoftwareInstalled: Boolean = true
     private var device: DocumentReaderDevice? = null
     private val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
@@ -59,10 +60,12 @@ class DocumentScanner : IDocumentScanner {
             }
         )
 
-        device = runCatching { DocumentReaderDevice() }
-            .onSuccess { isSoftwareInstalled = true }
+        runCatching { deviceProvider() }
+            .onSuccess {
+                device = it
+                isSoftwareInstalled = true
+            }
             .onFailure { isSoftwareInstalled = false }
-            .getOrNull()
     }
 
     private suspend fun ensureInitialized() {
