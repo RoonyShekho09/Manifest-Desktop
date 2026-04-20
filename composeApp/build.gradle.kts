@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.ktorfit)
     alias(libs.plugins.ksp)
     alias(libs.plugins.sqldelight)
-    alias(libs.plugins.sentry)
     alias(libs.plugins.buildConfig)
 }
 
@@ -46,6 +45,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation("io.sentry:sentry:8.+")
             implementation(fileTree("src/jvmMain/java") { include("*.jar") })
         }
     }

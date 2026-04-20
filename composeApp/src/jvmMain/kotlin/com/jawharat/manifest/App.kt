@@ -55,10 +55,12 @@ import java.net.URI
 @Preview
 fun App() {
     Sentry.init { options ->
-        options.dsn =
-            "https://c540b9e616e448c84ff4d2e200429d5b@o4511178272997376.ingest.de.sentry.io/4511178413834320"
-        options.debug = false
-        options.sendDefaultPii = true
+        with(options) {
+            dsn = "https://bcc0bf3b1535462692fcd23a81ca0a49@app.glitchtip.com/22427"
+            tracesSampleRate = 0.01 // 1% of transactions
+            isDebug = false
+            isSendDefaultPii = true
+        }
     }
 
     val repository = koinInject<AuthRepository>()
