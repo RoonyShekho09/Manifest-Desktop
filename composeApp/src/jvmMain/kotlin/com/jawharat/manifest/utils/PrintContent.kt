@@ -6,10 +6,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.pdfbox.pdmodel.PDDocument
-import org.apache.pdfbox.pdmodel.PDPage
-import org.apache.pdfbox.pdmodel.PDPageContentStream
-import org.apache.pdfbox.pdmodel.common.PDRectangle
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory
 import org.apache.pdfbox.printing.PDFPrintable
 import org.apache.pdfbox.printing.Scaling
 import java.awt.image.BufferedImage
@@ -17,15 +13,11 @@ import java.awt.print.PageFormat
 import java.awt.print.Pageable
 import java.awt.print.Printable
 import java.awt.print.PrinterJob
-import javax.print.PrintService
 import javax.print.attribute.HashPrintRequestAttributeSet
 import javax.print.attribute.standard.JobName
 import javax.print.attribute.standard.MediaSizeName
 import javax.print.attribute.standard.PageRanges
 import javax.print.attribute.standard.PrintQuality
-import javax.print.attribute.standard.PrinterState
-import javax.print.attribute.standard.PrinterStateReasons
-import javax.print.attribute.standard.Severity
 import javax.print.attribute.standard.Sides
 
 sealed class PrintContent {
@@ -98,12 +90,6 @@ suspend fun printContent(content: PrintContent) {
                 val pollJob = CoroutineScope(Dispatchers.IO).launch {
                     repeat(20) {
                         delay(2000)
-                        Thread.sleep(2000)
-                        printerJob.printService?.let {
-                            pollPrinterStatus(
-                                it,
-                                onStatusChange = { println(it) })
-                        }
                     }
                 }
 
@@ -117,55 +103,5 @@ suspend fun printContent(content: PrintContent) {
         }
     } catch (e: Exception) {
         e.printStackTrace()
-    }
-}
-
-/**
- * Builds a new single-page A4 PDDocument with the 2 QR codes placed side by side.
- */
-private fun buildQrDocument(qrCode1: BufferedImage, qrCode2: BufferedImage): PDDocument {
-    val document = PDDocument()
-    val page = PDPage(PDRectangle.A4)
-    document.addPage(page)
-
-    val pageWidth = page.mediaBox.width
-    val pageHeight = page.mediaBox.height
-
-    val qrSize = 350f
-    val spacing = 20f
-    val totalHeight = (qrSize * 2) + spacing
-
-    val startY = (pageHeight + totalHeight) / 2
-    val x = (pageWidth - qrSize) / 2
-
-    PDPageContentStream(document, page).use { contentStream ->
-        val pdImage1 = LosslessFactory.createFromImage(document, qrCode1)
-        contentStream.drawImage(pdImage1, x, startY - qrSize, qrSize, qrSize)
-
-        val pdImage2 = LosslessFactory.createFromImage(document, qrCode2)
-        contentStream.drawImage(pdImage2, x, startY - qrSize - spacing - qrSize, qrSize, qrSize)
-    }
-
-    return document
-}
-
-fun pollPrinterStatus(printService: PrintService, onStatusChange: (String) -> Unit) {
-    val attrs = printService.attributes
-
-    val state = attrs.get(PrinterState::class.java) as? PrinterState
-    val reasons = attrs.get(PrinterStateReasons::class.java) as? PrinterStateReasons
-
-    when (state) {
-        PrinterState.IDLE -> onStatusChange("Printer is idle.")
-        PrinterState.PROCESSING -> onStatusChange("Printer is processing.")
-        PrinterState.STOPPED -> {
-            val detail = reasons?.entries
-                ?.filter { it.value == Severity.REPORT || it.value == Severity.WARNING || it.value == Severity.ERROR }
-                ?.joinToString { "${it.key} (${it.value})" }
-                ?: "Unknown reason"
-            onStatusChange("Printer stopped: $detail")
-        }
-
-        else -> onStatusChange("Printer state unknown.")
     }
 }
