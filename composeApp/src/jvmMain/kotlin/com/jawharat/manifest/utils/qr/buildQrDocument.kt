@@ -1,4 +1,4 @@
-package com.jawharat.manifest.utils
+package com.jawharat.manifest.utils.qr
 
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage

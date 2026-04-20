@@ -1,5 +1,6 @@
-package com.jawharat.manifest.utils
+package com.jawharat.manifest.utils.print
 
+import com.jawharat.manifest.utils.qr.buildQrDocument
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

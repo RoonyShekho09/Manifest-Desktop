@@ -5,10 +5,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
-import com.jawharat.manifest.utils.PrintContent
-import com.jawharat.manifest.utils.generateQRCode
+import com.jawharat.manifest.utils.print.PrintContent
+import com.jawharat.manifest.utils.qr.generateQRCode
 import com.jawharat.manifest.utils.normalizeArabicKurdish
-import com.jawharat.manifest.utils.printContent
+import com.jawharat.manifest.utils.print.printContent
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

@@ -1,6 +1,7 @@
 package com.jawharat.manifest.utils
 
 
+import com.jawharat.manifest.utils.qr.buildQrDocument
 import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
 import java.awt.image.BufferedImage

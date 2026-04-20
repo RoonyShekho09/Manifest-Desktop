@@ -25,8 +25,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.awt.image.BufferedImage
 import com.jawharat.manifest.resources.result_not_found_try_scanning_again
-import com.jawharat.manifest.utils.PrintContent
-import com.jawharat.manifest.utils.printContent
+import com.jawharat.manifest.utils.print.PrintContent
+import com.jawharat.manifest.utils.print.printContent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
