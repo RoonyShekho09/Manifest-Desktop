@@ -45,7 +45,7 @@ import com.jawharat.manifest.resources.mandatory_update_title
 import com.jawharat.manifest.resources.optional_update_msg
 import com.jawharat.manifest.resources.update_available_title
 import com.jawharat.manifest.utils.string
-import io.sentry.kotlin.multiplatform.Sentry
+import io.sentry.Sentry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.compose.koinInject
 import java.awt.Desktop
