@@ -48,7 +48,6 @@ class DocumentScanner : IDocumentScanner {
     private var isDocumentPresent = false
     private var liveTask: TaskControl? = null
     private var initialized = false
-    private var networkRequestInProgress: Boolean = false
     private val initMutex = Mutex()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -96,8 +95,6 @@ class DocumentScanner : IDocumentScanner {
         onResult: (PersonDocument) -> Unit,
         onScan: (BufferedImage) -> Unit
     ) {
-        if (networkRequestInProgress) return
-
         ensureInitialized()
 
         val scanner = device?.scanner
