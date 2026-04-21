@@ -26,6 +26,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -46,6 +47,7 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
     private var device: DocumentReaderDevice? = null
     private val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
     private val engine: Engine? by lazy { device?.engine }
+    @Volatile
     private var isDocumentPresent = false
     private var liveTask: TaskControl? = null
     private var initialized = false
@@ -55,8 +57,11 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
     init {
         Runtime.getRuntime().addShutdownHook(
             Thread {
-                println("Stopping the process")
-                stop()
+                runBlocking {
+                    withTimeout(5_000){
+                        stop()
+                    }
+                }
             }
         )
 
