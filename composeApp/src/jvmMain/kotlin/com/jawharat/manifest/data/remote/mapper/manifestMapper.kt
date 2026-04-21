@@ -42,7 +42,7 @@ fun List<DriverResponse>.toDomain() = map { it.toDomain() }
 fun DriverResponse.toDomain() = Driver(
     id = _id.orEmpty(),
     name = name.orEmpty(),
-    phone = phoneNumber.orEmpty(),
+    phoneNumber = phoneNumber.orEmpty(),
     destination = destination.orEmpty(),
     driverId = id.orEmpty(),
     blocked = blocked
@@ -73,7 +73,7 @@ fun List<DriverRecord>.toDomain() = map { it.toDomain() }
 fun DriverRecord.toDomain() = Driver(
     id = id,
     name = name,
-    phone = phone,
+    phoneNumber = phone,
     destination = destination,
     driverId = driverId,
     blocked = blocked
@@ -85,7 +85,7 @@ fun List<Driver>.toEntity() = map { it.toEntity() }
 fun Driver.toEntity() = DriverRecord(
     id = id,
     name = name,
-    phone = phone,
+    phone = phoneNumber,
     destination = destination,
     driverId = driverId,
     blocked = blocked
@@ -152,6 +152,7 @@ fun DriverQrCodeResponse.toDomain() = DriverQrResult(
     phoneNumber = phoneNumber.orEmpty(),
     destination = to.orEmpty(),
     driverId = driverId.orEmpty(),
+    blocked = blocked
 )
 
 @JvmName("lineRecordToDomain")

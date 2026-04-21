@@ -132,7 +132,6 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
         }
     }
 
-
     private fun stop() {
         scope.launch {
             stopMutex.withLock {

@@ -264,7 +264,7 @@ fun DriverRow(
                         tint = if (driver.blocked) Color.Gray else MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = driver.phone, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = driver.phoneNumber, style = MaterialTheme.typography.bodyMedium)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))

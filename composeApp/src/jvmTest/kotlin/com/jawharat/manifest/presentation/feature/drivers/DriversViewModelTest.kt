@@ -61,7 +61,7 @@ class DriversViewModelTest {
             id = "1",
             driverId = "D1",
             name = "Test Name ",
-            phone = "12345 ",
+            phoneNumber = "12345 ",
             destination = "Test Dest",
             blocked = true
         )
@@ -85,7 +85,7 @@ class DriversViewModelTest {
             id = "1",
             driverId = "D1",
             name = "Test Name",
-            phone = "12345",
+            phoneNumber = "12345",
             destination = "Test Dest",
             blocked = true
         )
@@ -110,7 +110,7 @@ class DriversViewModelTest {
             id = "1",
             driverId = "D1",
             name = "Name",
-            phone = "123",
+            phoneNumber = "123",
             destination = "Dest",
             blocked = true
         )
@@ -128,7 +128,7 @@ class DriversViewModelTest {
             Driver(
                 id = "eloquentiam",
                 name = "Mavis Callahan",
-                phone = "(899) 671-4903",
+                phoneNumber = "(899) 671-4903",
                 destination = "option",
                 driverId = "dignissim",
                 blocked = true

@@ -40,10 +40,16 @@ class HomeViewModel(
 
     private var scanJob: Job? = null
     private var isAnalyzingId = false
+    var lastSuccessQrCode: String? = null
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         initializeUserInformation()
+    }
+
+    fun onClearClick() = updateState {
+        val from = manifest.from
+        copy(passengers = emptyList(), manifest = Manifest(from = from))
     }
 
     fun onDismissBlockedDialog() = updateState {
@@ -196,7 +202,10 @@ class HomeViewModel(
             withContext(Dispatchers.IO) {
                 printContent(content = PrintContent.Pdf(it))
             }
-            updateState { copy(manifest = Manifest(), passengers = emptyList()) }
+            updateState {
+                val from = manifest.from
+                copy(manifest = Manifest(from = from), passengers = emptyList())
+            }
         },
         onError = {
             if (it is NetworkException.ManifestSubmittedRecentlyException)
@@ -210,32 +219,26 @@ class HomeViewModel(
         val vehicleId = value.substringAfter("V:", missingDelimiterValue = "").ifEmpty { null }
 
         driverId?.let {
-            if (!state.value.scanState.isDriverScanned)
-                scanDriverQrCode(driverId)
+            scanDriverQrCode(driverId)
         }
 
         vehicleId?.let {
-            if (!state.value.scanState.isVehicleScanned)
-                scanVehicleQrCode(vehicleId)
+            scanVehicleQrCode(vehicleId)
         }
-
-        if (state.value.scanState.allScanned)
-            updateState { copy(scanState = ScanState()) }
     }
 
     fun scanVehicleQrCode(id: String) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { manifestRepository.scanDispatchQrCode(id) },
         onSuccess = {
+            lastSuccessQrCode = id
             updateState {
                 copy(
                     manifest = manifest.copy(
                         plateNumber = it.plateNumber,
                         price = it.price,
                         vehicleType = it.vehicleName,
-                        from = it.line
                     ),
-                    scanState = scanState.copy(isVehicleScanned = true)
                 )
             }
 
@@ -244,7 +247,10 @@ class HomeViewModel(
         },
         onError = {
             if (it is NetworkException.BlockedException)
-                updateState { copy(isVehicleBlockedDialogVisible = true, manifest = Manifest()) }
+                updateState {
+                    val from = manifest.from
+                    copy(isVehicleBlockedDialogVisible = true, manifest = Manifest(from = from))
+                }
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
@@ -253,6 +259,7 @@ class HomeViewModel(
         onStart = { updateState { copy(isLoading = true) } },
         block = { manifestRepository.scanDriverQrCode(id) },
         onSuccess = {
+            lastSuccessQrCode = id
             updateState {
                 copy(
                     manifest = manifest.copy(
@@ -261,13 +268,15 @@ class HomeViewModel(
                         driverName = it.name,
                         driverPhoneNumber = it.phoneNumber,
                     ),
-                    scanState = scanState.copy(isDriverScanned = true)
                 )
             }
         },
         onError = {
             if (it is NetworkException.BlockedException)
-                updateState { copy(isDriverBlockedDialogVisible = true, manifest = Manifest()) }
+                updateState {
+                    val from = manifest.from
+                    copy(isDriverBlockedDialogVisible = true, manifest = Manifest(from = from))
+                }
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )

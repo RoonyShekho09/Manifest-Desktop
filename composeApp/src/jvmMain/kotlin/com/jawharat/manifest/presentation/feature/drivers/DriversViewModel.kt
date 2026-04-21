@@ -62,7 +62,7 @@ class DriversViewModel(
                     repository.addDriver(
                         driverId = driverId,
                         name = name.trimEnd(),
-                        phoneNumber = phone.trimEnd(),
+                        phoneNumber = phoneNumber.trimEnd(),
                         destination = destination.trimEnd(),
                     )
                 }
@@ -89,7 +89,7 @@ class DriversViewModel(
                     repository.editDriver(
                         driverId = driverId,
                         name = name.trimEnd(),
-                        phoneNumber = phone.trimEnd(),
+                        phoneNumber = phoneNumber.trimEnd(),
                         destination = destination.trimEnd(),
                         id = id,
                     )
@@ -108,7 +108,7 @@ class DriversViewModel(
                         it.name.contains(query, ignoreCase = true) || it.destination.contains(
                             query,
                             ignoreCase = true
-                        ) || it.phone.contains(
+                        ) || it.phoneNumber.contains(
                             query,
                             ignoreCase = true
                         )

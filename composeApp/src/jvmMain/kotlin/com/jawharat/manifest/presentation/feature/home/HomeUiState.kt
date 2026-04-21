@@ -11,7 +11,6 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     val manifest: Manifest = Manifest(),
     val isLogoutConfirmationVisible: Boolean = false,
-    val scanState: ScanState = ScanState(),
     val isAddPassengersDialogVisible: Boolean = false,
     val passengers: List<PassengerFieldState> = emptyList(),
     val isDocumentScanningSoftwareInstalled: Boolean = true,

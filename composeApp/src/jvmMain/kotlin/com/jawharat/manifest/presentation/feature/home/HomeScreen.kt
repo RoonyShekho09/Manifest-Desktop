@@ -2,6 +2,7 @@
 
 package com.jawharat.manifest.presentation.feature.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,8 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -22,10 +26,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -46,10 +54,14 @@ import com.jawharat.manifest.presentation.feature.shared.AppSnackBarVisuals
 import com.jawharat.manifest.presentation.feature.shared.LocalSnackBarState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.date
+import com.jawharat.manifest.resources.dismiss
+import com.jawharat.manifest.resources.driver_blocked
 import com.jawharat.manifest.resources.driver_id_number
 import com.jawharat.manifest.resources.driver_name
 import com.jawharat.manifest.resources.driver_phone_number
 import com.jawharat.manifest.resources.from
+import com.jawharat.manifest.resources.ic_block
+import com.jawharat.manifest.resources.ic_clear
 import com.jawharat.manifest.resources.ic_print
 import com.jawharat.manifest.resources.install_now
 import com.jawharat.manifest.resources.logout
@@ -59,6 +71,7 @@ import com.jawharat.manifest.resources.register_trip
 import com.jawharat.manifest.resources.scanner_required
 import com.jawharat.manifest.resources.submit_manifest
 import com.jawharat.manifest.resources.to
+import com.jawharat.manifest.resources.vehicle_blocked
 import com.jawharat.manifest.resources.vehicle_number
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.Listen
@@ -107,15 +120,11 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             onDismissRequest = viewModel::onDismissCountDownDialog
         )
 
-    if (state.isDriverBlockedDialogVisible)
-        BasicAlertDialog(onDismissRequest = viewModel::onDismissBlockedDialog) {
-            Text(text = "Driver is blocked")
-        }
-
-    if (state.isVehicleBlockedDialogVisible)
-        BasicAlertDialog(onDismissRequest = {}) {
-            Text(text = "Vehicle is blocked")
-        }
+    if (state.isDriverBlockedDialogVisible || state.isVehicleBlockedDialogVisible)
+        BlockedDialog(
+            text = if (state.isDriverBlockedDialogVisible) Res.string.driver_blocked.string else Res.string.vehicle_blocked.string,
+            onDismissBlockedDialog = viewModel::onDismissBlockedDialog
+        )
 
     Scaffold(
         topBar = {
@@ -128,13 +137,28 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
                 actions = {
-                    Button(
-                        onClick = viewModel::onLogoutClick,
-                        modifier = Modifier.padding(end = 16.dp)
-                            .handPointerHover(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(24.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = Res.string.logout.string, color = Color(0xC1A52B2B))
+                        IconButton(
+                            onClick = viewModel::onClearClick,
+                            colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+                        ) {
+                            Icon(
+                                painter = Res.drawable.ic_clear.painter,
+                                contentDescription = null
+                            )
+                        }
+
+                        Button(
+                            onClick = viewModel::onLogoutClick,
+                            modifier = Modifier.padding(end = 16.dp)
+                                .handPointerHover(),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+                        ) {
+                            Text(text = Res.string.logout.string, color = Color(0xC1A52B2B))
+                        }
                     }
                 }
             )
@@ -331,6 +355,55 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             onDismissLogoutConfirmation = viewModel::onDismissLogoutConfirmation,
             onLogout = viewModel::logout
         )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun BlockedDialog(text: String, onDismissBlockedDialog: () -> Unit) {
+    BasicAlertDialog(
+        onDismissRequest = onDismissBlockedDialog,
+        modifier = Modifier.widthIn(min = 320.dp, max = 480.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            tonalElevation = 2.dp,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        painter = Res.drawable.ic_block.painter,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = onDismissBlockedDialog,
+                        modifier = Modifier.handPointerHover()
+                    ) {
+                        Text(text = Res.string.dismiss.string)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
