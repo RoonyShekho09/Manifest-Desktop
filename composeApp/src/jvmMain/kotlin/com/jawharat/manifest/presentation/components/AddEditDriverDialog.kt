@@ -131,7 +131,8 @@ fun AddEditDriverDialog(
                                         name = driverNameState.text.toString(),
                                         phone = phoneNumberState.text.toString(),
                                         destination = destinationState.text.toString(),
-                                        driverId = driverIdState.text.toString()
+                                        driverId = driverIdState.text.toString(),
+                                        blocked = false
                                     )
                                 )
                         },

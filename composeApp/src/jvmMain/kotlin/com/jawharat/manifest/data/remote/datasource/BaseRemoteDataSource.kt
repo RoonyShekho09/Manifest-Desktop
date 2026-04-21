@@ -55,6 +55,8 @@ interface BaseRemoteDataSource {
 
             result.status == HttpStatusCode.Unauthorized -> throw NetworkException.SessionExpiredException()
 
+            result.status == HttpStatusCode.TooManyRequests -> throw NetworkException.BlockedException()
+
             result.status == HttpStatusCode.Found -> @Suppress("UNCHECKED_CAST")
             Result.success(null as R)
 

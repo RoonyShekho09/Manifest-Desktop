@@ -18,6 +18,8 @@ data class HomeUiState(
     val userLocation: UserLocation = UserLocation(),
     val isCountDownVisible: Boolean = false,
     val retryInSeconds: Int = 0,
+    val isDriverBlockedDialogVisible: Boolean = false,
+    val isVehicleBlockedDialogVisible: Boolean = false,
 ) {
     val isSubmitEnabled: Boolean
         get() = manifest.to.isNotEmpty() && manifest.price != null &&

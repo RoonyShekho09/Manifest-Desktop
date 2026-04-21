@@ -1,6 +1,6 @@
 package com.jawharat.manifest.presentation.feature.vehicles
 
-import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.DispatchSummary
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -82,7 +82,7 @@ class DispatchesViewModelTest {
             every { driver.id } returns "driver-123"
             every { line.id } returns "line-123"
         }
-        val expectedResult = mockk<Dispatch>(relaxed = true) {
+        val expectedResult = mockk<DispatchSummary>(relaxed = true) {
             every { id } returns "dispatch-123"
         }
         coEvery {

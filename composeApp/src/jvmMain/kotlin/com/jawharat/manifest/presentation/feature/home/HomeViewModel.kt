@@ -46,6 +46,13 @@ class HomeViewModel(
         initializeUserInformation()
     }
 
+    fun onDismissBlockedDialog() = updateState {
+        copy(
+            isVehicleBlockedDialogVisible = false,
+            isDriverBlockedDialogVisible = false
+        )
+    }
+
     private fun initializeUserInformation() = tryToExecute(
         block = manifestRepository::getUserInformation,
         onSuccess = {
@@ -114,7 +121,9 @@ class HomeViewModel(
 
     private fun updatePassengersState(value: PersonDocument) {
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
-        if (value.fullName.isEmpty() || value.documentId.isEmpty() || allCountries.all { it.code != value.countryCode.lowercase() }) return
+        if (value.fullName.isEmpty() || value.documentId.isEmpty()
+            || allCountries.all { it.code != value.countryCode.lowercase() }
+        ) return
 
         updateState {
             copy(
@@ -216,7 +225,7 @@ class HomeViewModel(
 
     fun scanVehicleQrCode(id: String) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
-        block = { manifestRepository.scanVehicleQrCode(id) },
+        block = { manifestRepository.scanDispatchQrCode(id) },
         onSuccess = {
             updateState {
                 copy(
@@ -224,7 +233,7 @@ class HomeViewModel(
                         plateNumber = it.plateNumber,
                         price = it.price,
                         vehicleType = it.vehicleName,
-                        from = it.dispatchLine.name
+                        from = it.line
                     ),
                     scanState = scanState.copy(isVehicleScanned = true)
                 )
@@ -232,6 +241,10 @@ class HomeViewModel(
 
             if (it.price != 10000)
                 startDocumentScanner()
+        },
+        onError = {
+            if (it is NetworkException.BlockedException)
+                updateState { copy(isVehicleBlockedDialogVisible = true, manifest = Manifest()) }
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
@@ -246,11 +259,15 @@ class HomeViewModel(
                         driverId = it.driverId,
                         to = it.destination,
                         driverName = it.name,
-                        driverPhoneNumber = it.phone,
+                        driverPhoneNumber = it.phoneNumber,
                     ),
                     scanState = scanState.copy(isDriverScanned = true)
                 )
             }
+        },
+        onError = {
+            if (it is NetworkException.BlockedException)
+                updateState { copy(isDriverBlockedDialogVisible = true, manifest = Manifest()) }
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )

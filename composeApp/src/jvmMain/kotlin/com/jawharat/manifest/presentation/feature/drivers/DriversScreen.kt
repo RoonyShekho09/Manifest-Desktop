@@ -33,6 +33,7 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -205,19 +206,48 @@ fun DriverRow(
                 Icon(
                     painter = Res.drawable.ic_profile.painter,
                     contentDescription = null,
-                    modifier = Modifier.align(Alignment.Center).size(40.dp),
-                    tint = Color.DarkGray
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(40.dp),
+                    tint = if (driver.blocked) Color.Gray else Color.DarkGray
                 )
+
+                if (driver.blocked) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Red.copy(alpha = 0.1f))
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = driver.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = driver.name,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (driver.blocked) Color.Gray else Color.Unspecified
+                    )
+
+                    if (driver.blocked) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = "Blocked",
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                }
+
                 Text(
                     text = Res.string.driver_id.string(driver.driverId),
                     style = MaterialTheme.typography.bodyMedium,
@@ -231,7 +261,7 @@ fun DriverRow(
                         painter = Res.drawable.ic_profile.painter,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = if (driver.blocked) Color.Gray else MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(text = driver.phone, style = MaterialTheme.typography.bodyMedium)

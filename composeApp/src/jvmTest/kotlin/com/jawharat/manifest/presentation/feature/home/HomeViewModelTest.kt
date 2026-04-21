@@ -1,11 +1,8 @@
 package com.jawharat.manifest.presentation.feature.home
 
 import androidx.compose.foundation.text.input.TextFieldState
-import com.jawharat.manifest.domain.entity.Dispatch
-import com.jawharat.manifest.domain.entity.DispatchLine
-import com.jawharat.manifest.domain.entity.Driver
-import com.jawharat.manifest.domain.entity.DriverInformation
-import com.jawharat.manifest.domain.entity.Office
+import com.jawharat.manifest.domain.entity.DispatchQrResult
+import com.jawharat.manifest.domain.entity.DriverQrResult
 import com.jawharat.manifest.domain.entity.UserInformation
 import com.jawharat.manifest.domain.entity.UserLocation
 import com.jawharat.manifest.domain.repository.AuthRepository
@@ -97,11 +94,10 @@ class HomeViewModelTest {
 
     @Test
     fun scanDriverQrCode_updatesStateOnSuccess() = runTest {
-        val mockDriverResponse = Driver(
-            id = "12345",
+        val mockDriverResponse = DriverQrResult(
             destination = "Baghdad",
             name = "John Doe",
-            phone = "555-0192",
+            phoneNumber = "555-0192",
             driverId = "12345",
         )
 
@@ -121,19 +117,14 @@ class HomeViewModelTest {
 
     @Test
     fun scanVehicleQrCode_updatesStateOnSuccess() = runTest {
-        val mockDispatch = Dispatch(
+        val mockDispatch = DispatchQrResult(
             plateNumber = "ABC-123",
             price = 15000,
             vehicleName = "Minivan",
-            driverInformation = DriverInformation(),
-            id = "1234",
-            isInside = true,
-            dispatchLine = DispatchLine(name = "Line A"),
-            office = Office(),
-            vehicleType = "جمسي خارجي",
+            line = "Line A",
         )
 
-        coEvery { manifestRepository.scanVehicleQrCode("1234") } returns mockDispatch
+        coEvery { manifestRepository.scanDispatchQrCode("1234") } returns mockDispatch
 
         viewModel.scanVehicleQrCode("1234")
         advanceUntilIdle()
@@ -167,18 +158,13 @@ class HomeViewModelTest {
 
     @Test
     fun onPassengerFieldClick_showsDialogIfPriceIsNot10000() {
-        val mockVehicleResponse = Dispatch(
+        val mockVehicleResponse = DispatchQrResult(
             plateNumber = "ABC-123",
             price = 15000,
             vehicleName = "Minivan",
-            driverInformation = DriverInformation(),
-            id = "12345",
-            isInside = false,
-            dispatchLine = DispatchLine(),
-            office = Office(),
-            vehicleType = "",
+            line = "Line B"
         )
-        coEvery { manifestRepository.scanVehicleQrCode("ABC-123") } returns mockVehicleResponse
+        coEvery { manifestRepository.scanDispatchQrCode("ABC-123") } returns mockVehicleResponse
         viewModel.scanVehicleQrCode("ABC-123")
 
         viewModel.onPassengerFieldClick()
@@ -188,27 +174,21 @@ class HomeViewModelTest {
 
     @Test
     fun onQrCodeResult_parsesAndTriggersCorrectScans() = runTest {
-        val mockDriverResponse = Driver(
-            id = "D123",
+        val mockDriverResponse = DriverQrResult(
             destination = "Test",
             name = "Test Driver",
             driverId = "123",
-            phone = "123-768",
+            phoneNumber = "123-768",
         )
-        val mockVehicleResponse = Dispatch(
-            id = "1234",
+        val mockVehicleResponse = DispatchQrResult(
             vehicleName = "Mercedes",
-            driverInformation = DriverInformation(),
-            isInside = false,
-            dispatchLine = DispatchLine(),
-            office = Office(),
             price = 3000,
-            vehicleType = "",
-            plateNumber = "A7592Ih",
+            line = "Line C",
+            plateNumber = "A1234HF"
         )
 
         coEvery { manifestRepository.scanDriverQrCode("D123") } returns mockDriverResponse
-        coEvery { manifestRepository.scanVehicleQrCode("V123") } returns mockVehicleResponse
+        coEvery { manifestRepository.scanDispatchQrCode("V123") } returns mockVehicleResponse
 
         viewModel.onQrCodeResult("D:D123|V:V123")
         advanceUntilIdle()

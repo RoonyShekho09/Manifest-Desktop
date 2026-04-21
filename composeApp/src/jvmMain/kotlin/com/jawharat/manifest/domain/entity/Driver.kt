@@ -6,4 +6,12 @@ data class Driver(
     val phone: String,
     val destination: String,
     val driverId: String,
+    val blocked: Boolean,
+)
+
+data class DriverQrResult(
+    val name: String,
+    val phoneNumber: String,
+    val destination: String,
+    val driverId: String,
 )

@@ -24,5 +24,7 @@ data class DispatchResponse(
     @SerialName("type")
     val vehicleName: String? = null,
     @SerialName("vehicleNumber")
-    val vehicleNumber: String? = null
+    val vehicleNumber: String? = null,
+    @SerialName("blocked")
+    val blocked: Boolean = false,
 )

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -105,6 +106,16 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             initialTime = state.retryInSeconds,
             onDismissRequest = viewModel::onDismissCountDownDialog
         )
+
+    if (state.isDriverBlockedDialogVisible)
+        BasicAlertDialog(onDismissRequest = viewModel::onDismissBlockedDialog) {
+            Text(text = "Driver is blocked")
+        }
+
+    if (state.isVehicleBlockedDialogVisible)
+        BasicAlertDialog(onDismissRequest = {}) {
+            Text(text = "Vehicle is blocked")
+        }
 
     Scaffold(
         topBar = {

@@ -53,7 +53,7 @@ interface ManifestApiService {
     suspend fun getDrivers(): Response<List<DriverResponse>>
 
     @GET("vehicles")
-    suspend fun getVehicles(): Response<List<DispatchResponse>>
+    suspend fun getDispatches(): Response<List<DispatchResponse>>
 
     @POST("drivers")
     suspend fun addDriver(@Body body: AddDriverRequestBody): Response<Unit>

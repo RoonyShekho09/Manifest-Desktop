@@ -12,5 +12,5 @@ data class DispatchQrCodeResponse(
     @SerialName("vehicle-number")
     val vehicleNumber: String? = null,
     @SerialName("vehicle-type")
-    val vehicleType: String? = null
+    val vehicleName: String? = null
 )

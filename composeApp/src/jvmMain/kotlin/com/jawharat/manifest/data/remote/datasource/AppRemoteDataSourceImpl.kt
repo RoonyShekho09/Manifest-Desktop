@@ -178,7 +178,7 @@ class AppRemoteDataSourceImpl(
     ).getOrThrow()
 
     override suspend fun getDispatches(): List<DispatchResponse> = callApi(
-        apiCall = { manifestApiService.getVehicles() },
+        apiCall = { manifestApiService.getDispatches() },
         mapper = { it }
     ).getOrThrow()
 

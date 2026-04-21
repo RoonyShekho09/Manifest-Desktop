@@ -62,7 +62,8 @@ class DriversViewModelTest {
             driverId = "D1",
             name = "Test Name ",
             phone = "12345 ",
-            destination = "Test Dest "
+            destination = "Test Dest",
+            blocked = true
         )
 
         viewModel.addDriver(driver)
@@ -85,7 +86,8 @@ class DriversViewModelTest {
             driverId = "D1",
             name = "Test Name",
             phone = "12345",
-            destination = "Test Dest"
+            destination = "Test Dest",
+            blocked = true
         )
 
         viewModel.editDriver(driver)
@@ -109,7 +111,8 @@ class DriversViewModelTest {
             driverId = "D1",
             name = "Name",
             phone = "123",
-            destination = "Dest"
+            destination = "Dest",
+            blocked = true
         )
 
         viewModel.onConfirmAddEditDriver(value = driver)
@@ -127,7 +130,8 @@ class DriversViewModelTest {
                 name = "Mavis Callahan",
                 phone = "(899) 671-4903",
                 destination = "option",
-                driverId = "dignissim"
+                driverId = "dignissim",
+                blocked = true
             ),
         )
 
