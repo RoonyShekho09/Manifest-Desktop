@@ -34,6 +34,7 @@ data class DispatchUiState(
     val price: String = "",
     val line: DispatchData = DispatchData(),
     val status: DriverStatus = DriverStatus.INSIDE,
+    val blocked: Boolean = false,
 )
 
 data class DispatchData(
@@ -58,5 +59,6 @@ fun Dispatch.toUiState(): DispatchUiState = DispatchUiState(
     vehicleType = vehicleType,
     price = price.toString(),
     line = DispatchData(id = dispatchLine.id, name = dispatchLine.name),
-    status = if (isInside) DriverStatus.INSIDE else DriverStatus.OUTSIDE
+    status = if (isInside) DriverStatus.INSIDE else DriverStatus.OUTSIDE,
+    blocked = blocked
 )

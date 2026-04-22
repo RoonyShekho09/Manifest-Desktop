@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DispatchRemote(
     @SerialName("carType")
-    val carType: String? = null,
+    val vehicleType: String? = null,
     @SerialName("driverId")
     val driverId: String? = null,
     @SerialName("_id")
@@ -19,7 +19,7 @@ data class DispatchRemote(
     @SerialName("price")
     val price: Int? = null,
     @SerialName("type")
-    val type: String? = null,
+    val vehicleName: String? = null,
     @SerialName("vehicleNumber")
     val vehicleNumber: String? = null
 )

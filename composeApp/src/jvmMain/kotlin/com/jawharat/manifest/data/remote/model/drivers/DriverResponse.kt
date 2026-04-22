@@ -17,5 +17,7 @@ data class DriverResponse(
     @SerialName("office")
     val office: String? = null,
     @SerialName("phoneNumber")
-    val phoneNumber: String? = null
+    val phoneNumber: String? = null,
+    @SerialName("blocked")
+    val blocked: Boolean = false,
 )

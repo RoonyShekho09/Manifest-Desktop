@@ -8,6 +8,7 @@ import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.PriceMatrix
 import com.jawharat.manifest.data.remote.model.RouteDetail
 import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
+import com.jawharat.manifest.data.remote.model.dispatches.DispatchRemote
 import com.jawharat.manifest.data.remote.model.ocr.Line
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 import com.jawharat.manifest.db.DispatchRecord
@@ -19,6 +20,9 @@ import com.jawharat.manifest.domain.entity.DriverInformation
 import com.jawharat.manifest.domain.entity.DispatchLine
 import com.jawharat.manifest.domain.entity.Office
 import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.DispatchQrResult
+import com.jawharat.manifest.domain.entity.DispatchSummary
+import com.jawharat.manifest.domain.entity.DriverQrResult
 import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.UserInformation
@@ -27,6 +31,7 @@ import com.jawharat.manifest.domain.entity.Vehicle
 import com.jawharat.manifest.domain.entity.VehiclePrice
 import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.domain.entity.Word
+import com.jawharat.manifest.utils.orZero
 
 @JvmName("vehicleToDomain")
 fun List<DispatchResponse>.toDomain() = map { it.toDomain() }
@@ -37,9 +42,10 @@ fun List<DriverResponse>.toDomain() = map { it.toDomain() }
 fun DriverResponse.toDomain() = Driver(
     id = _id.orEmpty(),
     name = name.orEmpty(),
-    phone = phoneNumber.orEmpty(),
+    phoneNumber = phoneNumber.orEmpty(),
     destination = destination.orEmpty(),
-    driverId = id.orEmpty()
+    driverId = id.orEmpty(),
+    blocked = blocked
 )
 
 fun DispatchResponse.toDomain() = Dispatch(
@@ -57,7 +63,8 @@ fun DispatchResponse.toDomain() = Dispatch(
     office = Office(office?.id.orEmpty(), office?.name.orEmpty()),
     price = price ?: 0,
     vehicleType = vehicleType.orEmpty(),
-    plateNumber = vehicleNumber.orEmpty()
+    plateNumber = vehicleNumber.orEmpty(),
+    blocked = blocked
 )
 
 @JvmName("driverDbToDomain")
@@ -66,9 +73,10 @@ fun List<DriverRecord>.toDomain() = map { it.toDomain() }
 fun DriverRecord.toDomain() = Driver(
     id = id,
     name = name,
-    phone = phone,
+    phoneNumber = phone,
     destination = destination,
-    driverId = driverId
+    driverId = driverId,
+    blocked = blocked
 )
 
 @JvmName("driverToEntity")
@@ -77,9 +85,10 @@ fun List<Driver>.toEntity() = map { it.toEntity() }
 fun Driver.toEntity() = DriverRecord(
     id = id,
     name = name,
-    phone = phone,
+    phone = phoneNumber,
     destination = destination,
-    driverId = driverId
+    driverId = driverId,
+    blocked = blocked
 )
 
 @JvmName("dispatchRecordToDomain")
@@ -107,6 +116,7 @@ fun DispatchRecord.toDomain() = Dispatch(
     price = price,
     vehicleType = type,
     plateNumber = vehicleNumber,
+    blocked = blocked
 )
 
 @JvmName("vehicleToEntity")
@@ -126,27 +136,23 @@ fun Dispatch.toEntity() = DispatchRecord(
     office_name = office.name,
     price = price,
     type = vehicleType,
-    vehicleNumber = plateNumber
+    vehicleNumber = plateNumber,
+    blocked = blocked
 )
 
-fun DispatchQrCodeResponse.toDomain() = Dispatch(
-    vehicleName = vehicleType.orEmpty(),
-    driverInformation = DriverInformation("", "", "", "", ""),
-    id = "",
-    isInside = false,
-    dispatchLine = DispatchLine(name = line.orEmpty(), id = ""),
-    office = Office("", ""),
-    price = price ?: 0,
-    vehicleType = "",
-    plateNumber = vehicleNumber.orEmpty()
+fun DispatchQrCodeResponse.toDomain() = DispatchQrResult(
+    line = line.orEmpty(),
+    price = price.orZero(),
+    plateNumber = vehicleNumber.orEmpty(),
+    vehicleName = vehicleName.orEmpty()
 )
 
-fun DriverQrCodeResponse.toDomain() = Driver(
-    id = "",
+fun DriverQrCodeResponse.toDomain() = DriverQrResult(
     name = driverName.orEmpty(),
-    phone = phoneNumber.orEmpty(),
+    phoneNumber = phoneNumber.orEmpty(),
     destination = to.orEmpty(),
-    driverId = driverId.orEmpty()
+    driverId = driverId.orEmpty(),
+    blocked = blocked
 )
 
 @JvmName("lineRecordToDomain")
@@ -238,3 +244,15 @@ fun UserInformationResponse.toDomain() = UserInformation(
     name = name.orEmpty(),
     location = UserLocation(id = location?.id.orEmpty(), name = location?.name.orEmpty())
 )
+
+fun DispatchRemote.toDomain() =
+    DispatchSummary(
+        id = id.orEmpty(),
+        driverId = driverId.orEmpty(),
+        isInside = isInside == true,
+        price = price.orZero(),
+        vehicleName = vehicleName.orEmpty(),
+        plateNumber = vehicleNumber.orEmpty(),
+        vehicleType = vehicleType.orEmpty(),
+        line = line.orEmpty(),
+    )

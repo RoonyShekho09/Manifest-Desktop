@@ -18,7 +18,8 @@ CREATE TABLE DispatchRecord (
     office_name TEXT NOT NULL,
 
     line_id TEXT NOT NULL,
-    line_name TEXT NOT NULL
+    line_name TEXT NOT NULL,
+    blocked INTEGER AS Boolean NOT NULL DEFAULT 0
 );
 
 insertDispatch:
@@ -36,9 +37,10 @@ INSERT OR REPLACE INTO DispatchRecord (
     office_id,
     office_name,
     line_id,
-    line_name
+    line_name,
+    blocked
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 queryDispatches:
 SELECT * FROM DispatchRecord;

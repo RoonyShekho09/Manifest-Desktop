@@ -48,7 +48,7 @@ fun AddEditDriverDialog(
     onConfirm: (Driver?) -> Unit
 ) {
     val driverNameState = rememberTextFieldState(initialText = driverToEdit?.name.orEmpty())
-    val phoneNumberState = rememberTextFieldState(initialText = driverToEdit?.phone.orEmpty())
+    val phoneNumberState = rememberTextFieldState(initialText = driverToEdit?.phoneNumber.orEmpty())
     val destinationState = rememberTextFieldState(initialText = driverToEdit?.destination.orEmpty())
     val driverIdState = rememberTextFieldState(initialText = driverToEdit?.driverId.orEmpty())
 
@@ -119,7 +119,7 @@ fun AddEditDriverDialog(
                                 onConfirm(
                                     driverToEdit?.copy(
                                         name = driverNameState.text.toString(),
-                                        phone = phoneNumberState.text.toString(),
+                                        phoneNumber = phoneNumberState.text.toString(),
                                         destination = destinationState.text.toString(),
                                         driverId = driverIdState.text.toString()
                                     )
@@ -129,9 +129,10 @@ fun AddEditDriverDialog(
                                     Driver(
                                         id = "",
                                         name = driverNameState.text.toString(),
-                                        phone = phoneNumberState.text.toString(),
+                                        phoneNumber = phoneNumberState.text.toString(),
                                         destination = destinationState.text.toString(),
-                                        driverId = driverIdState.text.toString()
+                                        driverId = driverIdState.text.toString(),
+                                        blocked = false
                                     )
                                 )
                         },

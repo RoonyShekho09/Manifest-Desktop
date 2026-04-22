@@ -53,6 +53,7 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
     private var initialized = false
     private val initMutex = Mutex()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val stopMutex = Mutex()
 
     init {
         Runtime.getRuntime().addShutdownHook(
@@ -135,8 +136,6 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
             isDocumentPresent = false
         }
     }
-
-    private val stopMutex = Mutex()
 
     private fun stop() {
         scope.launch {

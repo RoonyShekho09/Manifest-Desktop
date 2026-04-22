@@ -48,7 +48,8 @@ class AppLocalDataSourceImpl(
                         name = driver.name,
                         phone = driver.phone,
                         destination = driver.destination,
-                        driverId = driver.driverId
+                        driverId = driver.driverId,
+                        blocked = driver.blocked
                     )
                 },
                 query = { database.driverRecordQueries.queryDrivers().executeAsList() }
@@ -74,6 +75,7 @@ class AppLocalDataSourceImpl(
                         office_name = dispatch.office_name,
                         line_id = dispatch.line_id,
                         line_name = dispatch.line_name,
+                        blocked = dispatch.blocked
                     )
                 },
                 query = { database.dispatchRecordQueries.queryDispatches().executeAsList() }

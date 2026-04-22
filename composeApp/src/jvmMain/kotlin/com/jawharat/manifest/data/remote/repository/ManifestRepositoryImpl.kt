@@ -19,21 +19,11 @@ class ManifestRepositoryImpl(
 ) : ManifestRepository, AuthProxy by proxy {
 
     override suspend fun getDrivers(fetch: Boolean): List<Driver> = authorizedCall {
-        if (!fetch && localDataSource.drivers.hasRecords)
-            localDataSource.drivers.query().toDomain()
-        else
-            remoteDataSource.getDrivers().toDomain().also {
-                localDataSource.drivers.insert(it.toEntity())
-            }
+        remoteDataSource.getDrivers().toDomain()
     }
 
     override suspend fun getDispatches(fetch: Boolean): List<Dispatch> = authorizedCall {
-        if (!fetch && localDataSource.dispatches.hasRecords)
-            localDataSource.dispatches.query().toDomain()
-        else
-            remoteDataSource.getDispatches().toDomain().also {
-                localDataSource.dispatches.insert(it.toEntity())
-            }
+        remoteDataSource.getDispatches().toDomain()
     }
 
     override suspend fun submitManifest(
@@ -88,15 +78,7 @@ class ManifestRepositoryImpl(
             driverId = driverId,
             line = line
         )
-    }.let {
-        Dispatch(
-            id = it?.id.orEmpty(),
-            isInside = it?.isInside == true,
-            price = it?.price ?: 0,
-            vehicleType = it?.type.orEmpty(),
-            plateNumber = it?.vehicleNumber.orEmpty()
-        )
-    }
+    }?.toDomain()
 
     override suspend fun editDriver(
         driverId: String?,
@@ -151,7 +133,7 @@ class ManifestRepositoryImpl(
         remoteDataSource.scanDriverQrCode(id).toDomain()
     }
 
-    override suspend fun scanVehicleQrCode(id: String) = authorizedCall {
+    override suspend fun scanDispatchQrCode(id: String) = authorizedCall {
         remoteDataSource.scanDispatchQrCode(id).toDomain()
     }
 

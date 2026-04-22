@@ -11,13 +11,14 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     val manifest: Manifest = Manifest(),
     val isLogoutConfirmationVisible: Boolean = false,
-    val scanState: ScanState = ScanState(),
     val isAddPassengersDialogVisible: Boolean = false,
     val passengers: List<PassengerFieldState> = emptyList(),
     val isDocumentScanningSoftwareInstalled: Boolean = true,
     val userLocation: UserLocation = UserLocation(),
     val isCountDownVisible: Boolean = false,
     val retryInSeconds: Int = 0,
+    val isDriverBlockedDialogVisible: Boolean = false,
+    val isVehicleBlockedDialogVisible: Boolean = false,
 ) {
     val isSubmitEnabled: Boolean
         get() = manifest.to.isNotEmpty() && manifest.price != null &&
@@ -33,10 +34,3 @@ data class PassengerFieldState(
     val countryCode: TextFieldState = TextFieldState(""),
     val isEditable: Boolean = true
 )
-
-data class ScanState(
-    val isVehicleScanned: Boolean = false,
-    val isDriverScanned: Boolean = false,
-) {
-    val allScanned: Boolean get() = isDriverScanned && isVehicleScanned
-}

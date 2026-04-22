@@ -1,13 +1,11 @@
 package com.jawharat.manifest.presentation.feature.home
 
 import androidx.compose.foundation.text.input.TextFieldState
-import com.jawharat.manifest.domain.entity.Dispatch
-import com.jawharat.manifest.domain.entity.DispatchLine
-import com.jawharat.manifest.domain.entity.Driver
-import com.jawharat.manifest.domain.entity.DriverInformation
-import com.jawharat.manifest.domain.entity.Office
+import com.jawharat.manifest.domain.entity.DispatchQrResult
+import com.jawharat.manifest.domain.entity.DriverQrResult
 import com.jawharat.manifest.domain.entity.UserInformation
 import com.jawharat.manifest.domain.entity.UserLocation
+import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
@@ -32,9 +30,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
-
     private val testDispatcher = UnconfinedTestDispatcher()
-
     private val authRepository: AuthRepository = mockk(relaxed = true)
     private val manifestRepository: ManifestRepository = mockk(relaxed = true)
     private val documentScanner: IDocumentScanner = mockk(relaxed = true)
@@ -97,12 +93,12 @@ class HomeViewModelTest {
 
     @Test
     fun scanDriverQrCode_updatesStateOnSuccess() = runTest {
-        val mockDriverResponse = Driver(
-            id = "12345",
+        val mockDriverResponse = DriverQrResult(
             destination = "Baghdad",
             name = "John Doe",
-            phone = "555-0192",
+            phoneNumber = "555-0192",
             driverId = "12345",
+            blocked = false
         )
 
         coEvery { manifestRepository.scanDriverQrCode("12345") } returns mockDriverResponse
@@ -115,36 +111,53 @@ class HomeViewModelTest {
         assertEquals("Baghdad", state.manifest.to)
         assertEquals("John Doe", state.manifest.driverName)
         assertEquals("555-0192", state.manifest.driverPhoneNumber)
-        assertTrue(state.scanState.isDriverScanned)
+        assertFalse(state.isLoading)
+    }
+
+    @Test
+    fun scanDriverQrCode_showsDriverBlockedDialogOnBlockedException() = runTest {
+        coEvery { manifestRepository.scanDriverQrCode("12345") } throws NetworkException.BlockedException()
+
+        viewModel.scanDriverQrCode("12345")
+        advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertTrue(state.isDriverBlockedDialogVisible)
+        assertEquals("Erbil", state.manifest.from)
         assertFalse(state.isLoading)
     }
 
     @Test
     fun scanVehicleQrCode_updatesStateOnSuccess() = runTest {
-        val mockDispatch = Dispatch(
+        val mockDispatch = DispatchQrResult(
             plateNumber = "ABC-123",
             price = 15000,
             vehicleName = "Minivan",
-            driverInformation = DriverInformation(),
-            id = "1234",
-            isInside = true,
-            dispatchLine = DispatchLine(name = "Line A"),
-            office = Office(),
-            vehicleType = "جمسي خارجي",
+            line = "Line A",
         )
 
-        coEvery { manifestRepository.scanVehicleQrCode("1234") } returns mockDispatch
+        coEvery { manifestRepository.scanDispatchQrCode("1234") } returns mockDispatch
 
         viewModel.scanVehicleQrCode("1234")
         advanceUntilIdle()
 
-        println(viewModel.state.value)
         val state = viewModel.state.value
         assertEquals("ABC-123", state.manifest.plateNumber)
         assertEquals(15000, state.manifest.price)
         assertEquals("Minivan", state.manifest.vehicleType)
-        assertEquals("Line A", state.manifest.from)
-        assertTrue(state.scanState.isVehicleScanned)
+        assertFalse(state.isLoading)
+    }
+
+    @Test
+    fun scanVehicleQrCode_showsVehicleBlockedDialogOnBlockedException() = runTest {
+        coEvery { manifestRepository.scanDispatchQrCode("1234") } throws NetworkException.BlockedException()
+
+        viewModel.scanVehicleQrCode("1234")
+        advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertTrue(state.isVehicleBlockedDialogVisible)
+        assertEquals("Erbil", state.manifest.from)
         assertFalse(state.isLoading)
     }
 
@@ -167,18 +180,13 @@ class HomeViewModelTest {
 
     @Test
     fun onPassengerFieldClick_showsDialogIfPriceIsNot10000() {
-        val mockVehicleResponse = Dispatch(
+        val mockVehicleResponse = DispatchQrResult(
             plateNumber = "ABC-123",
             price = 15000,
             vehicleName = "Minivan",
-            driverInformation = DriverInformation(),
-            id = "12345",
-            isInside = false,
-            dispatchLine = DispatchLine(),
-            office = Office(),
-            vehicleType = "",
+            line = "Line B"
         )
-        coEvery { manifestRepository.scanVehicleQrCode("ABC-123") } returns mockVehicleResponse
+        coEvery { manifestRepository.scanDispatchQrCode("ABC-123") } returns mockVehicleResponse
         viewModel.scanVehicleQrCode("ABC-123")
 
         viewModel.onPassengerFieldClick()
@@ -188,33 +196,33 @@ class HomeViewModelTest {
 
     @Test
     fun onQrCodeResult_parsesAndTriggersCorrectScans() = runTest {
-        val mockDriverResponse = Driver(
-            id = "D123",
+        val mockDriverResponse = DriverQrResult(
             destination = "Test",
             name = "Test Driver",
             driverId = "123",
-            phone = "123-768",
+            phoneNumber = "123-768",
+            blocked = false
         )
-        val mockVehicleResponse = Dispatch(
-            id = "1234",
+        val mockVehicleResponse = DispatchQrResult(
             vehicleName = "Mercedes",
-            driverInformation = DriverInformation(),
-            isInside = false,
-            dispatchLine = DispatchLine(),
-            office = Office(),
             price = 3000,
-            vehicleType = "",
-            plateNumber = "A7592Ih",
+            line = "Line C",
+            plateNumber = "A1234HF"
         )
 
         coEvery { manifestRepository.scanDriverQrCode("D123") } returns mockDriverResponse
-        coEvery { manifestRepository.scanVehicleQrCode("V123") } returns mockVehicleResponse
+        coEvery { manifestRepository.scanDispatchQrCode("V123") } returns mockVehicleResponse
 
         viewModel.onQrCodeResult("D:D123|V:V123")
         advanceUntilIdle()
+    }
+
+    @Test
+    fun onDismissBlockedDialog_hidesBothBlockedDialogs() {
+        viewModel.onDismissBlockedDialog()
 
         val state = viewModel.state.value
-        assertFalse(state.scanState.isDriverScanned)
-        assertFalse(state.scanState.isVehicleScanned)
+        assertFalse(state.isVehicleBlockedDialogVisible)
+        assertFalse(state.isDriverBlockedDialogVisible)
     }
 }

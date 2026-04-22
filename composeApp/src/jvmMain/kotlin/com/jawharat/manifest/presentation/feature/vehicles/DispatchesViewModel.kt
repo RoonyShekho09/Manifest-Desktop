@@ -262,15 +262,6 @@ class DispatchesViewModel(
         }
     }
 
-    fun onQrCodeClick(id: String) = tryToExecute(
-        onStart = { updateState { copy(isLoading = true) } },
-        block = { repository.scanVehicleQrCode(id) },
-        onSuccess = {
-
-        },
-        onCompleted = { updateState { copy(isLoading = false) } }
-    )
-
     fun onDismissDialog() = updateState { copy(isDialogVisible = false, dispatchToEdit = null) }
 
     @OptIn(FlowPreview::class)

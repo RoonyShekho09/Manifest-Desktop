@@ -13,5 +13,7 @@ data class DriverQrCodeResponse(
     @SerialName("phone-number")
     val phoneNumber: String? = null,
     @SerialName("to")
-    val to: String? = null
+    val to: String? = null,
+    @SerialName("blocked")
+    val blocked: Boolean = false,
 )

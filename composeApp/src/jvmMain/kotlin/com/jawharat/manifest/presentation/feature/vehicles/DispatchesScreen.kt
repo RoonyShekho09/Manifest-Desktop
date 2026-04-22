@@ -136,9 +136,9 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
                         AddItemButton(onClick = viewModel::onAddClick)
                     }
                 }
-                items(filteredVehicles, key = { it.id }) { car ->
-                    CarRow(
-                        dispatch = car,
+                items(filteredVehicles, key = { it.id }) { dispatch ->
+                    DispatchRow(
+                        dispatch = dispatch,
                         onEditClick = viewModel::onEditClick,
                         onGenerateQrCodeClick = viewModel::onGenerateQrCodeClick
                     )
@@ -183,11 +183,13 @@ private fun Content(state: DispatchesUiState, viewModel: DispatchesViewModel) {
 }
 
 @Composable
-private fun CarRow(
+private fun DispatchRow(
     dispatch: DispatchUiState,
     onEditClick: (String) -> Unit,
     onGenerateQrCodeClick: (String) -> Unit,
 ) {
+    if(dispatch.blocked)
+        print("Blocked: ${dispatch.driver.name}")
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(4.dp),
@@ -201,11 +203,29 @@ private fun CarRow(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(2f)) {
-                Text(
-                    text = dispatch.driver.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = dispatch.driver.name,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    if (dispatch.blocked) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = "Blocked",
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = Res.string.line_with_value.string(dispatch.line.name),

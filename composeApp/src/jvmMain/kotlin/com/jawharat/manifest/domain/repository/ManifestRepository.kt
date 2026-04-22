@@ -4,6 +4,9 @@ import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.DispatchLine
 import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.DispatchQrResult
+import com.jawharat.manifest.domain.entity.DispatchSummary
+import com.jawharat.manifest.domain.entity.DriverQrResult
 import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.UserInformation
@@ -13,8 +16,8 @@ interface ManifestRepository {
     suspend fun getDrivers(fetch: Boolean = true): List<Driver>
     suspend fun getDispatches(fetch: Boolean = true): List<Dispatch>
     suspend fun scanManifestQrCode(id: String)
-    suspend fun scanDriverQrCode(id: String): Driver
-    suspend fun scanVehicleQrCode(id: String): Dispatch
+    suspend fun scanDriverQrCode(id: String): DriverQrResult
+    suspend fun scanDispatchQrCode(id: String): DispatchQrResult
     suspend fun submitManifest(
         driverName: String,
         vehicleNumber: String,
@@ -40,7 +43,7 @@ interface ManifestRepository {
         price: Int? = null,
         driverId: String? = null,
         line: String? = null,
-    ): Dispatch
+    ): DispatchSummary?
 
     suspend fun editDriver(
         driverId: String? = null,
