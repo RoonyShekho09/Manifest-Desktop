@@ -209,16 +209,7 @@ fun DriverRow(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(40.dp),
-                    tint = if (driver.blocked) Color.Gray else Color.DarkGray
                 )
-
-                if (driver.blocked) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Red.copy(alpha = 0.1f))
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -229,7 +220,7 @@ fun DriverRow(
                         text = driver.name,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (driver.blocked) Color.Gray else Color.Unspecified
+                        color = Color.Unspecified
                     )
 
                     if (driver.blocked) {
@@ -261,7 +252,7 @@ fun DriverRow(
                         painter = Res.drawable.ic_profile.painter,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = if (driver.blocked) Color.Gray else MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(text = driver.phoneNumber, style = MaterialTheme.typography.bodyMedium)
