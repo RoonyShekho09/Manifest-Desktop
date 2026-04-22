@@ -48,6 +48,7 @@ class HomeViewModel(
     }
 
     fun onClearClick() = updateState {
+        lastSuccessQrCode = null
         val from = manifest.from
         copy(passengers = emptyList(), manifest = Manifest(from = from))
     }
@@ -89,7 +90,7 @@ class HomeViewModel(
                             performIdOcr(processedImage)
                         }
                     )
-                    delay(1000)
+                    delay(700)
                 }
             }
         }
@@ -215,6 +216,8 @@ class HomeViewModel(
     )
 
     fun onQrCodeResult(value: String) {
+        if (value == lastSuccessQrCode) return
+
         val driverId = value.substringAfter("D:", missingDelimiterValue = "").ifEmpty { null }
         val vehicleId = value.substringAfter("V:", missingDelimiterValue = "").ifEmpty { null }
 
@@ -231,7 +234,7 @@ class HomeViewModel(
         onStart = { updateState { copy(isLoading = true) } },
         block = { manifestRepository.scanDispatchQrCode(id) },
         onSuccess = {
-            lastSuccessQrCode = id
+            lastSuccessQrCode = "V:$id"
             updateState {
                 copy(
                     manifest = manifest.copy(
@@ -259,7 +262,7 @@ class HomeViewModel(
         onStart = { updateState { copy(isLoading = true) } },
         block = { manifestRepository.scanDriverQrCode(id) },
         onSuccess = {
-            lastSuccessQrCode = id
+            lastSuccessQrCode = "D:$id"
             updateState {
                 copy(
                     manifest = manifest.copy(

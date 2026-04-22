@@ -10,7 +10,7 @@ data class Manifest(
     val to: String = "",
     val plateNumber: String = "",
     val vehicleType: String = "",
-    val driverName: String = " ",
+    val driverName: String = "",
     val driverId: String = "",
     val driverPhoneNumber: String = "",
 )

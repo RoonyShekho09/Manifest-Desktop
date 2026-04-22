@@ -34,10 +34,3 @@ data class PassengerFieldState(
     val countryCode: TextFieldState = TextFieldState(""),
     val isEditable: Boolean = true
 )
-
-data class ScanState(
-    val isVehicleScanned: Boolean = false,
-    val isDriverScanned: Boolean = false,
-) {
-    val allScanned: Boolean get() = isDriverScanned && isVehicleScanned
-}
