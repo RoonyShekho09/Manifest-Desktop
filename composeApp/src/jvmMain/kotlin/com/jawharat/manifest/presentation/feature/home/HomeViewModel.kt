@@ -40,7 +40,7 @@ class HomeViewModel(
 
     private var scanJob: Job? = null
     private var isAnalyzingId = false
-    var lastSuccessQrCode: String? = null
+    private var lastSuccessQrCode: String? = null
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
