@@ -6,7 +6,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.jawharat.manifest.di.dataSourceModule
-import com.jawharat.manifest.di.databaseModule
 import com.jawharat.manifest.di.networkModule
 import com.jawharat.manifest.di.repositoryModule
 import com.jawharat.manifest.di.utilModule
@@ -39,7 +38,6 @@ fun main() = application {
             viewModelModule,
             repositoryModule,
             dataSourceModule,
-            databaseModule,
             utilModule
         )
     }
