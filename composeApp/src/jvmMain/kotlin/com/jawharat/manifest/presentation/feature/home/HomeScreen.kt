@@ -75,8 +75,6 @@ import com.jawharat.manifest.resources.vehicle_blocked
 import com.jawharat.manifest.resources.vehicle_number
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.Listen
-import com.jawharat.manifest.utils.Platform
-import com.jawharat.manifest.utils.currentPlatform
 import com.jawharat.manifest.utils.handClickable
 import com.jawharat.manifest.utils.handPointerHover
 import com.jawharat.manifest.utils.painter
@@ -194,12 +192,6 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
         }
     ) { paddingValues ->
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            if (currentPlatform != Platform.MacOS)
-                QrScannerCamera(
-                    onResult = viewModel::onQrCodeResult,
-                    onCameraReady = viewModel::onCameraReady
-                )
-
             Column(
                 modifier = Modifier
                     .padding(24.dp)
