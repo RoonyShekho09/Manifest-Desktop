@@ -8,6 +8,7 @@ import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
+import com.jawharat.manifest.presentation.feature.home.camera.IWebCam
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
@@ -16,25 +17,28 @@ import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessI
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_logout
+import com.jawharat.manifest.resources.result_not_found_try_scanning_again
+import com.jawharat.manifest.utils.Platform
 import com.jawharat.manifest.utils.allCountries
+import com.jawharat.manifest.utils.currentPlatform
+import com.jawharat.manifest.utils.print.PrintContent
+import com.jawharat.manifest.utils.print.printContent
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.awt.image.BufferedImage
-import com.jawharat.manifest.resources.result_not_found_try_scanning_again
-import com.jawharat.manifest.utils.print.PrintContent
-import com.jawharat.manifest.utils.print.printContent
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.awt.image.BufferedImage
 
 class HomeViewModel(
     private val authRepository: AuthRepository,
     private val manifestRepository: ManifestRepository,
     private val documentScanner: IDocumentScanner,
     private val snackBarHostState: AppSnackBarHostState,
+    private val webcam: IWebCam,
     ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState(), ioDispatcher) {
 
@@ -45,6 +49,11 @@ class HomeViewModel(
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         initializeUserInformation()
+        if (currentPlatform != Platform.MacOS) {
+            viewModelScope.launch {
+                webcam.start(::onQrCodeResult, onCameraReady = {})
+            }
+        }
     }
 
     fun onClearClick() = updateState {
@@ -285,6 +294,7 @@ class HomeViewModel(
     )
 
     fun onScreenDisposed() {
+        webcam.stop()
         scanJob?.cancel()
     }
 }

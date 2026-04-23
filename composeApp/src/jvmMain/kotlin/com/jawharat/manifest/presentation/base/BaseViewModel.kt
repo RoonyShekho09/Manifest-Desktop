@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseViewModel<S, E : Any>(
@@ -43,10 +44,10 @@ abstract class BaseViewModel<S, E : Any>(
         context: CoroutineContext = ioDispatcher,
         inScope: CoroutineScope = viewModelScope,
     ): Job {
-        return inScope.launch(context) {
+        return inScope.launch(Dispatchers.Main.immediate) {
             runCatching {
                 onStart()
-                block()
+                withContext(context) { block() }
             }.onSuccess { response ->
                 if (checkSuccess(response)) {
                     onSuccess(response)

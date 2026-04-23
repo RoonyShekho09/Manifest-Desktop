@@ -67,7 +67,7 @@ fun AppNavigation(modifier: Modifier = Modifier, startDestination: Screen = Scre
                             val isCurrentDestination =
                                 destination::class.qualifiedName == currentRoute
                             if (!isCurrentDestination)
-                                navController.navigate(route = destination)
+                                navController.navigateTo(route = destination, popBackStack = true)
                         },
                         icon = {
                             Icon(

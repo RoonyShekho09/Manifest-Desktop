@@ -9,7 +9,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val viewModelModule = module {
-    viewModel { HomeViewModel(get(), get(), get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
     viewModelOf(::LoginViewModel)
     viewModel { DriversViewModel(get(), get()) }
     viewModel { DispatchesViewModel(get()) }
