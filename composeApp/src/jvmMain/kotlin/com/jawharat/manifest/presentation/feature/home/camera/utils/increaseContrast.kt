@@ -9,7 +9,7 @@ import java.awt.image.RescaleOp
         val op = RescaleOp(1.5f, -30f, null)
         op.filter(
             scaled.let {
-                BufferedImage(it.width, it.height, BufferedImage.TYPE_INT_RGB).also { rgb ->
+                BufferedImage(it.width, it.height, BufferedImage.TYPE_INT_ARGB).also { rgb ->
                     rgb.createGraphics().apply { drawImage(it, 0, 0, null); dispose() }
                 }
             },
