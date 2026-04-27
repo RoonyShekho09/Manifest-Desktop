@@ -43,7 +43,6 @@ class WebCam : IWebCam {
                     webCam?.open()
                 }
 
-
                 delay(1000)
 
                 withContext(Dispatchers.Main) {
@@ -99,17 +98,17 @@ class WebCam : IWebCam {
 
     private fun drawIntoReusableBuffer(source: BufferedImage): BufferedImage {
         if (reusableBuffer == null ||
-            reusableBuffer!!.width != source.width ||
-            reusableBuffer!!.height != source.height
+            reusableBuffer?.width != source.width ||
+            reusableBuffer?.height != source.height
         ) {
             reusableBuffer?.flush()
             reusableBuffer = BufferedImage(source.width, source.height, BufferedImage.TYPE_INT_RGB)
             reusableGraphics?.dispose()
-            reusableGraphics = reusableBuffer!!.createGraphics()
+            reusableGraphics = reusableBuffer?.createGraphics()
         }
-        reusableGraphics!!.drawImage(source, 0, 0, null)
+        reusableGraphics?.drawImage(source, 0, 0, null)
         source.flush()
-        return reusableBuffer!!
+        return reusableBuffer ?: BufferedImage(0, 0, 0)
     }
 }
 
