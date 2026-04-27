@@ -47,6 +47,7 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
     private var device: DocumentReaderDevice? = null
     private val mrzReadingTask = EngineTask().apply { add(FieldSource.Mrz, FieldId.All) }
     private val engine: Engine? by lazy { device?.engine }
+
     @Volatile
     private var isDocumentPresent = false
     private var liveTask: TaskControl? = null
@@ -59,7 +60,7 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
         Runtime.getRuntime().addShutdownHook(
             Thread {
                 runBlocking {
-                    withTimeout(5_000){
+                    withTimeout(5_000) {
                         stop()
                     }
                 }
@@ -74,20 +75,22 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
             .onFailure { isSoftwareInstalled = false }
     }
 
-    private suspend fun ensureInitialized() {
+    private suspend fun ensureInitialized(reconnect: Boolean = false) {
         initMutex.withLock {
-            if (initialized) return@withLock
-
-            withContext(Dispatchers.IO) {
-                runCatching {
-                    waitForDevice()
-                    device?.useDevice(0)
-                    addScanEvents()
-                    eventListener()
-                    initialized = true
-                }.onFailure { e ->
-                    println("Initialization failed: ${e.message}")
+            if (reconnect || !initialized) {
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        waitForDevice()
+                        device?.useDevice(0)
+                        addScanEvents()
+                        eventListener()
+                        initialized = true
+                    }.onFailure { e ->
+                        println("Initialization failed: ${e.message}")
+                    }
                 }
+            } else {
+                return@withLock
             }
         }
     }
@@ -108,7 +111,12 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
 
         val scanner = device?.scanner
 
-        liveTask = scanner?.startTask(FreerunTask.detection())
+        runCatching {
+            liveTask = scanner?.startTask(FreerunTask.detection())
+        }.onFailure {
+            if (it is PrIns.Exceptions.NoSuchDevice)
+                ensureInitialized(reconnect = true)
+        }
 
         if (!isDocumentPresent)
             return

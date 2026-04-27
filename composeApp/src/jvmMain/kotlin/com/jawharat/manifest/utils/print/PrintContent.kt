@@ -12,6 +12,7 @@ import org.apache.pdfbox.printing.Scaling
 import java.awt.image.BufferedImage
 import java.awt.print.PageFormat
 import java.awt.print.Pageable
+import java.awt.print.Paper
 import java.awt.print.Printable
 import java.awt.print.PrinterJob
 import javax.print.attribute.HashPrintRequestAttributeSet
@@ -67,14 +68,22 @@ suspend fun printContent(content: PrintContent) {
                 override fun getPrintable(pageIndex: Int): Printable {
                     return PDFPrintable(
                         document,
-                        Scaling.SHRINK_TO_FIT,
+                        Scaling.ACTUAL_SIZE,
                         false,
-                        300f
+                        600f
                     )
                 }
 
                 override fun getPageFormat(pageIndex: Int): PageFormat {
-                    return printerJob.defaultPage()
+                    val pf = printerJob.defaultPage()
+                    val paper = Paper()
+                    val width = 595.28
+                    val height = 841.89
+                    paper.setSize(width, height)
+                    paper.setImageableArea(0.0, 0.0, width, height)
+                    pf.paper = paper
+                    pf.orientation = PageFormat.PORTRAIT
+                    return pf
                 }
             }
 

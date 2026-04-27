@@ -33,7 +33,6 @@ class DriversViewModel(
 
     init {
         initializeDrivers()
-        //   getLines()
         state.value.mainSearchState.query.initializeSearch(
             onSearch = ::onMainScreenSearch,
             onEmptyStateUpdater = { copy(mainSearchState = mainSearchState.copy(searchResults = drivers)) }
@@ -46,13 +45,6 @@ class DriversViewModel(
         else
             addDriver(value)
     }
-
-    fun getLines() = tryToExecute(
-        block = repository::getLines,
-        onSuccess = {
-
-        }
-    )
 
     @OptIn(ExperimentalUuidApi::class)
     fun addDriver(value: Driver?) = tryToExecute(

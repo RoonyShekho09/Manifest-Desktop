@@ -4,7 +4,6 @@ import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.remote.proxy.AuthProxy
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.mapper.toDomain
-import com.jawharat.manifest.data.remote.mapper.toEntity
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.entity.Driver
 import com.jawharat.manifest.domain.entity.Dispatch
@@ -117,12 +116,7 @@ class ManifestRepositoryImpl(
     }
 
     override suspend fun getLines(fetch: Boolean): List<DispatchLine> = authorizedCall {
-        if (localDataSource.lines.hasRecords && !fetch)
-            localDataSource.lines.query().toDomain()
-        else
-            remoteDataSource.getLines()
-                .also { localDataSource.lines.insert(it.toEntity()) }
-                .toDomain()
+        remoteDataSource.getLines().toDomain()
     }
 
     override suspend fun scanManifestQrCode(id: String) = authorizedCall {
@@ -153,11 +147,6 @@ class ManifestRepositoryImpl(
     }
 
     override suspend fun getVehicleTypes(fetch: Boolean): List<VehicleType> = authorizedCall {
-        if (localDataSource.vehicleTypes.hasRecords && !fetch)
-            localDataSource.vehicleTypes.query().toDomain()
-        else
-            remoteDataSource.getVehicleTypes().toDomain().also {
-                localDataSource.vehicleTypes.insert((it.toEntity()))
-            }
+        remoteDataSource.getVehicleTypes().toDomain()
     }
 }

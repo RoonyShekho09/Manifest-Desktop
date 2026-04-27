@@ -35,7 +35,6 @@ kotlin {
             implementation(libs.bundles.koin)
             implementation(libs.bundles.network)
             implementation(libs.kotlinx.serializaion)
-            implementation(libs.bundles.database)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
