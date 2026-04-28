@@ -2,8 +2,8 @@ package com.jawharat.manifest.presentation.feature.home.scanner.utils
 
 import Pr22.Processing.Document
 import com.jawharat.manifest.domain.entity.OcrLine
+import com.jawharat.manifest.utils.PersonDocument
 import com.jawharat.manifest.utils.containsAny
-import kotlin.math.abs
 
 fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): PersonDocument? {
     if (lines == null)
@@ -161,14 +161,6 @@ private fun cleanName(raw: String): String? {
     val hasArabic = cleaned.any { it in '\u0600'..'\u06FF' }
     return if (cleaned.length >= 2 && hasArabic) cleaned else null
 }
-
-data class PersonDocument(
-    val fullName: String,
-    val countryCode: String,
-    val documentId: String,
-    val gender: String,
-    val documentType: String
-)
 
 fun extractFromPassport(doc: Document): PersonDocument {
     var fullName: String? = null
