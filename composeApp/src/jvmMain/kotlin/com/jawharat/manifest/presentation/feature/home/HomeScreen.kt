@@ -121,7 +121,6 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
     if (state.isDriverBlockedDialogVisible || state.isVehicleBlockedDialogVisible)
         BlockedDialog(
             text = if (state.isDriverBlockedDialogVisible) Res.string.driver_blocked.string else Res.string.vehicle_blocked.string,
-            onPrintClick = viewModel::onPrintClick,
             onDismissBlockedDialog = viewModel::onDismissBlockedDialog
         )
 
@@ -355,7 +354,6 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
 private fun BlockedDialog(
     text: String,
     onDismissBlockedDialog: () -> Unit,
-    onPrintClick: () -> Unit
 ) {
     BasicAlertDialog(
         onDismissRequest = onDismissBlockedDialog,
@@ -391,13 +389,6 @@ private fun BlockedDialog(
                     modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(
-                        onClick = onPrintClick,
-                        modifier = Modifier.handPointerHover()
-                    ) {
-                        Text(text = Res.string.price.string)
-                    }
-
                     TextButton(
                         onClick = onDismissBlockedDialog,
                         modifier = Modifier.handPointerHover()

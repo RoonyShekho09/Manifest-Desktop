@@ -8,6 +8,7 @@ import com.jawharat.manifest.domain.entity.UserLocation
 import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
+import com.jawharat.manifest.presentation.feature.home.camera.IWebCam
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import io.mockk.coEvery
@@ -34,6 +35,7 @@ class HomeViewModelTest {
     private val authRepository: AuthRepository = mockk(relaxed = true)
     private val manifestRepository: ManifestRepository = mockk(relaxed = true)
     private val documentScanner: IDocumentScanner = mockk(relaxed = true)
+    private val webcam: IWebCam = mockk(relaxed = true)
     private val snackBarHostState: AppSnackBarHostState = mockk(relaxed = true)
 
     private lateinit var viewModel: HomeViewModel
@@ -53,7 +55,8 @@ class HomeViewModelTest {
             manifestRepository = manifestRepository,
             documentScanner = documentScanner,
             snackBarHostState = snackBarHostState,
-            ioDispatcher = testDispatcher
+            ioDispatcher = testDispatcher,
+            webcam = webcam,
         )
     }
 

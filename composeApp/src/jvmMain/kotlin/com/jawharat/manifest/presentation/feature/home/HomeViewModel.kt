@@ -243,6 +243,7 @@ class HomeViewModel(
             scanVehicleQrCode(vehicleId)
         }
     }
+
     private fun submitManifest(id: String) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
         block = { manifestRepository.scanManifestQrCode(id) },
