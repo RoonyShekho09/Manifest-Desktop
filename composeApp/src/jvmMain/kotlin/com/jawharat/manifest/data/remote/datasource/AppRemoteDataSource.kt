@@ -17,7 +17,7 @@ import com.jawharat.manifest.domain.entity.UpdateInfo
 interface AppRemoteDataSource {
     suspend fun logout(): Boolean
     suspend fun login(email: String, password: String): LoginResponse
-    suspend fun scanManifestQrCode(id: String)
+    suspend fun scanManifestQrCode(id: String): ByteArray
     suspend fun scanDriverQrCode(id: String): DriverQrCodeResponse
     suspend fun scanDispatchQrCode(id: String): DispatchQrCodeResponse
     suspend fun getDrivers(): List<DriverResponse>

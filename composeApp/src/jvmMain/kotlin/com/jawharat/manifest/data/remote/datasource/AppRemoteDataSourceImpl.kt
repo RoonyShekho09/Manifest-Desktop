@@ -20,6 +20,7 @@ import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -182,10 +183,17 @@ class AppRemoteDataSourceImpl(
         mapper = { it }
     ).getOrThrow()
 
-    override suspend fun scanManifestQrCode(id: String) = callApi(
-        apiCall = { manifestApiService.scanManifestQrCode(id) },
-        mapper = { it }
-    ).getOrThrow()
+    override suspend fun scanManifestQrCode(id: String): ByteArray {
+        val response = pdfHttpClient.patch(BASE_URL + "manifests/$id") {
+            header(HttpHeaders.Accept, "application/pdf")
+            contentType(ContentType.Application.Json)
+        }
+        when (response.status.value) {
+            in 200..299 -> return response.readRawBytes()
+            429 -> throw response.toTooManyRequestsException()
+            else -> throw Exception(response.bodyAsText())
+        }
+    }
 
     override suspend fun scanDriverQrCode(id: String) = callApi(
         apiCall = { manifestApiService.scanDriverQrCode(id) },

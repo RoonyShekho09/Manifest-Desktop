@@ -21,6 +21,8 @@ import com.jawharat.manifest.resources.result_not_found_try_scanning_again
 import com.jawharat.manifest.utils.Platform
 import com.jawharat.manifest.utils.allCountries
 import com.jawharat.manifest.utils.currentPlatform
+import com.jawharat.manifest.utils.displayPdf
+import com.jawharat.manifest.utils.orZero
 import com.jawharat.manifest.utils.print.PrintContent
 import com.jawharat.manifest.utils.print.printContent
 import kotlinx.coroutines.CoroutineDispatcher
@@ -82,8 +84,6 @@ class HomeViewModel(
     )
 
     fun onDismissCountDownDialog() = updateState { copy(isCountDownVisible = false) }
-
-    fun onCameraReady() = Unit
 
     private fun startDocumentScanner() {
         if (!documentScanner.isSoftwareInstalled) return
@@ -196,7 +196,7 @@ class HomeViewModel(
                 vehicleType = state.value.manifest.vehicleType,
                 phoneNumber = state.value.manifest.driverPhoneNumber,
                 to = state.value.manifest.to,
-                price = state.value.manifest.price ?: 0,
+                price = state.value.manifest.price.orZero(),
                 passengers = state.value.passengers.map {
                     Passenger(
                         id = it.id.text.toString(),
@@ -229,6 +229,11 @@ class HomeViewModel(
 
         val driverId = value.substringAfter("D:", missingDelimiterValue = "").ifEmpty { null }
         val vehicleId = value.substringAfter("V:", missingDelimiterValue = "").ifEmpty { null }
+        val manifestId = value.substringAfter("M:", missingDelimiterValue = "").ifEmpty { null }
+
+        manifestId?.let {
+            submitManifest(it)
+        }
 
         driverId?.let {
             scanDriverQrCode(driverId)
@@ -238,6 +243,12 @@ class HomeViewModel(
             scanVehicleQrCode(vehicleId)
         }
     }
+    private fun submitManifest(id: String) = tryToExecute(
+        onStart = { updateState { copy(isLoading = true) } },
+        block = { manifestRepository.scanManifestQrCode(id) },
+        onSuccess = { displayPdf(it) },
+        onCompleted = { updateState { copy(isLoading = false) } }
+    )
 
     fun scanVehicleQrCode(id: String) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },

@@ -14,7 +14,6 @@ import com.jawharat.manifest.domain.repository.ManifestRepository
 class ManifestRepositoryImpl(
     proxy: AuthProxy,
     private val remoteDataSource: AppRemoteDataSource,
-    private val localDataSource: AppLocalDataSource
 ) : ManifestRepository, AuthProxy by proxy {
 
     override suspend fun getDrivers(fetch: Boolean): List<Driver> = authorizedCall {
