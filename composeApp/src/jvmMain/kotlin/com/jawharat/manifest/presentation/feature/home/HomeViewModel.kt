@@ -10,14 +10,13 @@ import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.home.camera.IWebCam
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.PersonDocument
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_logout
-import com.jawharat.manifest.resources.result_not_found_try_scanning_again
+import com.jawharat.manifest.utils.PersonDocument
 import com.jawharat.manifest.utils.Platform
 import com.jawharat.manifest.utils.allCountries
 import com.jawharat.manifest.utils.currentPlatform
@@ -126,9 +125,9 @@ class HomeViewModel(
 
     private fun onPassportOcrResult(value: PersonDocument?) {
         if (value?.documentId.isNullOrEmpty() || value.fullName.isEmpty()) {
-            viewModelScope.launch {
-                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
-            }
+//            viewModelScope.launch {
+//                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
+//            }
             return
         }
 

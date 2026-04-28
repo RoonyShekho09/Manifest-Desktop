@@ -2,6 +2,7 @@ package com.jawharat.manifest.presentation.feature.home.scanner.utils
 
 import Pr22.Processing.Document
 import com.jawharat.manifest.domain.entity.OcrLine
+import com.jawharat.manifest.utils.PersonDocument
 import com.jawharat.manifest.utils.containsAny
 
 
@@ -121,19 +122,9 @@ private fun cleanName(raw: String): String? {
         .replace(Regex("""\s{2,}"""), " ")
         .trim()
 
-    // Reject if result is too short or has no Arabic letters at all
     val hasArabic = cleaned.any { it in '\u0600'..'\u06FF' }
     return if (cleaned.length >= 2 && hasArabic) cleaned else null
 }
-
-data class PersonDocument(
-    val fullName: String,
-    val countryCode: String,
-    val documentId: String,
-    val gender: String,
-    val documentType: String
-)
-
 
 fun extractFromPassport(doc: Document): PersonDocument {
     var fullName: String? = null
