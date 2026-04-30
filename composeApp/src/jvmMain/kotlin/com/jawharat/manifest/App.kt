@@ -57,7 +57,7 @@ fun App() {
     Sentry.init { options ->
         with(options) {
             dsn = "https://bcc0bf3b1535462692fcd23a81ca0a49@app.glitchtip.com/22427"
-            tracesSampleRate = 0.01 // 1% of transactions
+            tracesSampleRate = 0.01
             isDebug = false
             isSendDefaultPii = true
         }

@@ -9,7 +9,6 @@ koin = "4.1.1"
 ktorfit = "2.7.2"
 ksp = "2.3.3"
 ktor = "3.4.1"
-sqldelight = "2.3.2"
 kotlinx-collections = "0.4.0"
 
 [libraries]
@@ -54,7 +53,6 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.9" }
 
 
