@@ -2,7 +2,7 @@ package com.jawharat.manifest.presentation.feature.home.scanner.utils
 
 import Pr22.Processing.Document
 import com.jawharat.manifest.domain.entity.OcrLine
-import com.jawharat.manifest.utils.PersonDocument
+import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.utils.containsAny
 
 
@@ -110,7 +110,6 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
         countryCode = "IQ",
         documentId = documentId.orEmpty(),
         gender = "",
-        documentType = ""
     )
 }
 
@@ -161,6 +160,5 @@ fun extractFromPassport(doc: Document): PersonDocument {
         countryCode = countryCode.orEmpty(),
         documentId = documentId.orEmpty(),
         gender = sex.orEmpty(),
-        documentType = documentType.orEmpty()
     )
 }

@@ -14,6 +14,7 @@ import com.jawharat.manifest.data.remote.model.dispatches.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.dispatches.DispatchQrCodeResponse
 import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
+import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import de.jensklingenberg.ktorfit.Response
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
@@ -81,6 +82,9 @@ interface ManifestApiService {
 
     @GET("me")
     suspend fun getUserInformation(): Response<UserInformationResponse>
+
+    @POST("ocr")
+    suspend fun ocr(@Body body: String): Response<OcrResponse>
 
     companion object {
         const val NO_AUTH_HEADER_KEY = "No-Authentication"

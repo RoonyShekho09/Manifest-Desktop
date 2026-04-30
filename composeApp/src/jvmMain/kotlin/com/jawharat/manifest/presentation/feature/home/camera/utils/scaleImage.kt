@@ -4,7 +4,7 @@ package com.jawharat.manifest.presentation.feature.home.camera.utils
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 
- fun scaleImage(image: BufferedImage): BufferedImage {
+fun scaleImage(image: BufferedImage): BufferedImage {
     val scale = if (image.width < 1280) 2.0 else 1.0
     val scaled = if (scale > 1.0) {
         BufferedImage(

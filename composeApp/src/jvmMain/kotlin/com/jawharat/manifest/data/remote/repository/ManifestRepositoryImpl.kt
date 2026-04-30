@@ -1,6 +1,5 @@
 package com.jawharat.manifest.data.remote.repository
 
-import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.remote.proxy.AuthProxy
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.mapper.toDomain
@@ -130,11 +129,8 @@ class ManifestRepositoryImpl(
         remoteDataSource.scanDispatchQrCode(id).toDomain()
     }
 
-    override suspend fun ocrSpace(image: String, engine: String) = authorizedCall {
-        remoteDataSource.ocr(
-            image,
-            engine
-        ).parsedResults?.firstOrNull()?.textOverlay?.lines?.toDomain()
+    override suspend fun ocr(image: String) = authorizedCall {
+        remoteDataSource.ocr(image).toDomain()
     }
 
     override suspend fun getPrice(locationId: String) = authorizedCall {

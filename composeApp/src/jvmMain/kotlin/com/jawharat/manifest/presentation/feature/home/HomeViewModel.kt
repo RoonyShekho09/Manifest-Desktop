@@ -11,12 +11,11 @@ import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.home.camera.IWebCam
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_logout
-import com.jawharat.manifest.utils.PersonDocument
+import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.utils.Platform
 import com.jawharat.manifest.utils.allCountries
 import com.jawharat.manifest.utils.currentPlatform
@@ -106,8 +105,8 @@ class HomeViewModel(
 
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
-        block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
-        onSuccess = { result -> onIdCardOcrResult(extractFromId(result)) },
+        block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
+        onSuccess = ::onIdCardOcrResult,
         //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
         onCompleted = { isAnalyzingId = false }
     )

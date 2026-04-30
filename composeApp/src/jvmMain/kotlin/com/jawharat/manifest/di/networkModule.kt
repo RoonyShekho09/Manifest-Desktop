@@ -1,5 +1,6 @@
 package com.jawharat.manifest.di
 
+import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
 import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.data.remote.service.AppPdfApiService
@@ -73,26 +74,31 @@ val networkModule = module {
         }.createAppPdfApiService()
     }
 
-    single(named("mistralClient")) {
+    single(named("ocrClient")) {
         HttpClient(CIO) {
-            expectSuccess = false
-            followRedirects = true
+
+            val localDataSource: AppLocalDataSource by inject<AppLocalDataSource>()
 
             defaultRequest {
                 header("Content-Type", "application/json")
+                header("Cookie", "I=${localDataSource.token}")
             }
 
-            val json = Json {
-                isLenient = true
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-                explicitNulls = false
-                encodeDefaults = true
+            expectSuccess = true
+            install(Logging) {
+                level = LogLevel.ALL
+                logger = object : Logger {
+                    override fun log(message: String) =
+                        println("OcrHttpClient $message")
+                }
             }
+        }
+    }
 
-            install(ContentNegotiation) {
-                json(json, ContentType.Application.Json)
-            }
+    single(named("checkUpdatesClient")) {
+        HttpClient(CIO) {
+            expectSuccess = true
+            followRedirects = true
 
             install(DefaultRequest) {
                 header(HttpHeaders.ContentType, ContentType.Application.Json)

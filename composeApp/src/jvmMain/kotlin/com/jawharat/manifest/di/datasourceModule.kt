@@ -16,7 +16,8 @@ val dataSourceModule = module {
         AppRemoteDataSourceImpl(
             manifestApiService = get(),
             pdfHttpClient = get(named("pdfClient")),
-            mistralHttpClient = get(named("mistralClient")),
+            checkUpdatesClient = get(named("checkUpdatesClient")),
+            ocrClient = get(named("ocrClient")),
         )
     }
     single<AuthProxy> { AuthProxyImpl(get(), get()) }

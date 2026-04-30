@@ -19,7 +19,7 @@ import Pr22.Task.TaskControl
 import Pr22.Util.PresenceState
 import PrIns.Exceptions.General
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromPassport
-import com.jawharat.manifest.utils.PersonDocument
+import com.jawharat.manifest.domain.entity.PersonDocument
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

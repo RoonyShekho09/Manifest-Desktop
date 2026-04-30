@@ -188,8 +188,6 @@ private fun DispatchRow(
     onEditClick: (String) -> Unit,
     onGenerateQrCodeClick: (String) -> Unit,
 ) {
-    if(dispatch.blocked)
-        print("Blocked: ${dispatch.driver.name}")
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(4.dp),

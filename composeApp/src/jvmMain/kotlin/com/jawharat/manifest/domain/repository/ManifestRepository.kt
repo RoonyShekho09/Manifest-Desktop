@@ -7,10 +7,10 @@ import com.jawharat.manifest.domain.entity.Dispatch
 import com.jawharat.manifest.domain.entity.DispatchQrResult
 import com.jawharat.manifest.domain.entity.DispatchSummary
 import com.jawharat.manifest.domain.entity.DriverQrResult
-import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.UserInformation
 import com.jawharat.manifest.domain.entity.VehicleType
+import com.jawharat.manifest.domain.entity.PersonDocument
 
 interface ManifestRepository {
     suspend fun getDrivers(fetch: Boolean = true): List<Driver>
@@ -65,7 +65,7 @@ interface ManifestRepository {
 
     suspend fun getLines(fetch: Boolean = true): List<DispatchLine>
     suspend fun getVehicleTypes(fetch: Boolean = true): List<VehicleType>
-    suspend fun ocrSpace(image: String, engine: String = "2"): List<OcrLine>?
+    suspend fun ocr(image: String): PersonDocument
     suspend fun getPrice(locationId: String): List<Route>?
     suspend fun getUserInformation(): UserInformation
 }

@@ -5,19 +5,18 @@ import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
-import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
-import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
-import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.model.dispatches.AddVehicleRequestBody
 import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
+import com.jawharat.manifest.data.remote.model.drivers.AddDriverRequestBody
+import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
+import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.di.BASE_URL
 import com.jawharat.manifest.domain.entity.UpdateInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
+import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
@@ -37,13 +36,14 @@ import kotlinx.serialization.json.Json
 class AppRemoteDataSourceImpl(
     private val manifestApiService: ManifestApiService,
     private val pdfHttpClient: HttpClient,
-    private val mistralHttpClient: HttpClient,
+    private val checkUpdatesClient: HttpClient,
+    private val ocrClient: HttpClient
 ) : AppRemoteDataSource, BaseRemoteDataSource {
 
     override suspend fun getUpdateInfo(currentVersion: String, versionFileUrl: String): UpdateInfo {
         return withContext(Dispatchers.IO) {
             try {
-                val response: HttpResponse = mistralHttpClient.get(versionFileUrl)
+                val response: HttpResponse = checkUpdatesClient.get(versionFileUrl)
                 val latestVersion = response.bodyAsText().trim()
                 parseUpdateInfo(latestVersion)
             } catch (e: Exception) {
@@ -215,22 +215,14 @@ class AppRemoteDataSourceImpl(
         mapper = { it }
     ).getOrThrow()
 
-    override suspend fun ocr(image: String, engine: String): OcrResponse {
-        val multipart = MultiPartFormDataContent(
-            formData {
-                append("apikey", "0cd0e66ab388957")
-                append("language", "auto")
-                append("OCREngine", "2")
-                append("base64Image", image)
-                append("isOverlayRequired", "true")
-                append("scale", "true")
-                append("detectOrientation", "true")
-            }
-        )
-        val response = mistralHttpClient.post("https://api.ocr.space/parse/image") {
-            setBody(multipart)
+    override suspend fun ocr(image: String): OcrResponse {
+        val response = ocrClient.post("$BASE_URL/ocr") {
+            contentType(ContentType.Text.Plain)
+            accept(ContentType.Application.Json)
+            setBody(image)
         }
 
+        println("Response status: ${response.status}")
         return response.body()
     }
 

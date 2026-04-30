@@ -10,8 +10,8 @@ import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.data.remote.model.PriceResponse
 import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
 import com.jawharat.manifest.data.remote.model.dispatches.DispatchRemote
-import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
+import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
 import com.jawharat.manifest.domain.entity.UpdateInfo
 
 interface AppRemoteDataSource {
@@ -69,7 +69,7 @@ interface AppRemoteDataSource {
 
     suspend fun getLines(): List<LineResponse>
     suspend fun getVehicleTypes(): List<VehicleRemote>
-    suspend fun ocr(image: String, engine: String): OcrResponse
+    suspend fun ocr(image: String): OcrResponse
     suspend fun getPrice(locationId: String): PriceResponse
     suspend fun getUserInformation(): UserInformationResponse
     suspend fun getUpdateInfo(currentVersion: String, versionFileUrl: String): UpdateInfo
