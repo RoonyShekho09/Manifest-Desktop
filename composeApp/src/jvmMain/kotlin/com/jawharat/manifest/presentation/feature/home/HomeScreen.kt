@@ -50,6 +50,7 @@ import com.jawharat.manifest.presentation.components.AppTextField
 import com.jawharat.manifest.presentation.feature.home.components.dialog.AddPassengersDialog
 import com.jawharat.manifest.presentation.feature.home.components.dialog.CountdownDialog
 import com.jawharat.manifest.presentation.feature.home.components.dialog.LogoutConfirmationDialog
+import com.jawharat.manifest.presentation.feature.home.components.dialog.PrintManifestDialog
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarVisuals
 import com.jawharat.manifest.presentation.feature.shared.LocalSnackBarState
 import com.jawharat.manifest.resources.Res
@@ -67,6 +68,7 @@ import com.jawharat.manifest.resources.install_now
 import com.jawharat.manifest.resources.logout
 import com.jawharat.manifest.resources.passengers
 import com.jawharat.manifest.resources.price
+import com.jawharat.manifest.resources.print_manifest
 import com.jawharat.manifest.resources.register_trip
 import com.jawharat.manifest.resources.scanner_required
 import com.jawharat.manifest.resources.submit_manifest
@@ -124,6 +126,12 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
             onDismissBlockedDialog = viewModel::onDismissBlockedDialog
         )
 
+    if (state.isPrintManifestDialogVisible)
+        PrintManifestDialog(
+            onConfirm = viewModel::onConfirmPrintManifest,
+            onDismiss = viewModel::onDismissPrintManifestDialog
+        )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -139,6 +147,15 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        TextButton(
+                            onClick = viewModel::onPrintManifestClick,
+                            colors = ButtonDefaults.textButtonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+                        ) {
+                            Text(text = Res.string.print_manifest.string)
+                        }
+
+                        Spacer(Modifier.width(24.dp))
+
                         IconButton(
                             onClick = viewModel::onClearClick,
                             colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.onPrimary)

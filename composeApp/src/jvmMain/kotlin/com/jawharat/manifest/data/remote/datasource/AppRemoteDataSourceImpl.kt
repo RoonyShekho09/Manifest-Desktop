@@ -183,8 +183,8 @@ class AppRemoteDataSourceImpl(
         mapper = { it }
     ).getOrThrow()
 
-    override suspend fun scanManifestQrCode(id: String): ByteArray {
-        val response = pdfHttpClient.patch(BASE_URL + "manifests/$id") {
+    override suspend fun scanManifestQrCode(id: String, year: String?): ByteArray {
+        val response = pdfHttpClient.patch(BASE_URL + "manifests/$year/$id") {
             header(HttpHeaders.Accept, "application/pdf")
             contentType(ContentType.Application.Json)
         }

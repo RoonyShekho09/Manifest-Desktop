@@ -19,6 +19,7 @@ data class HomeUiState(
     val retryInSeconds: Int = 0,
     val isDriverBlockedDialogVisible: Boolean = false,
     val isVehicleBlockedDialogVisible: Boolean = false,
+    val isPrintManifestDialogVisible: Boolean = false,
 ) {
     val isSubmitEnabled: Boolean
         get() = manifest.to.isNotEmpty() && manifest.price != null &&

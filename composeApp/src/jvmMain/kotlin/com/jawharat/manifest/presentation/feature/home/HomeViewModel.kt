@@ -56,6 +56,14 @@ class HomeViewModel(
         }
     }
 
+    fun onConfirmPrintManifest(id: String, year: String) {
+        updateState { copy(isPrintManifestDialogVisible = false) }
+        submitManifest(id, year)
+    }
+
+    fun onPrintManifestClick() = updateState { copy(isPrintManifestDialogVisible = true) }
+    fun onDismissPrintManifestDialog() = updateState { copy(isPrintManifestDialogVisible = false) }
+
     fun onClearClick() = updateState {
         lastSuccessQrCode = null
         val from = manifest.from
@@ -230,7 +238,7 @@ class HomeViewModel(
         val manifestId = value.substringAfter("M:", missingDelimiterValue = "").ifEmpty { null }
 
         manifestId?.let {
-            submitManifest(it)
+            submitManifest(it, year = null)
         }
 
         driverId?.let {
@@ -242,9 +250,9 @@ class HomeViewModel(
         }
     }
 
-    private fun submitManifest(id: String) = tryToExecute(
+    private fun submitManifest(id: String, year: String?) = tryToExecute(
         onStart = { updateState { copy(isLoading = true) } },
-        block = { manifestRepository.scanManifestQrCode(id) },
+        block = { manifestRepository.scanManifestQrCode(id, year) },
         onSuccess = { displayPdf(it) },
         onCompleted = { updateState { copy(isLoading = false) } }
     )

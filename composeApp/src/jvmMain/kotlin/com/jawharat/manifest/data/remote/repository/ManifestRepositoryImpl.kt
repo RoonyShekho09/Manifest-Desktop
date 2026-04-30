@@ -117,8 +117,8 @@ class ManifestRepositoryImpl(
         remoteDataSource.getLines().toDomain()
     }
 
-    override suspend fun scanManifestQrCode(id: String) = authorizedCall {
-        remoteDataSource.scanManifestQrCode(id)
+    override suspend fun scanManifestQrCode(id: String, year: String?) = authorizedCall {
+        remoteDataSource.scanManifestQrCode(id, year)
     }
 
     override suspend fun scanDriverQrCode(id: String) = authorizedCall {

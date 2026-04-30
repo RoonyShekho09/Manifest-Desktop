@@ -123,4 +123,6 @@
     <string name="optional_update_msg">وەشانێکی نوێی ئەپڵیکەیشنەکە ئامادەیە. ئایا دەتەوێت ئێستا دایبەزێنیت؟</string>
     <string name="driver_blocked">شۆفێرەکە بلۆک کراوە</string>
     <string name="vehicle_blocked">ئۆتۆمبێلەکە بلۆک کراوە</string>
+    <string name="enter_manifest_id">ناسنامەی مانیفێست بنووسە بۆ چاپکردن:</string>
+    <string name="print_manifest">چاپکردنی مانیفێست</string>
 </resources>

@@ -15,7 +15,7 @@ import com.jawharat.manifest.domain.entity.PersonDocument
 interface ManifestRepository {
     suspend fun getDrivers(fetch: Boolean = true): List<Driver>
     suspend fun getDispatches(fetch: Boolean = true): List<Dispatch>
-    suspend fun scanManifestQrCode(id: String): ByteArray
+    suspend fun scanManifestQrCode(id: String, year: String? = null): ByteArray
     suspend fun scanDriverQrCode(id: String): DriverQrResult
     suspend fun scanDispatchQrCode(id: String): DispatchQrResult
     suspend fun submitManifest(
