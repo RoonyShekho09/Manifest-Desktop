@@ -2,7 +2,6 @@ package com.jawharat.manifest.data.remote.repository
 
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.local.model.LoginSessionLocal
-import com.jawharat.manifest.data.local.model.UserLocal
 import com.jawharat.manifest.data.remote.proxy.AuthProxy
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
@@ -28,7 +27,7 @@ class AuthRepositoryImpl(
 
     override suspend fun login(email: String, password: String) {
         val data = remoteDataSource.login(email = email, password = password)
-        data.saveLocally(email, password)
+        data.saveLocally()
         localDataSource.storeLastUsedEmail(email)
     }
 
@@ -45,21 +44,14 @@ class AuthRepositoryImpl(
         versionFileUrl = versionFileUrl
     )
 
-    private fun LoginResponse.saveLocally(email: String, password: String) {
-        token?.let {
-            val expirationTime = Instant.now().plus(6, ChronoUnit.HOURS).toEpochMilli()
-            localDataSource.storeLoginSession(
-                LoginSessionLocal(
-                    token = token,
-                    expiresAt = expirationTime
-                )
-            )
-        }
+    private fun LoginResponse.saveLocally() {
+        if (token == null) return
 
-        localDataSource.storeUser(
-            UserLocal(
-                email = email,
-                password = password
+        val expirationTime = Instant.now().plus(6, ChronoUnit.HOURS).toEpochMilli()
+        localDataSource.storeLoginSession(
+            LoginSessionLocal(
+                token = token,
+                expiresAt = expirationTime
             )
         )
     }

@@ -222,8 +222,7 @@ class AppRemoteDataSourceImpl(
             setBody(image)
         }
 
-        println("Response status: ${response.status}")
-        return response.body()
+        return response.body() ?: throw Exception()
     }
 
     override suspend fun getPrice(locationId: String) = callApi(
