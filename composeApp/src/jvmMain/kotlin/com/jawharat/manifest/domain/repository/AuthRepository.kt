@@ -8,5 +8,5 @@ interface AuthRepository {
     val lastUsedEmail: String
     suspend fun login(email: String, password: String)
     suspend fun logout()
-    suspend fun isUpdateAvailable(currentVersion: String, versionFileUrl: String): UpdateInfo
+    suspend fun getUpdateInfo(versionFileUrl: String): UpdateInfo
 }

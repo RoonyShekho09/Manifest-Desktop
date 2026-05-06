@@ -36,13 +36,8 @@ class AuthRepositoryImpl(
         localDataSource.clearDataStore()
     }
 
-    override suspend fun isUpdateAvailable(
-        currentVersion: String,
-        versionFileUrl: String
-    ): UpdateInfo = remoteDataSource.getUpdateInfo(
-        currentVersion = currentVersion,
-        versionFileUrl = versionFileUrl
-    )
+    override suspend fun getUpdateInfo(versionFileUrl: String): UpdateInfo =
+        remoteDataSource.getUpdateInfo(versionFileUrl = versionFileUrl)
 
     private fun LoginResponse.saveLocally() {
         if (token == null) return

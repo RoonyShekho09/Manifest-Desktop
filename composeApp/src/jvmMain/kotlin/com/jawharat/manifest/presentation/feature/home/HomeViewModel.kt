@@ -68,6 +68,7 @@ class HomeViewModel(
 
     fun onClearClick() = updateState {
         lastSuccessQrCode = null
+        scannedPersonDocument = null
         val from = manifest.from
         copy(passengers = emptyList(), manifest = Manifest(from = from))
     }
@@ -180,7 +181,12 @@ class HomeViewModel(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
         block = authRepository::logout,
         onCompleted = { emitEvent(HomeUiEvent.OnLogout) },
-        onError = { snackBarHostState.showFailure(Res.string.failed_to_logout) }
+        onError = {
+            snackBarHostState.showFailure(
+                message = Res.string.failed_to_logout,
+                scope = viewModelScope
+            )
+        }
     )
 
     fun onSubmitManifestClick() = tryToExecute(

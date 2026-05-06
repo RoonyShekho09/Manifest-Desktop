@@ -68,7 +68,7 @@ fun App() {
     var isUpdateDialogVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        updateInfo = checkUpdates(repository)
+        updateInfo = getUpdatesInfo(repository)
     }
 
     LaunchedEffect(updateInfo) {
@@ -165,16 +165,11 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
     )
 }
 
-private suspend fun checkUpdates(repository: AuthRepository): UpdateInfo? {
-    val current = BuildConfig.BUILD_NUMBER
-
-    return runCatching {
-        repository.isUpdateAvailable(
-            currentVersion = current.toString(),
-            versionFileUrl = "https://raw.githubusercontent.com/RoonyShekho09/Manifest-Desktop-Releases/refs/heads/main/buildNumber.txt"
-        )
-    }.getOrNull()
-}
+private suspend fun getUpdatesInfo(repository: AuthRepository): UpdateInfo? = runCatching {
+    repository.getUpdateInfo(
+        versionFileUrl = "https://raw.githubusercontent.com/RoonyShekho09/Manifest-Desktop-Releases/refs/heads/main/buildNumber.txt"
+    )
+}.getOrNull()
 
 
 const val CURRENT_BUILD_NUMBER = BuildConfig.BUILD_NUMBER
