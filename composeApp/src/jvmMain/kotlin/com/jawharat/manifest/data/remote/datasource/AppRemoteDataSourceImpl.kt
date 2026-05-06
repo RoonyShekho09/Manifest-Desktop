@@ -216,7 +216,7 @@ class AppRemoteDataSourceImpl(
     ).getOrThrow()
 
     override suspend fun ocr(image: String): OcrResponse {
-        val response = ocrClient.post("$BASE_URL/ocr") {
+        val response = ocrClient.post("${BASE_URL}ocr") {
             contentType(ContentType.Text.Plain)
             accept(ContentType.Application.Json)
             setBody(image)

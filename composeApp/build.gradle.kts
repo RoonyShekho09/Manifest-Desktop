@@ -34,8 +34,14 @@ kotlin {
             implementation(libs.bundles.koin)
             implementation(libs.bundles.network)
             implementation(libs.kotlinx.serializaion)
+            implementation("org.jetbrains.compose.ui:ui-test:1.10.0")
+        }
+        jvmTest.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(libs.androidx.ui.test.junit4.desktop)
         }
         commonTest.dependencies {
+            implementation(kotlin("test"))
             implementation(libs.kotlin.test)
             implementation("io.mockk:mockk:1.14.9")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
