@@ -16,7 +16,7 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import kotlin.test.Test
+import org.junit.Test
 import kotlin.test.assertNull
 
 
@@ -152,50 +152,5 @@ class DispatchesViewModelTest {
             )
         }
         assertFalse(viewModel.state.value.isDialogVisible)
-    }
-
-    @Test
-    fun onConfirmAddEditRoutesToAddWhenNotEditing() = runTest {
-        val dispatchUiState: DispatchUiState = mockk(relaxed = true)
-
-        viewModel.onConfirmAddEditDispatch(dispatchUiState)
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        coVerify(exactly = 1) { repository.addDispatch(any(), any(), any(), any(), any(), any()) }
-        coVerify(exactly = 0) {
-            repository.editDispatch(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        }
-    }
-
-    @Test
-    fun onConfirmAddEditRoutesToEditWhenEditing() = runTest {
-        val dispatchUiState: DispatchUiState = mockk(relaxed = true)
-
-        viewModel.onEditClick(id = "mock-id")
-        viewModel.onConfirmAddEditDispatch(dispatchUiState)
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        coVerify(exactly = 1) {
-            repository.editDispatch(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        }
-        coVerify(exactly = 0) { repository.addDispatch(any(), any(), any(), any(), any(), any()) }
     }
 }

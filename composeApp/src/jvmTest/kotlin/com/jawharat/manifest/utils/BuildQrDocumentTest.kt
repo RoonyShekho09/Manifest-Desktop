@@ -4,8 +4,8 @@ package com.jawharat.manifest.utils
 import com.jawharat.manifest.utils.qr.buildQrDocument
 import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
+import org.junit.Test
 import java.awt.image.BufferedImage
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
