@@ -45,6 +45,7 @@ class HomeViewModel(
     private var scanJob: Job? = null
     private var isAnalyzingId = false
     private var lastSuccessQrCode: String? = null
+    private var scannedPersonDocument: PersonDocument? = null
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
@@ -54,6 +55,7 @@ class HomeViewModel(
                 webcam.start(::onQrCodeResult, onCameraReady = {})
             }
         }
+        startDocumentScanner()
     }
 
     fun onConfirmPrintManifest(id: String, year: String) {
@@ -99,7 +101,7 @@ class HomeViewModel(
                 ensureActive()
                 if (!isAnalyzingId) {
                     documentScanner.scan(
-                        onResult = ::onPassportOcrResult,
+                        onResult = ::onOcrResult,
                         onScan = {
                             val processedImage = preprocessImage(it)
                             performIdOcr(processedImage)
@@ -114,29 +116,17 @@ class HomeViewModel(
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
         block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
-        onSuccess = ::onIdCardOcrResult,
-        //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
+        onSuccess = ::onOcrResult,
         onCompleted = { isAnalyzingId = false }
     )
 
-    private fun onIdCardOcrResult(result: PersonDocument?) {
-        if (result?.documentId.isNullOrEmpty() || result.fullName.isEmpty()) {
-//            viewModelScope.launch {
-//                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
-//            }
+    private fun onOcrResult(value: PersonDocument?) {
+        if (state.value.manifest.price == 10000) {
+            scannedPersonDocument = value
             return
         }
 
-        updatePassengersState(result)
-    }
-
-    private fun onPassportOcrResult(value: PersonDocument?) {
-        if (value?.documentId.isNullOrEmpty() || value.fullName.isEmpty()) {
-//            viewModelScope.launch {
-//                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
-//            }
-            return
-        }
+        if (value?.documentId.isNullOrEmpty() || value.fullName.isEmpty()) return
 
         updatePassengersState(value)
     }
@@ -272,8 +262,10 @@ class HomeViewModel(
                 )
             }
 
-            if (it.price != 10000)
-                startDocumentScanner()
+            scannedPersonDocument?.let { document ->
+                updatePassengersState(value = document)
+                scannedPersonDocument = null
+            }
         },
         onError = {
             if (it is NetworkException.BlockedException)
