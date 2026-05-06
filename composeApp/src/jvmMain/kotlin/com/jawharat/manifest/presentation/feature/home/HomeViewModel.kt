@@ -134,7 +134,7 @@ class HomeViewModel(
     private fun updatePassengersState(value: PersonDocument) {
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
         if (value.fullName.isEmpty() || value.documentId.isEmpty()
-            || allCountries.all { it.code != value.countryCode.lowercase() }
+            || allCountries.all { it.name != value.countryCode.lowercase() }
         ) return
 
         updateState {
@@ -152,11 +152,11 @@ class HomeViewModel(
                         TextFieldState(),
                     countryCode = TextFieldState(
                         allCountries.firstOrNull {
-                            it.code.equals(
+                            it.name.equals(
                                 other = value.countryCode,
                                 ignoreCase = true
                             )
-                        }?.code.orEmpty()
+                        }?.name.orEmpty()
                     ),
                     isEditable = false
                 )

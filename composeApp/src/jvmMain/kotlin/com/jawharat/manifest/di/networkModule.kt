@@ -4,10 +4,8 @@ import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
 import com.jawharat.manifest.data.remote.service.ManifestApiService
 import com.jawharat.manifest.data.remote.service.AppPdfApiService
-import com.jawharat.manifest.data.remote.service.OcrApiService
 import com.jawharat.manifest.data.remote.service.createAppPdfApiService
 import com.jawharat.manifest.data.remote.service.createManifestApiService
-import com.jawharat.manifest.data.remote.service.createOcrApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
 import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
 import de.jensklingenberg.ktorfit.converter.ResponseConverterFactory
@@ -15,6 +13,7 @@ import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -28,8 +27,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-const val BASE_URL = "http://192.168.0.150/"
-const val OCR_BASE_URL = "https://ocr.space/"
+const val BASE_URL = "http://192.168.0.128/"
 
 val networkModule = module {
 
@@ -46,19 +44,6 @@ val networkModule = module {
                 ResponseConverterFactory()
             )
         }.createManifestApiService()
-    }
-
-    single<OcrApiService> {
-        ktorfit {
-            baseUrl(url = OCR_BASE_URL)
-            httpClient(client = get(named("manifestClient")))
-
-            converterFactories(
-                FlowConverterFactory(),
-                CallConverterFactory(),
-                ResponseConverterFactory()
-            )
-        }.createOcrApiService()
     }
 
     single<AppPdfApiService> {
@@ -82,6 +67,19 @@ val networkModule = module {
             defaultRequest {
                 header("Content-Type", "application/json")
                 header("Cookie", "I=${localDataSource.token}")
+            }
+
+            install(HttpTimeout) {
+                this.requestTimeoutMillis = 20000
+            }
+
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                        isLenient = true
+                    }
+                )
             }
 
             expectSuccess = true
