@@ -137,7 +137,7 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
             }
         } finally {
             scanner?.cleanUpLastPage()
-            scanTask.del(Light.White).del(Light.Infra).del(Light.All)
+            scanTask.del(Light.White)
             docPage?.del(Light.All)
             scanner?.cleanUpData()
             liveTask?.Stop()

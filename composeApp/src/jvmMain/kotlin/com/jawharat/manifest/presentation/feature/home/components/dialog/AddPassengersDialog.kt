@@ -110,7 +110,10 @@ fun AddPassengersDialog(
                     modifier = Modifier.heightIn(max = 300.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    itemsIndexed(passengers) { index, passenger ->
+                    itemsIndexed(
+                        items = passengers,
+                        key = { _, passenger -> passenger.hashCode() }
+                    ) { _, passenger ->
                         var isDropDownExpanded by remember { mutableStateOf(false) }
 
                         Row(
@@ -167,12 +170,8 @@ fun AddPassengersDialog(
 
                             IconButton(
                                 onClick = {
-                                    if (index == 0) {
-                                        passenger.apply {
-                                            id.clearText()
-                                            countryCode.clearText()
-                                            name.clearText()
-                                        }
+                                    if (passengers.size == 1) {
+                                        passengers.remove(passenger)
                                     } else {
                                         passengers.remove(passenger)
                                     }
@@ -206,7 +205,12 @@ fun AddPassengersDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(onClick = { onSave(passengers.toList()) }) {
+                Button(
+                    onClick = {
+                        onSave(passengers.filter { it.id.text.isNotBlank() })
+                    },
+                    enabled = passengers.any { it.name.text.isNotBlank() } || passengers.isEmpty()
+                ) {
                     Text(text = Res.string.save_changes.string)
                 }
             }

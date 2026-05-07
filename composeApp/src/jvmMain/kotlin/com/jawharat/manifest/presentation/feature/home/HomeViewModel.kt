@@ -122,21 +122,31 @@ class HomeViewModel(
     )
 
     private fun onOcrResult(value: PersonDocument?) {
-        if (state.value.manifest.price == 10000) {
+        if (value == null) return
+        if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
+        if (value.documentId.isEmpty() || value.fullName.isEmpty()) return
+
+        if (state.value.manifest.price == null) {
             scannedPersonDocument = value
             return
         }
 
-        if (value?.documentId.isNullOrEmpty() || value.fullName.isEmpty()) return
-
-        updatePassengersState(value)
+        if (state.value.manifest.price != 10000)
+            updatePassengersState(value)
     }
 
     private fun updatePassengersState(value: PersonDocument) {
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
-        if (value.fullName.isEmpty() || value.documentId.isEmpty()
-            || allCountries.all { it.name != value.countryCode.lowercase() }
-        ) return
+        if (value.fullName.isEmpty() || value.documentId.isEmpty()) return
+
+        val nationality = value.nationality.ifEmpty {
+            allCountries.firstOrNull {
+                it.code.equals(
+                    other = value.countryCode,
+                    ignoreCase = true
+                )
+            }?.name
+        }
 
         updateState {
             copy(
@@ -151,14 +161,7 @@ class HomeViewModel(
                         )
                     else
                         TextFieldState(),
-                    countryCode = TextFieldState(
-                        allCountries.firstOrNull {
-                            it.name.equals(
-                                other = value.countryCode,
-                                ignoreCase = true
-                            )
-                        }?.name.orEmpty()
-                    ),
+                    countryCode = TextFieldState(nationality.orEmpty()),
                     isEditable = false
                 )
             )
@@ -269,7 +272,8 @@ class HomeViewModel(
             }
 
             scannedPersonDocument?.let { document ->
-                updatePassengersState(value = document)
+                if (it.price != 10000)
+                    updatePassengersState(value = document)
                 scannedPersonDocument = null
             }
         },
