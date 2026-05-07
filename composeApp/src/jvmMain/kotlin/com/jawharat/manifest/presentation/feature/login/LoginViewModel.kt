@@ -1,6 +1,7 @@
 package com.jawharat.manifest.presentation.feature.login
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
@@ -54,7 +55,10 @@ class LoginViewModel(
             emitEvent(LoginUiEvent.OnNavigateToHome)
         },
         onError = {
-            snackBar.showFailure(message = Res.string.login_failed)
+            snackBar.showFailure(
+                message = Res.string.login_failed,
+                scope = viewModelScope
+            )
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )

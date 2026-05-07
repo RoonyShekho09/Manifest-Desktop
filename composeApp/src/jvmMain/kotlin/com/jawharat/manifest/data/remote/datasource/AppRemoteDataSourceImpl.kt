@@ -40,7 +40,7 @@ class AppRemoteDataSourceImpl(
     private val ocrClient: HttpClient
 ) : AppRemoteDataSource, BaseRemoteDataSource {
 
-    override suspend fun getUpdateInfo(currentVersion: String, versionFileUrl: String): UpdateInfo {
+    override suspend fun getUpdateInfo(versionFileUrl: String): UpdateInfo {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse = checkUpdatesClient.get(versionFileUrl)

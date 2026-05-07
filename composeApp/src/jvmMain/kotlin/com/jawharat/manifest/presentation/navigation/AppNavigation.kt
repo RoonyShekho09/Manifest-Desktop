@@ -15,6 +15,7 @@ import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -95,11 +96,15 @@ private fun AuthExceptionRouterHandler(onTokenExpiredException: () -> Unit) {
     val authObserver = koinInject<AuthObserver>()
     val event by authObserver.events.collectAsState(null)
     val snackBarHostState = LocalSnackBarState.current
+    val scope = rememberCoroutineScope()
 
     event.Listen {
         if (it == AuthEvent.TokenExpired) {
             onTokenExpiredException()
-            snackBarHostState.showFailure(Res.string.session_expired)
+            snackBarHostState.showFailure(
+                message = Res.string.session_expired,
+                scope = scope
+            )
         }
     }
 }

@@ -68,7 +68,10 @@ class DriversViewModel(
             }
         },
         onError = {
-            snackBarHostState.showFailure(Res.string.failed_to_add_driver)
+            snackBarHostState.showFailure(
+                message = Res.string.failed_to_add_driver,
+                scope = viewModelScope
+            )
         },
         onCompleted = { updateState { copy(isDialogVisible = false) } }
     )

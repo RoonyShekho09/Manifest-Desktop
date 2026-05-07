@@ -45,6 +45,7 @@ class HomeViewModel(
     private var scanJob: Job? = null
     private var isAnalyzingId = false
     private var lastSuccessQrCode: String? = null
+    private var scannedPersonDocument: PersonDocument? = null
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
@@ -54,6 +55,7 @@ class HomeViewModel(
                 webcam.start(::onQrCodeResult, onCameraReady = {})
             }
         }
+        startDocumentScanner()
     }
 
     fun onConfirmPrintManifest(id: String, year: String) {
@@ -66,6 +68,7 @@ class HomeViewModel(
 
     fun onClearClick() = updateState {
         lastSuccessQrCode = null
+        scannedPersonDocument = null
         val from = manifest.from
         copy(passengers = emptyList(), manifest = Manifest(from = from))
     }
@@ -99,7 +102,7 @@ class HomeViewModel(
                 ensureActive()
                 if (!isAnalyzingId) {
                     documentScanner.scan(
-                        onResult = ::onPassportOcrResult,
+                        onResult = ::onOcrResult,
                         onScan = {
                             val processedImage = preprocessImage(it)
                             performIdOcr(processedImage)
@@ -114,32 +117,36 @@ class HomeViewModel(
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
         block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
-        onSuccess = ::onIdCardOcrResult,
-        //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
+        onSuccess = ::onOcrResult,
         onCompleted = { isAnalyzingId = false }
     )
 
-    private fun onIdCardOcrResult(result: PersonDocument?) {
-        if (result?.documentId.isNullOrEmpty() || result.fullName.isEmpty()) return
-        updatePassengersState(result)
-    }
+    private fun onOcrResult(value: PersonDocument?) {
+        if (value == null) return
+        if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
+        if (value.documentId.isEmpty() || value.fullName.isEmpty()) return
 
-    private fun onPassportOcrResult(value: PersonDocument?) {
-        if (value?.documentId.isNullOrEmpty() || value.fullName.isEmpty()) {
-//            viewModelScope.launch {
-//                snackBarHostState.showFailure(Res.string.result_not_found_try_scanning_again)
-//            }
+        if (state.value.manifest.price == null) {
+            scannedPersonDocument = value
             return
         }
 
-        updatePassengersState(value)
+        if (state.value.manifest.price != 10000)
+            updatePassengersState(value)
     }
 
     private fun updatePassengersState(value: PersonDocument) {
         if (state.value.passengers.map { it.id.text }.contains(value.documentId)) return
-        if (value.fullName.isEmpty() || value.documentId.isEmpty()
-            || allCountries.all { it.name != value.countryCode.lowercase() }
-        ) return
+        if (value.fullName.isEmpty() || value.documentId.isEmpty()) return
+
+        val nationality = value.nationality.ifEmpty {
+            allCountries.firstOrNull {
+                it.code.equals(
+                    other = value.countryCode,
+                    ignoreCase = true
+                )
+            }?.name
+        }
 
         updateState {
             copy(
@@ -154,14 +161,7 @@ class HomeViewModel(
                         )
                     else
                         TextFieldState(),
-                    countryCode = TextFieldState(
-                        allCountries.firstOrNull {
-                            it.name.equals(
-                                other = value.countryCode,
-                                ignoreCase = true
-                            )
-                        }?.name.orEmpty()
-                    ),
+                    countryCode = TextFieldState(nationality.orEmpty()),
                     isEditable = false
                 )
             )
@@ -184,7 +184,12 @@ class HomeViewModel(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
         block = authRepository::logout,
         onCompleted = { emitEvent(HomeUiEvent.OnLogout) },
-        onError = { snackBarHostState.showFailure(Res.string.failed_to_logout) }
+        onError = {
+            snackBarHostState.showFailure(
+                message = Res.string.failed_to_logout,
+                scope = viewModelScope
+            )
+        }
     )
 
     fun onSubmitManifestClick() = tryToExecute(
@@ -266,8 +271,11 @@ class HomeViewModel(
                 )
             }
 
-            if (it.price != 10000)
-                startDocumentScanner()
+            scannedPersonDocument?.let { document ->
+                if (it.price != 10000)
+                    updatePassengersState(value = document)
+                scannedPersonDocument = null
+            }
         },
         onError = {
             if (it is NetworkException.BlockedException)

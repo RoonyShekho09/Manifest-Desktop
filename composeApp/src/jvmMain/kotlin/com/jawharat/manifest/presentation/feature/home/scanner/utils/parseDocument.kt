@@ -146,6 +146,7 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
         countryCode = "IQ",
         documentId = documentId.orEmpty(),
         gender = "",
+        nationality = ""
     )
 }
 
@@ -196,5 +197,6 @@ fun extractFromPassport(doc: Document): PersonDocument {
         countryCode = countryCode.orEmpty(),
         documentId = documentId.orEmpty(),
         gender = sex.orEmpty(),
+        nationality = ""
     )
 }

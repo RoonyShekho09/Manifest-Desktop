@@ -135,7 +135,8 @@ fun DispatchRemote.toDomain() =
 
 fun OcrResponse.toDomain() = PersonDocument(
     fullName = fullname.orEmpty(),
-    countryCode = allCountries.firstOrNull { it.name == nationality }?.name.orEmpty(),
+    countryCode = "",
     documentId = documentId.orEmpty(),
     gender = "",
+    nationality = nationality.orEmpty()
 )

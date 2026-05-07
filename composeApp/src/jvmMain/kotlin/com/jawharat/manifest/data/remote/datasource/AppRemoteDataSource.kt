@@ -72,5 +72,5 @@ interface AppRemoteDataSource {
     suspend fun ocr(image: String): OcrResponse
     suspend fun getPrice(locationId: String): PriceResponse
     suspend fun getUserInformation(): UserInformationResponse
-    suspend fun getUpdateInfo(currentVersion: String, versionFileUrl: String): UpdateInfo
+    suspend fun getUpdateInfo(versionFileUrl: String): UpdateInfo
 }

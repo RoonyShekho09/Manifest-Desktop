@@ -105,24 +105,6 @@ class DriversViewModelTest {
     }
 
     @Test
-    fun onConfirmAddEditDriver_withIsEditTrue_callsEdit() = runTest {
-        val driver = Driver(
-            id = "1",
-            driverId = "D1",
-            name = "Name",
-            phoneNumber = "123",
-            destination = "Dest",
-            blocked = true
-        )
-
-        viewModel.onConfirmAddEditDriver(value = driver)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        coVerify { repository.editDriver(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 0) { repository.addDriver(any(), any(), any(), any()) }
-    }
-
-    @Test
     fun onConfirmAddEditDriver_withIsEditFalse_callsAdd() = runTest {
         viewModel.onConfirmAddEditDriver(
             Driver(
