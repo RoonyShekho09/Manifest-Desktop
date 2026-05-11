@@ -35,6 +35,13 @@ kotlin {
             implementation(libs.bundles.network)
             implementation(libs.kotlinx.serializaion)
             implementation("org.jetbrains.compose.ui:ui-test:1.10.0")
+
+            val openCvVersion = "4.9.0-1.5.10"
+
+            implementation("org.bytedeco:opencv:$openCvVersion")
+
+            implementation("org.bytedeco:opencv:$openCvVersion:windows-x86_64")
+            implementation("org.bytedeco:openblas:0.3.26-1.5.10:windows-x86_64")
         }
         jvmTest.dependencies {
             implementation(compose.desktop.currentOs)

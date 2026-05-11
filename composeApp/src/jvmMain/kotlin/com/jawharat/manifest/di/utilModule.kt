@@ -1,8 +1,8 @@
 package com.jawharat.manifest.di
 
 import com.github.javakeyring.Keyring
-import com.jawharat.manifest.presentation.feature.home.camera.IWebCam
-import com.jawharat.manifest.presentation.feature.home.camera.WebCam
+import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
+import com.jawharat.manifest.presentation.feature.home.camera.CameraManager
 import com.jawharat.manifest.presentation.feature.home.scanner.DocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.utils.IKeyringProvider
@@ -18,5 +18,5 @@ val utilModule = module {
 
     single<IDocumentScanner> { DocumentScanner() }
 
-    single<IWebCam> { WebCam() }
+    single<ICameraManager> { CameraManager() }
 }

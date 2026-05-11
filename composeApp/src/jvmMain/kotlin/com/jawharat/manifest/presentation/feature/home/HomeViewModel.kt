@@ -8,7 +8,7 @@ import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
-import com.jawharat.manifest.presentation.feature.home.camera.IWebCam
+import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
@@ -16,6 +16,7 @@ import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_logout
 import com.jawharat.manifest.domain.entity.PersonDocument
+import com.jawharat.manifest.presentation.feature.home.camera.utils.processImage
 import com.jawharat.manifest.utils.Platform
 import com.jawharat.manifest.utils.allCountries
 import com.jawharat.manifest.utils.currentPlatform
@@ -38,7 +39,7 @@ class HomeViewModel(
     private val manifestRepository: ManifestRepository,
     private val documentScanner: IDocumentScanner,
     private val snackBarHostState: AppSnackBarHostState,
-    private val webcam: IWebCam,
+    private val webcam: ICameraManager,
     ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState(), ioDispatcher) {
 
@@ -46,13 +47,31 @@ class HomeViewModel(
     private var isAnalyzingId = false
     private var lastSuccessQrCode: String? = null
     private var scannedPersonDocument: PersonDocument? = null
+    private var processingJob: Job? = null
+
+    fun startProcessing() {
+        println("[LIFECYCLE] Cancelling previous job: ${processingJob?.isActive}")
+        processingJob?.cancel()
+        processingJob = viewModelScope.launch {
+            println("[LIFECYCLE] New processing coroutine started")
+            webcam.frameFlow.collect { image ->
+                processImage(image = image, ::onQrCodeResult)
+            }
+        }
+    }
+
+    fun stopProcessing() {
+        println("[LIFECYCLE] Stopping, job active: ${processingJob?.isActive}")
+        processingJob?.cancel()
+        processingJob = null
+    }
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         initializeUserInformation()
         if (currentPlatform != Platform.MacOS) {
             viewModelScope.launch {
-                webcam.start(::onQrCodeResult, onCameraReady = {})
+                webcam.start()
             }
         }
         startDocumentScanner()
@@ -316,5 +335,6 @@ class HomeViewModel(
     fun onScreenDisposed() {
         webcam.stop()
         scanJob?.cancel()
+        stopProcessing()
     }
 }
