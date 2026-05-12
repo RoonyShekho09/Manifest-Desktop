@@ -27,7 +27,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-const val BASE_URL = "http://192.168.0.128/"
+const val BASE_URL = "https://manifest.jawharat-erbil.com/"
 
 val networkModule = module {
 
