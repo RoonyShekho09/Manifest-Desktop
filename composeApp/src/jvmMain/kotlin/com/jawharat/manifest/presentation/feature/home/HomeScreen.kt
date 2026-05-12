@@ -102,6 +102,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onLogout: () -> Unit)
     }
 
     DisposableEffect(Unit) {
+        viewModel.startProcessing()
         onDispose {
             viewModel.onScreenDisposed()
         }
