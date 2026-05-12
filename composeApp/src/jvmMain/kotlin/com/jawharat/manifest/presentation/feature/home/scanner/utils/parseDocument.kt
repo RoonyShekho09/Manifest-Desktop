@@ -12,7 +12,6 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
     if (lines.any { it.text.contains("Passport", ignoreCase = true) }) {
         return null
     }
-
     var fullName: StringBuilder? = null
     var documentId: String? = null
     var firstName = ""

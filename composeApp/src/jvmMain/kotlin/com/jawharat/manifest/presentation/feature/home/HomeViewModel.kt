@@ -4,22 +4,21 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.entity.Manifest
+import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
+import com.jawharat.manifest.presentation.feature.home.camera.utils.processImage
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_logout
-import com.jawharat.manifest.domain.entity.PersonDocument
-import com.jawharat.manifest.presentation.feature.home.camera.utils.processImage
-import com.jawharat.manifest.utils.Platform
 import com.jawharat.manifest.utils.allCountries
-import com.jawharat.manifest.utils.currentPlatform
 import com.jawharat.manifest.utils.displayPdf
 import com.jawharat.manifest.utils.orZero
 import com.jawharat.manifest.utils.print.PrintContent
@@ -49,11 +48,18 @@ class HomeViewModel(
     private var scannedPersonDocument: PersonDocument? = null
     private var processingJob: Job? = null
 
+    init {
+        updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
+        initializeUserInformation()
+            viewModelScope.launch {
+                webcam.start()
+            }
+        startDocumentScanner()
+    }
+
     fun startProcessing() {
-        println("[LIFECYCLE] Cancelling previous job: ${processingJob?.isActive}")
         processingJob?.cancel()
         processingJob = viewModelScope.launch {
-            println("[LIFECYCLE] New processing coroutine started")
             webcam.frameFlow.collect { image ->
                 processImage(image = image, ::onQrCodeResult)
             }
@@ -61,20 +67,8 @@ class HomeViewModel(
     }
 
     fun stopProcessing() {
-        println("[LIFECYCLE] Stopping, job active: ${processingJob?.isActive}")
         processingJob?.cancel()
         processingJob = null
-    }
-
-    init {
-        updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
-        initializeUserInformation()
-        if (currentPlatform != Platform.MacOS) {
-            viewModelScope.launch {
-                webcam.start()
-            }
-        }
-        startDocumentScanner()
     }
 
     fun onConfirmPrintManifest(id: String, year: String) {
@@ -135,8 +129,9 @@ class HomeViewModel(
 
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
-        block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
-        onSuccess = ::onOcrResult,
+        block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
+        onSuccess = { result -> onOcrResult(extractFromId(result)) },
+        //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
         onCompleted = { isAnalyzingId = false }
     )
 
