@@ -145,22 +145,20 @@ class DocumentScanner(private val deviceProvider: () -> DocumentReaderDevice? = 
         }
     }
 
-    private fun stop() {
-        scope.launch {
-            stopMutex.withLock {
-                runCatching {
-                    device?.scanner?.let { scanner ->
-                        scanner.cleanUpLastPage()
-                        scanner.cleanUpData()
-                    }
-                    device?.close()
-                }.onFailure {
-                    println("Stop failed: $it")
+    private suspend fun stop() {
+        stopMutex.withLock {
+            runCatching {
+                device?.scanner?.let { scanner ->
+                    scanner.cleanUpLastPage()
+                    scanner.cleanUpData()
                 }
-                isDocumentPresent = false
-                liveTask?.Stop()
-                initialized = false
+                device?.close()
+            }.onFailure {
+                println("Stop failed: $it")
             }
+            isDocumentPresent = false
+            liveTask?.Stop()
+            initialized = false
         }
         scope.cancel()
     }

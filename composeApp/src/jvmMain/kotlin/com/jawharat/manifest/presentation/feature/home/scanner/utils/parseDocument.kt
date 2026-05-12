@@ -12,13 +12,13 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
     if (lines.any { it.text.contains("Passport", ignoreCase = true) }) {
         return null
     }
-    var fullName: StringBuilder? = null
+
+    var fullName: String? = null
     var documentId: String? = null
     var firstName = ""
     var fatherName = ""
     var grandfatherName = ""
     var surname = ""
-    var lastSeenLabel = ""
 
     val unassociatedText = mutableListOf<String>()
 
@@ -50,22 +50,15 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
 
         if (text.contains(":")) {
             val parts = text.split(":", limit = 2)
-            var label = parts[0].trim()
+            val label = parts[0].trim()
             val value = parts[1].trim()
-
-            if (label.isEmpty() && lastSeenLabel.isNotEmpty()) {
-                label = lastSeenLabel
-            }
 
             if (value.isNotBlank()) {
                 when {
                     label.contains("الاسم الكامل") || label.contains(
-                        "Full NAME",
+                        "Full Name",
                         true
-                    ) -> {
-                        println("value: $value")
-                        fullName = StringBuilder(value)
-                    }
+                    ) -> fullName = value
 
                     label.containsAny("الاسم", "الأسم") && !label.contains("الام") -> firstName =
                         value
@@ -75,38 +68,9 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
                     label.contains("اللقب") || label.contains("التقب") -> surname = value
                 }
             }
-            lastSeenLabel = ""
         } else {
-            val keys = listOf(
-                "الاسم",
-                "الأسم",
-                "الاب",
-                "الأب",
-                "الجد",
-                "اللقب",
-                "التقب",
-                "ناو",
-                "Full NAME"
-            )
-
-            if (keys.any { text.contains(it, ignoreCase = true) }) {
-                var cleanText = text
-                for (key in keys) {
-                    cleanText = cleanText.replace(key, "")
-                }
-                cleanText = cleanText.replace(Regex("""[^\p{L}\s]"""), "").trim()
-
-                if (cleanText.isNotBlank()) {
-                    if (fullName == null)
-                        fullName = StringBuilder(cleanText)
-                    else
-                        fullName.append(" $cleanText")
-                }
-
-                lastSeenLabel = text
-            }
-
             val isBoilerplate = boilerplate.any { text.contains(it, ignoreCase = true) }
+
             val isOnlyArabicLetters = text.matches(Regex("""^[\p{IsArabic}\s]+$"""))
 
             if (!isBoilerplate && isOnlyArabicLetters) {
@@ -121,7 +85,7 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
             .joinToString(" ")
 
         if (combinedName.isNotBlank()) {
-            fullName = StringBuilder(combinedName)
+            fullName = combinedName
         }
     }
 
@@ -132,7 +96,7 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
         }
 
         if (possibleNames.isNotEmpty()) {
-            fullName = StringBuilder(possibleNames.maxByOrNull { it.split("\\s+".toRegex()).size })
+            fullName = possibleNames.maxByOrNull { it.split("\\s+".toRegex()).size }
         }
     }
 
@@ -141,7 +105,7 @@ fun extractFromId(lines: List<OcrLine>?, fullNameMinimumLength: Int = 3): Person
     }
 
     return PersonDocument(
-        fullName = cleanName(fullName?.toString()?.ifEmpty { lastSeenLabel }.orEmpty()).orEmpty(),
+        fullName = cleanName(fullName.orEmpty()).orEmpty(),
         countryCode = "IQ",
         documentId = documentId.orEmpty(),
         gender = "",
