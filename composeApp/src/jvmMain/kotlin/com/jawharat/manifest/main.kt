@@ -18,20 +18,6 @@ import java.io.File
 import javax.swing.JOptionPane
 
 fun main() = application {
-
-    Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-        val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
-        val logFile = File(desktopPath, "MANIFEST_CRASH_LOG.txt")
-        logFile.writeText("Thread: ${thread.name}\n\n${throwable.stackTraceToString()}")
-
-        JOptionPane.showMessageDialog(
-            null,
-            "A fatal error occurred. Log saved to Desktop.",
-            "Manifest - Fatal Error",
-            JOptionPane.ERROR_MESSAGE
-        )
-    }
-
     startKoin {
         modules(
             networkModule,
