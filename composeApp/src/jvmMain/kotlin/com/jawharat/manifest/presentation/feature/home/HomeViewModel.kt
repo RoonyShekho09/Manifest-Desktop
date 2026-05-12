@@ -18,6 +18,7 @@ import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessI
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_logout
+import com.jawharat.manifest.resources.request_failed
 import com.jawharat.manifest.utils.allCountries
 import com.jawharat.manifest.utils.displayPdf
 import com.jawharat.manifest.utils.orZero
@@ -51,9 +52,9 @@ class HomeViewModel(
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         initializeUserInformation()
-            viewModelScope.launch {
-                webcam.start()
-            }
+        viewModelScope.launch {
+            webcam.start()
+        }
         startDocumentScanner()
     }
 
@@ -197,7 +198,10 @@ class HomeViewModel(
     fun logout() = tryToExecute(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
         block = authRepository::logout,
-        onCompleted = { emitEvent(HomeUiEvent.OnLogout) },
+        onCompleted = {
+            startProcessing()
+            emitEvent(HomeUiEvent.OnLogout)
+        },
         onError = {
             snackBarHostState.showFailure(
                 message = Res.string.failed_to_logout,
@@ -297,6 +301,8 @@ class HomeViewModel(
                     val from = manifest.from
                     copy(isVehicleBlockedDialogVisible = true, manifest = Manifest(from = from))
                 }
+            else
+                snackBarHostState.showFailure(Res.string.request_failed, viewModelScope)
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
@@ -323,6 +329,8 @@ class HomeViewModel(
                     val from = manifest.from
                     copy(isDriverBlockedDialogVisible = true, manifest = Manifest(from = from))
                 }
+            else
+                snackBarHostState.showFailure(Res.string.request_failed, viewModelScope)
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
