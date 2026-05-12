@@ -10,12 +10,12 @@ import com.jawharat.manifest.di.networkModule
 import com.jawharat.manifest.di.repositoryModule
 import com.jawharat.manifest.di.utilModule
 import com.jawharat.manifest.di.viewModelModule
+import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.ic_jawharat
 import com.jawharat.manifest.utils.painter
+import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
-import java.io.File
-import javax.swing.JOptionPane
 
 fun main() = application {
     startKoin {
@@ -28,8 +28,13 @@ fun main() = application {
         )
     }
 
+    val cameraManager = koinInject<ICameraManager>()
+
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = {
+            cameraManager.release()
+            exitApplication()
+        },
         title = "Manifest",
         resizable = true,
         icon = Res.drawable.ic_jawharat.painter,

@@ -197,10 +197,7 @@ class HomeViewModel(
 
     fun logout() = tryToExecute(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
-        block = authRepository::logout,
-        onCompleted = {
-            startProcessing()
-            emitEvent(HomeUiEvent.OnLogout)
+        block = authRepository::logout, onCompleted = { emitEvent(HomeUiEvent.OnLogout)
         },
         onError = {
             snackBarHostState.showFailure(

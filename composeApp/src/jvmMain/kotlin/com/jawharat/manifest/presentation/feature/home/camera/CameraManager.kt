@@ -1,5 +1,6 @@
 package com.jawharat.manifest.presentation.feature.home.camera
 
+import com.jawharat.manifest.utils.toUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ interface ICameraManager {
     val frameFlow: SharedFlow<BufferedImage>
     fun start()
     fun stop()
+    fun release()
 }
 
 class CameraManager : ICameraManager {
@@ -35,6 +37,7 @@ class CameraManager : ICameraManager {
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     override val frameFlow: SharedFlow<BufferedImage> = _frameFlow
+
     @OptIn(ExperimentalAtomicApi::class)
     private var isRunning = AtomicBoolean(false)
     var capture: VideoCapture? = null
@@ -103,6 +106,8 @@ class CameraManager : ICameraManager {
     override fun stop() {
         isRunning.store(false)
     }
+
+    override fun release() = capture?.release().toUnit()
 }
 
 sealed class QRResult {
