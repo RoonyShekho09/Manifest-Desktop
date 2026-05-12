@@ -221,7 +221,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                 Spacer(Modifier.height(48.dp))
 
                 Text(
-                    text = "V${BuildConfig.APP_VERSION.clearQuotes()}(${BuildConfig.BUILD_NUMBER})",
+                    text = "v${BuildConfig.APP_VERSION.clearQuotes()} (${BuildConfig.BUILD_NUMBER})",
                     style = MaterialTheme.typography.labelSmall
                 )
             }
