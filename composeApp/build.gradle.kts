@@ -13,7 +13,7 @@ plugins {
 
 val currentBuild = 1
 
-version = "1.0.0"
+version = "1.0.0-beta-01"
 
 buildConfig {
     buildConfigField("int", "BUILD_NUMBER", "$currentBuild")
