@@ -5,7 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.layout
@@ -71,4 +78,13 @@ fun Modifier.handClickable(
             onClick = onClick
         )
         .pointerHoverIcon(if (enabled) PointerIcon.Hand else PointerIcon.Default)
+}
+
+fun Modifier.moveFocusOnEnter(focusManager: FocusManager): Modifier = this.onKeyEvent {
+    if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
+        focusManager.moveFocus(FocusDirection.Next)
+        true
+    } else {
+        false
+    }
 }

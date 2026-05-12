@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jawharat.manifest.domain.entity.DispatchLine
@@ -50,6 +51,7 @@ import com.jawharat.manifest.resources.price
 import com.jawharat.manifest.resources.save_changes
 import com.jawharat.manifest.resources.vehicle_type
 import com.jawharat.manifest.utils.handPointerHover
+import com.jawharat.manifest.utils.moveFocusOnEnter
 import com.jawharat.manifest.utils.string
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,12 +90,15 @@ fun AddEditDispatchDialog(
         }
     }
 
+    val focusManager = LocalFocusManager.current
+
     LaunchedEffect(line, vehicleType) {
         val foundPrice = routes?.find { it.routeName == line.name }
             ?.prices?.find { it.type.displayName == vehicleType.name }
             ?.price?.toString()
         price = foundPrice.orEmpty()
     }
+
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
@@ -115,13 +120,15 @@ fun AddEditDispatchDialog(
 
                 AppTextField(
                     state = plateNumber,
-                    placeholder = Res.string.plate_number.string
+                    placeholder = Res.string.plate_number.string,
+                    modifier = Modifier.moveFocusOnEnter(focusManager)
                 )
 
                 AppTextField(
                     value = vehicleName,
                     placeholder = Res.string.vehicle_type.string,
-                    onValueChange = { vehicleName = it }
+                    onValueChange = { vehicleName = it },
+                    modifier = Modifier.moveFocusOnEnter(focusManager)
                 )
 
                 DropDownTextField(
@@ -135,7 +142,7 @@ fun AddEditDispatchDialog(
                     },
                     placeholder = Res.string.driver.string,
                     initialValue = driver.name,
-                    onSelect = { driver = it }
+                    onSelect = { driver = it },
                 )
 
                 DropDownTextField(
@@ -161,7 +168,8 @@ fun AddEditDispatchDialog(
                     onValueChange = {},
                     readOnly = true,
                     enabled = false,
-                    placeholder = Res.string.price.string
+                    placeholder = Res.string.price.string,
+                    modifier = Modifier.moveFocusOnEnter(focusManager)
                 )
 
                 HorizontalDivider()
