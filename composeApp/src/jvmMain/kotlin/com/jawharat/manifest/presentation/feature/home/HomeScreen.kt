@@ -304,7 +304,10 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         )
                         Box(
                             modifier = Modifier.matchParentSize()
-                                .handClickable(onClick = viewModel::onPassengerFieldClick)
+                                .handClickable(
+                                    onClick = viewModel::onPassengerFieldClick,
+                                    enabled = state.isAddPassengersEnabled
+                                )
                         )
                     }
                 }
