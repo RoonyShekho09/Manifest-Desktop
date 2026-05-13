@@ -1,5 +1,13 @@
 package com.jawharat.manifest.domain.repository
 
+import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.DispatchLine
+import com.jawharat.manifest.domain.entity.Dispatch
+import com.jawharat.manifest.domain.entity.DispatchQrResult
+import com.jawharat.manifest.domain.entity.DispatchSummary
+import com.jawharat.manifest.domain.entity.DriverQrResult
+import com.jawharat.manifest.domain.entity.OcrLine
 import com.jawharat.manifest.data.remote.model.PassengerRemote
 import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.domain.entity.manifest.DispatchLine
@@ -10,6 +18,7 @@ import com.jawharat.manifest.domain.entity.manifest.DriverQrResult
 import com.jawharat.manifest.domain.entity.ocr.OcrLine
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.UserInformation
+import com.jawharat.manifest.domain.entity.VehicleType
 import com.jawharat.manifest.domain.entity.manifest.VehicleType
 
 interface ManifestRepository {

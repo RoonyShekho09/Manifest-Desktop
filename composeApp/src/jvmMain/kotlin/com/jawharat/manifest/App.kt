@@ -33,6 +33,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.domain.entity.UpdateInfo
 import com.jawharat.manifest.domain.repository.AuthRepository
+import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
 import com.jawharat.manifest.presentation.navigation.AppNavigation
 import com.jawharat.manifest.presentation.navigation.Screen
 import com.jawharat.manifest.resources.Res
@@ -73,6 +74,11 @@ fun App() {
     }
 
     if (state.isForcedUpdate) return
+
+    val webcam = koinInject<ICameraManager>()
+    LaunchedEffect(Unit) {
+        webcam.start()
+    }
 
     MaterialTheme {
         CompositionLocalProvider(

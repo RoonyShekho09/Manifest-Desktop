@@ -2,9 +2,11 @@ package com.jawharat.manifest.presentation.feature.home
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
+import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.domain.entity.Manifest
+import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.data.remote.model.PassengerRemote
 import com.jawharat.manifest.domain.entity.manifest.Manifest
-import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
