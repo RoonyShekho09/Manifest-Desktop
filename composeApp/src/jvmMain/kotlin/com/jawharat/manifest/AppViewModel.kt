@@ -30,6 +30,7 @@ class AppViewModel(
             updateState {
                 copy(
                     isDialogVisible = it.latestBuild > currentBuild,
+                    isUpdateAvailable = it.latestBuild > currentBuild,
                     isForcedUpdate = it.isForced || it.minBuild > currentBuild,
                 )
             }
@@ -44,4 +45,5 @@ data class AppUiState(
     val isForcedUpdate: Boolean = false,
     val isUsedLoggedIn: Boolean = false,
     val hasSessionExpired: Boolean = false,
+    val isUpdateAvailable: Boolean = false,
 )

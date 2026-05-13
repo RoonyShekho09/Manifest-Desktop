@@ -3,8 +3,6 @@ package com.jawharat.manifest.di
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
 import com.jawharat.manifest.data.remote.service.ManifestApiService
-import com.jawharat.manifest.data.remote.service.AppPdfApiService
-import com.jawharat.manifest.data.remote.service.createAppPdfApiService
 import com.jawharat.manifest.data.remote.service.createManifestApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
 import de.jensklingenberg.ktorfit.converter.FlowConverterFactory

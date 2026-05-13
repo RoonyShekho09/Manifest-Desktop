@@ -1,5 +1,6 @@
 package com.jawharat.manifest.di
 
+import com.jawharat.manifest.AppViewModel
 import com.jawharat.manifest.presentation.feature.vehicles.DispatchesViewModel
 import com.jawharat.manifest.presentation.feature.drivers.DriversViewModel
 import com.jawharat.manifest.presentation.feature.home.HomeViewModel
@@ -13,4 +14,5 @@ val viewModelModule = module {
     viewModelOf(::LoginViewModel)
     viewModel { DriversViewModel(get(), get()) }
     viewModel { DispatchesViewModel(get()) }
+    viewModel { AppViewModel(get()) }
 }

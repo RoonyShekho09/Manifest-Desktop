@@ -2,7 +2,6 @@
 
 package com.jawharat.manifest
 
-import ManifestDesktop.composeApp.BuildConfig
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +19,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jawharat.manifest.domain.entity.UpdateInfo
-import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
 import com.jawharat.manifest.presentation.navigation.AppNavigation
 import com.jawharat.manifest.presentation.navigation.Screen
@@ -73,7 +71,7 @@ fun App() {
             )
     }
 
-    if (state.isForcedUpdate) return
+    if (state.isForcedUpdate && state.isUpdateAvailable) return
 
     val webcam = koinInject<ICameraManager>()
     LaunchedEffect(Unit) {
@@ -156,12 +154,3 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
         }
     )
 }
-
-private suspend fun getUpdatesInfo(repository: AuthRepository): UpdateInfo? = runCatching {
-    repository.getUpdateInfo(
-        versionFileUrl = "https://raw.githubusercontent.com/RoonyShekho09/Manifest-Desktop-Releases/refs/heads/main/buildNumber.txt"
-    )
-}.getOrNull()
-
-
-const val CURRENT_BUILD_NUMBER = BuildConfig.BUILD_NUMBER
