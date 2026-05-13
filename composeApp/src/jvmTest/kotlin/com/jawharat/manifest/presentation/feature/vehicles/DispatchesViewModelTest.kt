@@ -1,6 +1,6 @@
 package com.jawharat.manifest.presentation.feature.vehicles
 
-import com.jawharat.manifest.domain.entity.DispatchSummary
+import com.jawharat.manifest.domain.entity.manifest.DispatchSummary
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import io.mockk.coEvery
 import io.mockk.coVerify

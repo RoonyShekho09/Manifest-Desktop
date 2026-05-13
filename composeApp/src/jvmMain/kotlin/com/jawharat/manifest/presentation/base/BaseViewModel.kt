@@ -11,8 +11,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,8 +31,9 @@ abstract class BaseViewModel<S, E : Any>(
     val state: StateFlow<S>
         field = MutableStateFlow(initState)
 
-    private val _event = MutableSharedFlow<E?>()
-    open val event = _event.asSharedFlow()
+
+    val event: SharedFlow<E?>
+        field = MutableSharedFlow()
 
     protected fun <T> tryToExecute(
         block: suspend () -> T,
@@ -134,7 +135,7 @@ abstract class BaseViewModel<S, E : Any>(
 
     protected fun emitEvent(newEvent: E) {
         viewModelScope.launch(ioDispatcher) {
-            _event.emit(newEvent)
+            event.emit(newEvent)
         }
     }
 }

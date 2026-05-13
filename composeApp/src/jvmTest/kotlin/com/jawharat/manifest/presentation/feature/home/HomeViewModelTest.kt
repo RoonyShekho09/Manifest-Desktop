@@ -1,8 +1,8 @@
 package com.jawharat.manifest.presentation.feature.home
 
 import androidx.compose.foundation.text.input.TextFieldState
-import com.jawharat.manifest.domain.entity.DispatchQrResult
-import com.jawharat.manifest.domain.entity.DriverQrResult
+import com.jawharat.manifest.domain.entity.manifest.DispatchQrResult
+import com.jawharat.manifest.domain.entity.manifest.DriverQrResult
 import com.jawharat.manifest.domain.entity.UserInformation
 import com.jawharat.manifest.domain.entity.UserLocation
 import com.jawharat.manifest.domain.exceptions.NetworkException

@@ -1,7 +1,7 @@
 package com.jawharat.manifest.presentation.feature.home.scanner.utils
 
 import Pr22.Processing.Document
-import com.jawharat.manifest.domain.entity.OcrLine
+import com.jawharat.manifest.domain.entity.ocr.OcrLine
 import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.utils.containsAny
 

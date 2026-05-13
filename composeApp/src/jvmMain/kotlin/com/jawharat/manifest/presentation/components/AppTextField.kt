@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -199,18 +200,24 @@ private fun TextFieldDecorator(
         border = BorderStroke(
             width = 1.dp,
             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-        )
+        ),
+        modifier = Modifier.height(48.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.height(IntrinsicSize.Min)
+            modifier = Modifier.fillMaxSize()
         ) {
             if (leadingIcon != null) Spacer(Modifier.width(8.dp))
             leadingIcon?.invoke()
             if (leadingIcon != null) Spacer(Modifier.width(8.dp))
 
-            Box(modifier = Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                if (state.text.isBlank()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (state.text.isEmpty()) {
                     Text(
                         text = placeholder,
                         maxLines = 1,
@@ -224,16 +231,16 @@ private fun TextFieldDecorator(
             suffixText?.let {
                 Text(
                     text = it,
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     fontSize = 14.sp
                 )
             }
-            trailingIcon?.let {
+
+            if (trailingIcon != null) {
                 VerticalDivider(
                     modifier = Modifier
                         .fillHeightOfParent(8.dp)
-                        .padding()
-                        .fillMaxHeight(),
+                        .padding(vertical = 8.dp),
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                 )

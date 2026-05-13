@@ -3,7 +3,7 @@ package com.jawharat.manifest.presentation.feature.home
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.jawharat.manifest.domain.entity.Manifest
+import com.jawharat.manifest.domain.entity.manifest.Manifest
 import com.jawharat.manifest.domain.entity.UserLocation
 
 @Immutable

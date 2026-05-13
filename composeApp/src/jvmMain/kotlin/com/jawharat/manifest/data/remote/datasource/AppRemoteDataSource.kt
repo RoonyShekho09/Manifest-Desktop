@@ -6,7 +6,7 @@ import com.jawharat.manifest.data.remote.model.dispatches.DispatchQrCodeResponse
 import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.LineResponse
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
-import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.data.remote.model.PassengerRemote
 import com.jawharat.manifest.data.remote.model.PriceResponse
 import com.jawharat.manifest.data.remote.model.auth.UserInformationResponse
 import com.jawharat.manifest.data.remote.model.dispatches.DispatchRemote
@@ -29,7 +29,7 @@ interface AppRemoteDataSource {
         phoneNumber: String,
         to: String,
         price: Int,
-        passengers: List<Passenger>,
+        passengers: List<PassengerRemote>,
         driverId: String
     ): ByteArray
 

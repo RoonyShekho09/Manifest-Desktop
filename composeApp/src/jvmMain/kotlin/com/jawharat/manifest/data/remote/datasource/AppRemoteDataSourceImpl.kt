@@ -1,7 +1,7 @@
 package com.jawharat.manifest.data.remote.datasource
 
 import com.jawharat.manifest.data.remote.model.LineResponse
-import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.data.remote.model.PassengerRemote
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
@@ -16,7 +16,6 @@ import com.jawharat.manifest.di.BASE_URL
 import com.jawharat.manifest.domain.entity.UpdateInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.accept
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -86,7 +85,7 @@ class AppRemoteDataSourceImpl(
         phoneNumber: String,
         to: String,
         price: Int,
-        passengers: List<Passenger>,
+        passengers: List<PassengerRemote>,
         driverId: String,
     ): ByteArray {
         val response = pdfHttpClient.post(BASE_URL + "manifests") {

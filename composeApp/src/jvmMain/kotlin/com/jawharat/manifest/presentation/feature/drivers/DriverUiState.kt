@@ -1,7 +1,7 @@
 package com.jawharat.manifest.presentation.feature.drivers
 
 import androidx.compose.runtime.Immutable
-import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.presentation.feature.shared.SearchState
 import kotlinx.collections.immutable.*
 

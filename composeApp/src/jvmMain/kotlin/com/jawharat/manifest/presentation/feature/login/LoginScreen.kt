@@ -129,9 +129,8 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            if (state.isLoading) {
+            if (state.isLoading)
                 CircularProgressIndicator(modifier = Modifier.zIndex(1f))
-            }
 
             Column(
                 modifier = Modifier
@@ -157,7 +156,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                 AppTextField(
                     state = state.emailState,
                     modifier = Modifier.fillMaxWidth()
-                        .height(60.dp)
+                        .height(56.dp)
                         .moveFocusOnEnter(focusManager),
                     placeholder = Res.string.username.string,
                     leadingIcon = {
@@ -171,7 +170,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                     state = state.passwordState,
                     placeholder = Res.string.password.string,
                     modifier = Modifier.fillMaxWidth()
-                        .height(60.dp)
+                        .height(56.dp)
                         .onKeyEvent {
                             if (it.key == Key.Enter && state.isLoginEnabled) {
                                 viewModel.login()

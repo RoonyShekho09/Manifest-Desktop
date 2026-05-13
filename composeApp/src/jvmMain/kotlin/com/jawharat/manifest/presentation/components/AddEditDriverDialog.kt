@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.add_new_driver
 import com.jawharat.manifest.resources.cancel

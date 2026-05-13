@@ -83,7 +83,6 @@ val networkModule = module {
 
     single(named("ocrClient")) {
         HttpClient(CIO) {
-
             val localDataSource: AppLocalDataSource by inject<AppLocalDataSource>()
 
             defaultRequest {

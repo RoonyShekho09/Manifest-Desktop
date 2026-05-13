@@ -2,8 +2,8 @@ package com.jawharat.manifest.presentation.feature.home
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
-import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.domain.entity.Manifest
+import com.jawharat.manifest.data.remote.model.PassengerRemote
+import com.jawharat.manifest.domain.entity.manifest.Manifest
 import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
@@ -222,7 +222,7 @@ class HomeViewModel(
                 to = state.value.manifest.to,
                 price = state.value.manifest.price.orZero(),
                 passengers = state.value.passengers.map {
-                    Passenger(
+                    PassengerRemote(
                         id = it.id.text.toString(),
                         name = it.name.text.toString(),
                         nationality = it.countryCode.text.toString(),
