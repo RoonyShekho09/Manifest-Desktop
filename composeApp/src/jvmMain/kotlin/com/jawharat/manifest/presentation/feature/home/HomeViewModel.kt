@@ -4,30 +4,34 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.jawharat.manifest.data.remote.model.Passenger
 import com.jawharat.manifest.domain.entity.Manifest
+import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
-import com.jawharat.manifest.presentation.feature.home.camera.IWebCam
+import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
+import com.jawharat.manifest.presentation.feature.home.camera.utils.processImage
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
+import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
 import com.jawharat.manifest.resources.failed_to_logout
-import com.jawharat.manifest.domain.entity.PersonDocument
-import com.jawharat.manifest.utils.Platform
+import com.jawharat.manifest.resources.request_failed
 import com.jawharat.manifest.utils.allCountries
-import com.jawharat.manifest.utils.currentPlatform
 import com.jawharat.manifest.utils.displayPdf
 import com.jawharat.manifest.utils.orZero
 import com.jawharat.manifest.utils.print.PrintContent
 import com.jawharat.manifest.utils.print.printContent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,7 +42,7 @@ class HomeViewModel(
     private val manifestRepository: ManifestRepository,
     private val documentScanner: IDocumentScanner,
     private val snackBarHostState: AppSnackBarHostState,
-    private val webcam: IWebCam,
+    private val webcam: ICameraManager,
     ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel<HomeUiState, HomeUiEvent>(HomeUiState(), ioDispatcher) {
 
@@ -46,16 +50,29 @@ class HomeViewModel(
     private var isAnalyzingId = false
     private var lastSuccessQrCode: String? = null
     private var scannedPersonDocument: PersonDocument? = null
+    private var processingJob: Job? = null
 
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         initializeUserInformation()
-        if (currentPlatform != Platform.MacOS) {
-            viewModelScope.launch {
-                webcam.start(::onQrCodeResult, onCameraReady = {})
-            }
-        }
         startDocumentScanner()
+    }
+
+    @OptIn(FlowPreview::class)
+    fun startProcessing() {
+        processingJob?.cancel()
+        processingJob = viewModelScope.launch {
+            webcam.frameFlow
+                .sample(500)
+                .collectLatest { image ->
+                    processImage(image = image, ::onQrCodeResult)
+                }
+        }
+    }
+
+    fun stopProcessing() {
+        processingJob?.cancel()
+        processingJob = null
     }
 
     fun onConfirmPrintManifest(id: String, year: String) {
@@ -116,8 +133,9 @@ class HomeViewModel(
 
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
-        block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
-        onSuccess = ::onOcrResult,
+        block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
+        onSuccess = { result -> onOcrResult(extractFromId(result)) },
+        //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
         onCompleted = { isAnalyzingId = false }
     )
 
@@ -182,8 +200,9 @@ class HomeViewModel(
 
     fun logout() = tryToExecute(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
-        block = authRepository::logout,
-        onCompleted = { emitEvent(HomeUiEvent.OnLogout) },
+        block = authRepository::logout, onCompleted = {
+            emitEvent(HomeUiEvent.OnLogout)
+        },
         onError = {
             snackBarHostState.showFailure(
                 message = Res.string.failed_to_logout,
@@ -283,6 +302,8 @@ class HomeViewModel(
                     val from = manifest.from
                     copy(isVehicleBlockedDialogVisible = true, manifest = Manifest(from = from))
                 }
+            else
+                snackBarHostState.showFailure(Res.string.request_failed, viewModelScope)
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
@@ -309,12 +330,15 @@ class HomeViewModel(
                     val from = manifest.from
                     copy(isDriverBlockedDialogVisible = true, manifest = Manifest(from = from))
                 }
+            else
+                snackBarHostState.showFailure(Res.string.request_failed, viewModelScope)
         },
         onCompleted = { updateState { copy(isLoading = false) } }
     )
 
     fun onScreenDisposed() {
-        webcam.stop()
+        webcam.clean()
         scanJob?.cancel()
+        stopProcessing()
     }
 }

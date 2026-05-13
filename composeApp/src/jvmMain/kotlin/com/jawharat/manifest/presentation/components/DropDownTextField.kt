@@ -28,13 +28,13 @@ import com.jawharat.manifest.presentation.feature.vehicles.DispatchData
 @Composable
 fun DropDownTextField(
     value: DispatchData,
-    query: TextFieldState = rememberTextFieldState(),
-    onQueryChange: (String) -> Unit = {},
     data: List<DispatchData>,
     placeholder: String,
     initialValue: String,
+    query: TextFieldState = rememberTextFieldState(),
     readOnly: Boolean = false,
     onSelect: (DispatchData) -> Unit,
+    onQueryChange: (String) -> Unit = {},
 ) {
     var isDropDownExpanded by remember { mutableStateOf(false) }
     var justSelected by remember { mutableStateOf(false) }

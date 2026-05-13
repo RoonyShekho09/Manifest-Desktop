@@ -129,9 +129,13 @@ class ManifestRepositoryImpl(
         remoteDataSource.scanDispatchQrCode(id).toDomain()
     }
 
-    override suspend fun ocr(image: String) = authorizedCall {
-        remoteDataSource.ocr(image).toDomain()
+    override suspend fun ocrSpace(image: String, engine: String) = authorizedCall {
+        remoteDataSource.ocr(
+            image,
+            engine
+        ).parsedResults?.firstOrNull()?.textOverlay?.lines?.toDomain()
     }
+
 
     override suspend fun getPrice(locationId: String) = authorizedCall {
         remoteDataSource.getPrice(locationId).priceMatrix?.toDomain()

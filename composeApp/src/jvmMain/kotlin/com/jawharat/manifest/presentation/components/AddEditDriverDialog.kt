@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jawharat.manifest.domain.entity.Driver
@@ -37,6 +38,7 @@ import com.jawharat.manifest.resources.driver_phone_number
 import com.jawharat.manifest.resources.edit_driver_details
 import com.jawharat.manifest.resources.save_changes
 import com.jawharat.manifest.utils.handPointerHover
+import com.jawharat.manifest.utils.moveFocusOnEnter
 import com.jawharat.manifest.utils.string
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +63,8 @@ fun AddEditDriverDialog(
         }
     }
 
+    val focusManager = LocalFocusManager.current
+
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -81,24 +85,28 @@ fun AddEditDriverDialog(
 
                 AppTextField(
                     state = driverIdState,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = Res.string.driver_id_number.string
+                    modifier = Modifier.fillMaxWidth()
+                        .moveFocusOnEnter(focusManager),
+                    placeholder = Res.string.driver_id_number.string,
                 )
 
                 AppTextField(
                     state = driverNameState,
                     placeholder = Res.string.driver.string,
+                    modifier = Modifier.moveFocusOnEnter(focusManager)
                 )
 
                 AppTextField(
                     state = phoneNumberState,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = Res.string.driver_phone_number.string
+                    modifier = Modifier.fillMaxWidth()
+                        .moveFocusOnEnter(focusManager),
+                    placeholder = Res.string.driver_phone_number.string,
                 )
 
                 AppTextField(
                     state = destinationState,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .moveFocusOnEnter(focusManager),
                     placeholder = Res.string.destination.string
                 )
 

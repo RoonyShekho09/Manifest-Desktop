@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jawharat.manifest.presentation.components.AppTextField
@@ -46,6 +48,7 @@ import com.jawharat.manifest.resources.id_placeholder
 import com.jawharat.manifest.resources.save_changes
 import com.jawharat.manifest.utils.allCountries
 import com.jawharat.manifest.utils.handClickable
+import com.jawharat.manifest.utils.moveFocusOnEnter
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
 
@@ -106,6 +109,8 @@ fun AddPassengersDialog(
 
                 Spacer(Modifier.height(8.dp))
 
+                val focusManager = LocalFocusManager.current
+
                 LazyColumn(
                     modifier = Modifier.heightIn(max = 300.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -124,14 +129,17 @@ fun AddPassengersDialog(
                             Box(modifier = Modifier.weight(1f)) {
                                 AppTextField(
                                     state = passenger.id,
-                                    readOnly = !passenger.isEditable
+                                    readOnly = !passenger.isEditable,
+                                    keyboardOptions = KeyboardOptions(),
+                                    modifier = Modifier.moveFocusOnEnter(focusManager)
                                 )
                             }
 
                             Box(modifier = Modifier.weight(1f)) {
                                 AppTextField(
                                     state = passenger.name,
-                                    readOnly = !passenger.isEditable
+                                    readOnly = !passenger.isEditable,
+                                    modifier = Modifier.moveFocusOnEnter(focusManager)
                                 )
                             }
 
@@ -142,6 +150,7 @@ fun AddPassengersDialog(
                                             state = passenger.countryCode,
                                             readOnly = !passenger.isEditable,
                                             modifier = Modifier.fillMaxWidth()
+                                                .moveFocusOnEnter(focusManager)
                                         )
 
                                         Box(

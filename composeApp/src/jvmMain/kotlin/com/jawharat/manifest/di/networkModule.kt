@@ -27,7 +27,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-const val BASE_URL = "http://192.168.0.128/"
+const val BASE_URL = "https://manifest.jawharat-erbil.com/"
 
 val networkModule = module {
 
@@ -46,17 +46,39 @@ val networkModule = module {
         }.createManifestApiService()
     }
 
-    single<AppPdfApiService> {
-        ktorfit {
-            baseUrl(url = BASE_URL)
-            httpClient(client = get(named("pdfClient")))
+    single(named("ocrSpaceClient")) {
+        HttpClient(CIO) {
+            expectSuccess = false
+            followRedirects = true
 
-            converterFactories(
-                FlowConverterFactory(),
-                CallConverterFactory(),
-                ResponseConverterFactory()
-            )
-        }.createAppPdfApiService()
+            defaultRequest {
+                header("Content-Type", "application/json")
+            }
+
+            val json = Json {
+                isLenient = true
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+                explicitNulls = false
+                encodeDefaults = true
+            }
+
+            install(ContentNegotiation) {
+                json(json, ContentType.Application.Json)
+            }
+
+            install(DefaultRequest) {
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+
+            install(Logging) {
+                level = LogLevel.BODY
+                logger = object : Logger {
+                    override fun log(message: String) =
+                        println("HttpClient $message")
+                }
+            }
+        }
     }
 
     single(named("ocrClient")) {

@@ -39,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
@@ -63,6 +62,7 @@ import com.jawharat.manifest.resources.password
 import com.jawharat.manifest.resources.username
 import com.jawharat.manifest.utils.Listen
 import com.jawharat.manifest.utils.handPointerHover
+import com.jawharat.manifest.utils.moveFocusOnEnter
 import com.jawharat.manifest.utils.painter
 import com.jawharat.manifest.utils.string
 import org.koin.ext.clearQuotes
@@ -158,13 +158,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                     state = state.emailState,
                     modifier = Modifier.fillMaxWidth()
                         .height(60.dp)
-                        .onKeyEvent {
-                            if (it.key == Key.Enter) {
-                                focusManager.moveFocus(FocusDirection.Next)
-                                true
-                            } else
-                                false
-                        },
+                        .moveFocusOnEnter(focusManager),
                     placeholder = Res.string.username.string,
                     leadingIcon = {
                         Icon(painter = Res.drawable.ic_mail.painter, null, tint = Color.Gray)
@@ -227,7 +221,7 @@ fun Content(state: LoginUiState, viewModel: LoginViewModel) {
                 Spacer(Modifier.height(48.dp))
 
                 Text(
-                    text = "V${BuildConfig.APP_VERSION.clearQuotes()}(${BuildConfig.BUILD_NUMBER})",
+                    text = "v${BuildConfig.APP_VERSION.clearQuotes()} (${BuildConfig.BUILD_NUMBER})",
                     style = MaterialTheme.typography.labelSmall
                 )
             }

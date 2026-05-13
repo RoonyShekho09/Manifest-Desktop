@@ -38,3 +38,5 @@ fun String.normalizeArabicKurdish(): String = run {
 fun String.containsAny(vararg other: String): Boolean = other.any { contains(it) }
 
 fun Int?.orZero() = this ?: 0
+
+fun Unit?.toUnit() = Unit

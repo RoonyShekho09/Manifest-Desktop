@@ -26,6 +26,9 @@ data class HomeUiState(
                 manifest.plateNumber.isNotEmpty() && manifest.driverName.isNotEmpty() &&
                 manifest.driverId.isNotEmpty() && manifest.driverPhoneNumber.isNotEmpty()
                 && (passengers.isNotEmpty() || manifest.price == 10000)
+
+    val isAddPassengersEnabled: Boolean
+        get() = manifest.price != null && manifest.price != 10000
 }
 
 @Stable
