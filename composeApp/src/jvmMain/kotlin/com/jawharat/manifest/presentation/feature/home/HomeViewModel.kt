@@ -26,9 +26,12 @@ import com.jawharat.manifest.utils.print.PrintContent
 import com.jawharat.manifest.utils.print.printContent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,18 +55,18 @@ class HomeViewModel(
     init {
         updateState { copy(isDocumentScanningSoftwareInstalled = documentScanner.isSoftwareInstalled) }
         initializeUserInformation()
-        viewModelScope.launch {
-            webcam.start()
-        }
         startDocumentScanner()
     }
 
+    @OptIn(FlowPreview::class)
     fun startProcessing() {
         processingJob?.cancel()
         processingJob = viewModelScope.launch {
-            webcam.frameFlow.collect { image ->
-                processImage(image = image, ::onQrCodeResult)
-            }
+            webcam.frameFlow
+                .sample(500)
+                .collectLatest { image ->
+                    processImage(image = image, ::onQrCodeResult)
+                }
         }
     }
 
@@ -197,7 +200,8 @@ class HomeViewModel(
 
     fun logout() = tryToExecute(
         onStart = { updateState { copy(isLogoutConfirmationVisible = false) } },
-        block = authRepository::logout, onCompleted = { emitEvent(HomeUiEvent.OnLogout)
+        block = authRepository::logout, onCompleted = {
+            emitEvent(HomeUiEvent.OnLogout)
         },
         onError = {
             snackBarHostState.showFailure(
@@ -333,7 +337,7 @@ class HomeViewModel(
     )
 
     fun onScreenDisposed() {
-        webcam.stop()
+        webcam.clean()
         scanJob?.cancel()
         stopProcessing()
     }

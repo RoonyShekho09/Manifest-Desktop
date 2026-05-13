@@ -46,19 +46,6 @@ val networkModule = module {
         }.createManifestApiService()
     }
 
-    single<AppPdfApiService> {
-        ktorfit {
-            baseUrl(url = BASE_URL)
-            httpClient(client = get(named("pdfClient")))
-
-            converterFactories(
-                FlowConverterFactory(),
-                CallConverterFactory(),
-                ResponseConverterFactory()
-            )
-        }.createAppPdfApiService()
-    }
-
     single(named("ocrSpaceClient")) {
         HttpClient(CIO) {
             expectSuccess = false
