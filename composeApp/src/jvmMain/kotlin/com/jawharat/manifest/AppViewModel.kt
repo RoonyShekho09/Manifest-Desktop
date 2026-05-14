@@ -1,5 +1,6 @@
 package com.jawharat.manifest
 
+import ManifestDesktop.composeApp.BuildConfig
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,7 +21,7 @@ class AppViewModel(
         }
     }
 
-    fun checkAppUpdates(currentBuild: Int = 1) = tryToExecute(
+    private fun checkAppUpdates(currentBuild: Int = BuildConfig.BUILD_NUMBER) = tryToExecute(
         block = {
             repository.getUpdateInfo(
                 versionFileUrl = "https://raw.githubusercontent.com/RoonyShekho09/Manifest-Desktop-Releases/refs/heads/main/buildNumber.txt"
