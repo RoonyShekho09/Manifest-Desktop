@@ -11,9 +11,9 @@ plugins {
     alias(libs.plugins.buildConfig)
 }
 
-val currentBuild = 1
+val currentBuild = 2
 
-version = "1.0.0-beta-01"
+version = "1.0.0-beta-02"
 
 buildConfig {
     buildConfigField("int", "BUILD_NUMBER", "$currentBuild")

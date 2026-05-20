@@ -1,13 +1,13 @@
 package com.jawharat.manifest.domain.repository
 
 import com.jawharat.manifest.data.remote.model.PassengerRemote
+import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.domain.entity.manifest.DispatchLine
 import com.jawharat.manifest.domain.entity.manifest.Dispatch
 import com.jawharat.manifest.domain.entity.manifest.DispatchQrResult
 import com.jawharat.manifest.domain.entity.manifest.DispatchSummary
 import com.jawharat.manifest.domain.entity.manifest.DriverQrResult
-import com.jawharat.manifest.domain.entity.ocr.OcrLine
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.UserInformation
 import com.jawharat.manifest.domain.entity.manifest.VehicleType
@@ -65,7 +65,7 @@ interface ManifestRepository {
 
     suspend fun getLines(fetch: Boolean = true): List<DispatchLine>
     suspend fun getVehicleTypes(fetch: Boolean = true): List<VehicleType>
-    suspend fun ocrSpace(image: String, engine: String = "2"): List<OcrLine>?
+    suspend fun ocr(image: String): PersonDocument
     suspend fun getPrice(locationId: String): List<Route>?
     suspend fun getUserInformation(): UserInformation
 }

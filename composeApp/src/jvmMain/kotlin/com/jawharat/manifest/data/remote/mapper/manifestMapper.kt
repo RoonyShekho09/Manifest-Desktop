@@ -10,7 +10,8 @@ import com.jawharat.manifest.data.remote.model.dispatches.DispatchResponse
 import com.jawharat.manifest.data.remote.model.dispatches.VehicleRemote
 import com.jawharat.manifest.data.remote.model.drivers.DriverQrCodeResponse
 import com.jawharat.manifest.data.remote.model.drivers.DriverResponse
-import com.jawharat.manifest.data.remote.model.ocr.Line
+import com.jawharat.manifest.data.remote.model.ocr.OcrResponse
+import com.jawharat.manifest.domain.entity.PersonDocument
 import com.jawharat.manifest.domain.entity.manifest.Dispatch
 import com.jawharat.manifest.domain.entity.manifest.DispatchLine
 import com.jawharat.manifest.domain.entity.manifest.DispatchQrResult
@@ -18,7 +19,6 @@ import com.jawharat.manifest.domain.entity.manifest.DispatchSummary
 import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.domain.entity.manifest.DriverInformation
 import com.jawharat.manifest.domain.entity.manifest.DriverQrResult
-import com.jawharat.manifest.domain.entity.ocr.OcrLine
 import com.jawharat.manifest.domain.entity.manifest.Office
 import com.jawharat.manifest.domain.entity.Route
 import com.jawharat.manifest.domain.entity.UserInformation
@@ -26,7 +26,6 @@ import com.jawharat.manifest.domain.entity.UserLocation
 import com.jawharat.manifest.domain.entity.Vehicle
 import com.jawharat.manifest.domain.entity.VehiclePrice
 import com.jawharat.manifest.domain.entity.manifest.VehicleType
-import com.jawharat.manifest.domain.entity.ocr.OcrWord
 import com.jawharat.manifest.utils.orZero
 
 @JvmName("vehicleToDomain")
@@ -133,20 +132,10 @@ fun DispatchRemote.toDomain() =
         line = line.orEmpty(),
     )
 
-
-fun List<Line>.toDomain() = map { it.toDomain() }
-
-fun Line.toDomain() = OcrLine(
-    text = lineText.orEmpty(),
-    maxHeight = maxHeight,
-    minTop = minTop,
-    ocrWords = words.map {
-        OcrWord(
-            height = it.height,
-            left = it.left,
-            top = it.top,
-            width = it.width,
-            wordText = it.wordText
-        )
-    }
+fun OcrResponse.toDomain() = PersonDocument(
+    fullName = fullname.orEmpty(),
+    countryCode = "",
+    documentId = documentId.orEmpty(),
+    gender = "",
+    nationality = nationality.orEmpty()
 )

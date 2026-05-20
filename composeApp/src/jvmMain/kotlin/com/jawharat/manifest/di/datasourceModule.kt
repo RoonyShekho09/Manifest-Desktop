@@ -17,7 +17,7 @@ val dataSourceModule = module {
             manifestApiService = get(),
             pdfHttpClient = get(named("pdfClient")),
             checkUpdatesClient = get(named("checkUpdatesClient")),
-            ocrSpaceClient = get(named("ocrSpaceClient")),
+            ocrClient = get(named("ocrClient")),
         )
     }
     single<AuthProxy> { AuthProxyImpl(get(), get()) }

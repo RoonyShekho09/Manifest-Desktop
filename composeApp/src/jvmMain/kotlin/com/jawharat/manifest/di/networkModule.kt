@@ -44,41 +44,6 @@ val networkModule = module {
         }.createManifestApiService()
     }
 
-    single(named("ocrSpaceClient")) {
-        HttpClient(CIO) {
-            expectSuccess = false
-            followRedirects = true
-
-            defaultRequest {
-                header("Content-Type", "application/json")
-            }
-
-            val json = Json {
-                isLenient = true
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-                explicitNulls = false
-                encodeDefaults = true
-            }
-
-            install(ContentNegotiation) {
-                json(json, ContentType.Application.Json)
-            }
-
-            install(DefaultRequest) {
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-            }
-
-            install(Logging) {
-                level = LogLevel.BODY
-                logger = object : Logger {
-                    override fun log(message: String) =
-                        println("HttpClient $message")
-                }
-            }
-        }
-    }
-
     single(named("ocrClient")) {
         HttpClient(CIO) {
             val localDataSource: AppLocalDataSource by inject<AppLocalDataSource>()

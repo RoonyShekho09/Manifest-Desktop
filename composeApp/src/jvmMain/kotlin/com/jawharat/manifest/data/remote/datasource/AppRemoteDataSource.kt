@@ -69,7 +69,7 @@ interface AppRemoteDataSource {
 
     suspend fun getLines(): List<LineResponse>
     suspend fun getVehicleTypes(): List<VehicleRemote>
-    suspend fun ocr(image: String, engine: String): OcrResponse
+    suspend fun ocr(image: String): OcrResponse
     suspend fun getPrice(locationId: String): PriceResponse
     suspend fun getUserInformation(): UserInformationResponse
     suspend fun getUpdateInfo(versionFileUrl: String): UpdateInfo

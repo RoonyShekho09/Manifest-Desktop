@@ -13,7 +13,6 @@ import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
 import com.jawharat.manifest.presentation.feature.home.camera.utils.processImage
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
@@ -133,9 +132,8 @@ class HomeViewModel(
 
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
-        block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
-        onSuccess = { result -> onOcrResult(extractFromId(result)) },
-        //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
+        block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
+        onSuccess = ::onOcrResult,
         onCompleted = { isAnalyzingId = false }
     )
 
