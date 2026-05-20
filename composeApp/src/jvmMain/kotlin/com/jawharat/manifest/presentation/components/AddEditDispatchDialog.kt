@@ -31,10 +31,10 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.jawharat.manifest.domain.entity.DispatchLine
-import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.manifest.DispatchLine
+import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.domain.entity.Route
-import com.jawharat.manifest.domain.entity.VehicleType
+import com.jawharat.manifest.domain.entity.manifest.VehicleType
 import com.jawharat.manifest.presentation.feature.shared.SearchState
 import com.jawharat.manifest.presentation.feature.vehicles.DispatchData
 import com.jawharat.manifest.presentation.feature.vehicles.DispatchUiState

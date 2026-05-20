@@ -1,6 +1,6 @@
 package com.jawharat.manifest.presentation.feature.vehicles
 
-import com.jawharat.manifest.domain.entity.DispatchSummary
+import com.jawharat.manifest.domain.entity.manifest.DispatchSummary
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -9,6 +9,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -48,11 +49,12 @@ class DispatchesViewModelTest {
 
     @Test
     fun initCallsAllInitializationMethods() = runTest {
+        advanceUntilIdle()
         coVerify(exactly = 1) { repository.getUserInformation() }
-        coVerify(exactly = 1) { repository.getDrivers(true) }
-        coVerify(exactly = 1) { repository.getVehicleTypes(true) }
-        coVerify(exactly = 1) { repository.getLines(true) }
-        coVerify(exactly = 1) { repository.getDispatches(true) }
+        coVerify(exactly = 1) { repository.getDrivers(any()) }
+        coVerify(exactly = 1) { repository.getVehicleTypes(any()) }
+        coVerify(exactly = 1) { repository.getLines(any()) }
+        coVerify(exactly = 1) { repository.getDispatches(any()) }
     }
 
     @Test

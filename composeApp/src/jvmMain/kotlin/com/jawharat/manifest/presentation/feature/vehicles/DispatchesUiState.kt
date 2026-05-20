@@ -2,11 +2,11 @@ package com.jawharat.manifest.presentation.feature.vehicles
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.jawharat.manifest.domain.entity.DispatchLine
-import com.jawharat.manifest.domain.entity.Dispatch
-import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.manifest.DispatchLine
+import com.jawharat.manifest.domain.entity.manifest.Dispatch
+import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.domain.entity.Route
-import com.jawharat.manifest.domain.entity.VehicleType
+import com.jawharat.manifest.domain.entity.manifest.VehicleType
 import com.jawharat.manifest.presentation.feature.shared.SearchState
 
 @Immutable

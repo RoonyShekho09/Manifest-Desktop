@@ -3,8 +3,6 @@ package com.jawharat.manifest.di
 import com.jawharat.manifest.data.local.datasource.AppLocalDataSource
 import com.jawharat.manifest.data.remote.interceptor.AuthInterceptor
 import com.jawharat.manifest.data.remote.service.ManifestApiService
-import com.jawharat.manifest.data.remote.service.AppPdfApiService
-import com.jawharat.manifest.data.remote.service.createAppPdfApiService
 import com.jawharat.manifest.data.remote.service.createManifestApiService
 import de.jensklingenberg.ktorfit.converter.CallConverterFactory
 import de.jensklingenberg.ktorfit.converter.FlowConverterFactory
@@ -46,44 +44,8 @@ val networkModule = module {
         }.createManifestApiService()
     }
 
-    single(named("ocrSpaceClient")) {
-        HttpClient(CIO) {
-            expectSuccess = false
-            followRedirects = true
-
-            defaultRequest {
-                header("Content-Type", "application/json")
-            }
-
-            val json = Json {
-                isLenient = true
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-                explicitNulls = false
-                encodeDefaults = true
-            }
-
-            install(ContentNegotiation) {
-                json(json, ContentType.Application.Json)
-            }
-
-            install(DefaultRequest) {
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-            }
-
-            install(Logging) {
-                level = LogLevel.BODY
-                logger = object : Logger {
-                    override fun log(message: String) =
-                        println("HttpClient $message")
-                }
-            }
-        }
-    }
-
     single(named("ocrClient")) {
         HttpClient(CIO) {
-
             val localDataSource: AppLocalDataSource by inject<AppLocalDataSource>()
 
             defaultRequest {

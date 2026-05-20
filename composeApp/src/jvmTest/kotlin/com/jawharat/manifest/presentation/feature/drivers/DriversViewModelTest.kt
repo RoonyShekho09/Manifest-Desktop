@@ -1,6 +1,6 @@
 package com.jawharat.manifest.presentation.feature.drivers
 
-import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import io.mockk.coEvery

@@ -1,8 +1,6 @@
-package com.jawharat.manifest.domain.entity
+package com.jawharat.manifest.domain.entity.manifest
 
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class Manifest(
     val date: String = "",
     val price: Int? = null,

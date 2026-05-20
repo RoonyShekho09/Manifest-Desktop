@@ -2,7 +2,6 @@
 
 package com.jawharat.manifest
 
-import ManifestDesktop.composeApp.BuildConfig
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,9 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -33,8 +30,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.jawharat.manifest.domain.entity.UpdateInfo
-import com.jawharat.manifest.domain.repository.AuthRepository
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
 import com.jawharat.manifest.presentation.navigation.AppNavigation
 import com.jawharat.manifest.presentation.navigation.Screen
@@ -64,30 +60,18 @@ fun App() {
         }
     }
 
-    val repository = koinInject<AuthRepository>()
-    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
-    var isUpdateDialogVisible by remember { mutableStateOf(false) }
+    val viewModel = koinInject<AppViewModel>()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        updateInfo = getUpdatesInfo(repository)
-    }
-
-    LaunchedEffect(updateInfo) {
-        updateInfo?.let {
-            isUpdateDialogVisible = it.build > CURRENT_BUILD_NUMBER
-        }
-    }
-
-    AnimatedVisibility(isUpdateDialogVisible) {
-        updateInfo?.let {
+    AnimatedVisibility(state.isDialogVisible) {
+        if (state.isDialogVisible)
             UpdateDialog(
-                isForced = it.isForced || it.minBuild > CURRENT_BUILD_NUMBER,
-                onDismiss = { isUpdateDialogVisible = false }
+                isForced = state.isForcedUpdate,
+                onDismiss = viewModel::onDismissDialog
             )
-        }
     }
 
-    if (isUpdateDialogVisible && updateInfo?.isForced == true) return
+    if (state.isForcedUpdate && state.isUpdateAvailable) return
 
     val webcam = koinInject<ICameraManager>()
     LaunchedEffect(Unit) {
@@ -98,7 +82,7 @@ fun App() {
         CompositionLocalProvider(
             LocalLayoutDirection provides LayoutDirection.Rtl
         ) {
-            AppNavigation(startDestination = if (repository.isUserLoggedIn && !repository.hasSessionExpired) Screen.Home else Screen.Login)
+            AppNavigation(startDestination = if (state.isUsedLoggedIn && !state.hasSessionExpired) Screen.Home else Screen.Login)
         }
     }
 }
@@ -170,12 +154,3 @@ private fun UpdateDialog(isForced: Boolean, onDismiss: () -> Unit) {
         }
     )
 }
-
-private suspend fun getUpdatesInfo(repository: AuthRepository): UpdateInfo? = runCatching {
-    repository.getUpdateInfo(
-        versionFileUrl = "https://raw.githubusercontent.com/RoonyShekho09/Manifest-Desktop-Releases/refs/heads/main/buildNumber.txt"
-    )
-}.getOrNull()
-
-
-const val CURRENT_BUILD_NUMBER = BuildConfig.BUILD_NUMBER

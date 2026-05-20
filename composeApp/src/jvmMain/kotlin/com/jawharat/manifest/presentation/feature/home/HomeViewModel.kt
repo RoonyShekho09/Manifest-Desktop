@@ -2,9 +2,9 @@ package com.jawharat.manifest.presentation.feature.home
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
-import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.domain.entity.Manifest
 import com.jawharat.manifest.domain.entity.PersonDocument
+import com.jawharat.manifest.data.remote.model.PassengerRemote
+import com.jawharat.manifest.domain.entity.manifest.Manifest
 import com.jawharat.manifest.domain.exceptions.NetworkException
 import com.jawharat.manifest.domain.repository.AuthRepository
 import com.jawharat.manifest.domain.repository.ManifestRepository
@@ -13,7 +13,6 @@ import com.jawharat.manifest.presentation.feature.home.camera.ICameraManager
 import com.jawharat.manifest.presentation.feature.home.camera.utils.processImage
 import com.jawharat.manifest.presentation.feature.home.scanner.IDocumentScanner
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.compressForOcr
-import com.jawharat.manifest.presentation.feature.home.scanner.utils.extractFromId
 import com.jawharat.manifest.presentation.feature.home.scanner.utils.preprocessImage
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState
 import com.jawharat.manifest.resources.Res
@@ -133,9 +132,8 @@ class HomeViewModel(
 
     private fun performIdOcr(processedImage: BufferedImage) = tryToExecute(
         onStart = { isAnalyzingId = true },
-        block = { manifestRepository.ocrSpace(image = processedImage.compressForOcr()) },
-        onSuccess = { result -> onOcrResult(extractFromId(result)) },
-        //  onError = { snackBarHostState.showFailure(Res.string.request_failed) },
+        block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
+        onSuccess = ::onOcrResult,
         onCompleted = { isAnalyzingId = false }
     )
 
@@ -222,7 +220,7 @@ class HomeViewModel(
                 to = state.value.manifest.to,
                 price = state.value.manifest.price.orZero(),
                 passengers = state.value.passengers.map {
-                    Passenger(
+                    PassengerRemote(
                         id = it.id.text.toString(),
                         name = it.name.text.toString(),
                         nationality = it.countryCode.text.toString(),

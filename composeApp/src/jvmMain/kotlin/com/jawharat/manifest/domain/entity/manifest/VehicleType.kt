@@ -1,4 +1,4 @@
-package com.jawharat.manifest.domain.entity
+package com.jawharat.manifest.domain.entity.manifest
 
 data class VehicleType(
     val id: String,

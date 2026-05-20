@@ -1,6 +1,6 @@
 package com.jawharat.manifest.presentation.feature.home.scanner.utils
 
-import com.jawharat.manifest.domain.entity.OcrLine
+import com.jawharat.manifest.domain.entity.ocr.OcrLine
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertNull

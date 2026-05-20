@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.presentation.components.AddEditDriverDialog
 import com.jawharat.manifest.presentation.components.AddItemButton
 import com.jawharat.manifest.presentation.components.AppTextField

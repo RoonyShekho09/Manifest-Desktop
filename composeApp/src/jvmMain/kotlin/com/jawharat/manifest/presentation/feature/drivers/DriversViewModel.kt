@@ -4,7 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
-import com.jawharat.manifest.domain.entity.Driver
+import com.jawharat.manifest.domain.entity.manifest.Driver
 import com.jawharat.manifest.domain.repository.ManifestRepository
 import com.jawharat.manifest.presentation.base.BaseViewModel
 import com.jawharat.manifest.presentation.feature.shared.AppSnackBarHostState

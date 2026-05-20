@@ -3,11 +3,11 @@ package com.jawharat.manifest.data.remote.repository
 import com.jawharat.manifest.data.remote.proxy.AuthProxy
 import com.jawharat.manifest.data.remote.datasource.AppRemoteDataSource
 import com.jawharat.manifest.data.remote.mapper.toDomain
-import com.jawharat.manifest.data.remote.model.Passenger
-import com.jawharat.manifest.domain.entity.Driver
-import com.jawharat.manifest.domain.entity.Dispatch
-import com.jawharat.manifest.domain.entity.DispatchLine
-import com.jawharat.manifest.domain.entity.VehicleType
+import com.jawharat.manifest.data.remote.model.PassengerRemote
+import com.jawharat.manifest.domain.entity.manifest.Driver
+import com.jawharat.manifest.domain.entity.manifest.Dispatch
+import com.jawharat.manifest.domain.entity.manifest.DispatchLine
+import com.jawharat.manifest.domain.entity.manifest.VehicleType
 import com.jawharat.manifest.domain.repository.ManifestRepository
 
 class ManifestRepositoryImpl(
@@ -30,7 +30,7 @@ class ManifestRepositoryImpl(
         phoneNumber: String,
         to: String,
         price: Int,
-        passengers: List<Passenger>,
+        passengers: List<PassengerRemote>,
         driverId: String,
     ): ByteArray = authorizedCall {
         remoteDataSource.submitManifest(
@@ -129,13 +129,9 @@ class ManifestRepositoryImpl(
         remoteDataSource.scanDispatchQrCode(id).toDomain()
     }
 
-    override suspend fun ocrSpace(image: String, engine: String) = authorizedCall {
-        remoteDataSource.ocr(
-            image,
-            engine
-        ).parsedResults?.firstOrNull()?.textOverlay?.lines?.toDomain()
+    override suspend fun ocr(image: String) = authorizedCall {
+        remoteDataSource.ocr(image).toDomain()
     }
-
 
     override suspend fun getPrice(locationId: String) = authorizedCall {
         remoteDataSource.getPrice(locationId).priceMatrix?.toDomain()

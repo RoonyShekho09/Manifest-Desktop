@@ -1,7 +1,7 @@
 package com.jawharat.manifest.data.remote.datasource
 
 import com.jawharat.manifest.data.remote.model.LineResponse
-import com.jawharat.manifest.data.remote.model.Passenger
+import com.jawharat.manifest.data.remote.model.PassengerRemote
 import com.jawharat.manifest.data.remote.model.SubmitManifestRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginRequestBody
 import com.jawharat.manifest.data.remote.model.auth.LoginResponse
@@ -17,8 +17,6 @@ import com.jawharat.manifest.domain.entity.UpdateInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
@@ -39,7 +37,7 @@ class AppRemoteDataSourceImpl(
     private val manifestApiService: ManifestApiService,
     private val pdfHttpClient: HttpClient,
     private val checkUpdatesClient: HttpClient,
-    private val ocrSpaceClient: HttpClient
+    private val ocrClient: HttpClient
 ) : AppRemoteDataSource, BaseRemoteDataSource {
 
     override suspend fun getUpdateInfo(versionFileUrl: String): UpdateInfo {
@@ -86,7 +84,7 @@ class AppRemoteDataSourceImpl(
         phoneNumber: String,
         to: String,
         price: Int,
-        passengers: List<Passenger>,
+        passengers: List<PassengerRemote>,
         driverId: String,
     ): ByteArray {
         val response = pdfHttpClient.post(BASE_URL + "manifests") {
@@ -217,23 +215,14 @@ class AppRemoteDataSourceImpl(
         mapper = { it }
     ).getOrThrow()
 
-    override suspend fun ocr(image: String, engine: String): OcrResponse {
-        val multipart = MultiPartFormDataContent(
-            formData {
-                append("apikey", "0cd0e66ab388957")
-                append("language", "auto")
-                append("OCREngine", "2")
-                append("base64Image", image)
-                append("isOverlayRequired", "true")
-                append("scale", "true")
-                append("detectOrientation", "true")
-            }
-        )
-        val response = ocrSpaceClient.post("https://api.ocr.space/parse/image") {
-            setBody(multipart)
+    override suspend fun ocr(image: String): OcrResponse {
+        val response = ocrClient.post("${BASE_URL}ocr") {
+            contentType(ContentType.Text.Plain)
+            accept(ContentType.Application.Json)
+            setBody(image)
         }
 
-        return response.body()
+        return response.body() ?: throw Exception()
     }
 
     override suspend fun getPrice(locationId: String) = callApi(
