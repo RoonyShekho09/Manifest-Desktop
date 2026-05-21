@@ -23,6 +23,7 @@ import com.jawharat.manifest.utils.displayPdf
 import com.jawharat.manifest.utils.orZero
 import com.jawharat.manifest.utils.print.PrintContent
 import com.jawharat.manifest.utils.print.printContent
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -134,6 +135,13 @@ class HomeViewModel(
         onStart = { isAnalyzingId = true },
         block = { manifestRepository.ocr(image = processedImage.compressForOcr()) },
         onSuccess = ::onOcrResult,
+        onError = {
+            Sentry.captureException(it)
+            snackBarHostState.showFailure(
+                message = Res.string.request_failed,
+                scope = viewModelScope
+            )
+        },
         onCompleted = { isAnalyzingId = false }
     )
 

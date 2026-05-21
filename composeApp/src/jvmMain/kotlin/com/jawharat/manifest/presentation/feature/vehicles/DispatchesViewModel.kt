@@ -160,6 +160,9 @@ class DispatchesViewModel(
                     ) || it.line.name.contains(
                         query,
                         ignoreCase = true
+                    ) || it.plateNumber.contains(
+                        query,
+                        ignoreCase = true
                     )
                 }
                     .sortedBy {

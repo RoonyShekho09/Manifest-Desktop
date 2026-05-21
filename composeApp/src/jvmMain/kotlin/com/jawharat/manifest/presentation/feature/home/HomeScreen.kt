@@ -293,23 +293,6 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         readOnly = true,
                         modifier = Modifier.weight(1f)
                     )
-
-                    Box(modifier = Modifier.weight(1f)) {
-                        AppTextField(
-                            value = state.passengers.joinToString(", ") { it.name.text.toString() },
-                            placeholder = Res.string.passengers.string,
-                            onValueChange = {},
-                            readOnly = false,
-                            enabled = false,
-                        )
-                        Box(
-                            modifier = Modifier.matchParentSize()
-                                .handClickable(
-                                    onClick = viewModel::onPassengerFieldClick,
-                                    enabled = state.isAddPassengersEnabled
-                                )
-                        )
-                    }
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -334,6 +317,28 @@ fun Content(state: HomeUiState, viewModel: HomeViewModel) {
                         readOnly = true,
                         modifier = Modifier.weight(1f)
                     )
+                }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    androidx.compose.animation.AnimatedVisibility(visible = state.isAddPassengersEnabled) {
+                        Box {
+                            AppTextField(
+                                value = state.passengers.joinToString(", ") { it.name.text.toString() },
+                                placeholder = Res.string.passengers.string,
+                                onValueChange = {},
+                                readOnly = true,
+                                enabled = true,
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .handClickable(
+                                        onClick = viewModel::onPassengerFieldClick,
+                                        enabled = state.isAddPassengersEnabled
+                                    )
+                            )
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(32.dp))
