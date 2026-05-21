@@ -19,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,15 +79,11 @@ fun AddEditDispatchDialog(
     var line by remember { mutableStateOf(dispatchToEdit?.line ?: DispatchData()) }
     val isEdit = dispatchToEdit != null
 
-    val isConfirmEnabled by remember {
-        derivedStateOf {
-            driver.name.isNotBlank() && price.isNotBlank()
-                    && plateNumber.text.isNotBlank() && vehicleName.isNotBlank()
-                    && vehicleType.name.isNotBlank()
-                    && (driverSearchState.searchResults.any { it.name == driverSearchState.query.text.trimEnd() })
-                    && vehicleTypes.any { it.name == vehicleType.name }
-        }
-    }
+    val isConfirmEnabled = driver.name.isNotBlank() && price.isNotBlank()
+            && plateNumber.text.isNotBlank() && vehicleName.isNotBlank()
+            && vehicleType.name.isNotBlank()
+            && driverSearchState.searchResults.any { it.name == driverSearchState.query.text.trimEnd() }
+            && vehicleTypes.any { it.name == vehicleType.name }
 
     val focusManager = LocalFocusManager.current
 

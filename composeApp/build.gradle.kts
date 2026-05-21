@@ -11,9 +11,8 @@ plugins {
     alias(libs.plugins.buildConfig)
 }
 
-val currentBuild = 2
-
-version = "1.0.0-beta-02"
+val currentBuild = 4
+version = "1.0.3"
 
 buildConfig {
     buildConfigField("int", "BUILD_NUMBER", "$currentBuild")
@@ -89,7 +88,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 
             packageName = "com.jawharat.manifest"
-            packageVersion = "1.0.0"
+            packageVersion = version.toString()
 
             macOS {
                 iconFile.set(project.file("src/jvmMain/composeResources/drawable/ic_jawharat.png"))
